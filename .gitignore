@@ -50,3 +50,12 @@ Thumbs.db
 .env
 .env.*
 !.env.example
+
+# Signing material (keys, certificates, profiles) - never commit
+/ios/certs/
+/android/certs/
+*.p12
+*.p8
+*.mobileprovision
+*.jks
+*.keystore
