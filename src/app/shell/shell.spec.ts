@@ -3,7 +3,7 @@ import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { provideI18nTesting } from '@core/i18n/testing';
-import { OnScreenKeyboard } from '@core/device';
+import { OnScreenKeyboard, WakeLock } from '@core/device';
 import { findHook, hook } from '@shared/testing';
 import { DEFAULT_SETTINGS, SettingsStore } from '@domains/settings';
 import { copilotTesting } from '@domains/copilot/testing';
@@ -25,6 +25,7 @@ describe('Shell', () => {
   let root: HTMLElement;
   let router: Router;
   const settings = signal(DEFAULT_SETTINGS);
+  const awake: boolean[] = [];
   const keyboardPx = signal<number | null>(null);
 
   beforeEach(async () => {
@@ -45,6 +46,7 @@ describe('Shell', () => {
         ...roadTesting().providers,
         ...logbookTesting().providers,
         ...copilotTesting().providers,
+        { provide: WakeLock, useValue: { set: async (on: boolean) => void awake.push(on) } },
         { provide: OnScreenKeyboard, useValue: { heightPx: keyboardPx } },
         { provide: SettingsStore, useValue: { settings } },
       ],
@@ -81,6 +83,14 @@ describe('Shell', () => {
     expect(root.querySelector('app-speed-gauge')).not.toBeNull();
     expect(root.classList).not.toContain('no-scene');
     settings.set(DEFAULT_SETTINGS);
+  });
+
+  it('keeps the screen on without a route, again after the background', () => {
+    awake.length = 0;
+    document.dispatchEvent(new Event('visibilitychange'));
+    expect(awake).toEqual([true]);
+    fixture.destroy();
+    expect(awake).toEqual([true, false]);
   });
 
   it('makes room for the keyboard and takes it back', () => {

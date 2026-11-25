@@ -141,8 +141,16 @@ export class Shell {
       const message = translate.translate('app.background') ?? 'CoDriveMate';
       positions.setBackground(driving && this.settings().background ? message : null);
     });
-    // The screen stays on while data flows or a route is active.
-    effect(() => void wakeLock.set(mode() !== 'off' || route() !== null));
+    // The screen stays on as long as the app is open; browsers forget it in the background.
+    const stayAwake = () => {
+      if (!document.hidden) void wakeLock.set(true);
+    };
+    stayAwake();
+    document.addEventListener('visibilitychange', stayAwake);
+    inject(DestroyRef).onDestroy(() => {
+      document.removeEventListener('visibilitychange', stayAwake);
+      void wakeLock.set(false);
+    });
   }
 
   /** The keyboard lies over the page; the shell shrinks to what stays visible. */

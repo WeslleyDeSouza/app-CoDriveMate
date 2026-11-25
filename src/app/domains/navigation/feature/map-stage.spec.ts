@@ -108,9 +108,12 @@ describe('MapStage', () => {
     expect(findHook(root, 'map-guidance')).not.toBeNull();
     expect(findHook(root, 'map-search')).toBeNull();
     expect(nav.speech.said[0]).toContain('navigation.say.start');
+    expect(nav.speech.preparedTexts).toContain('navigation.say.arriving');
+    expect(nav.speech.preparedTexts).toContain('navigation.say.rerouting');
 
     hook(root, 'map-stop').click();
     await settle();
+    expect(nav.speech.preparedTexts).toEqual([]);
     expect(findHook(root, 'map-eta')).toBeNull();
     expect(findHook(root, 'map-search')).not.toBeNull();
   });

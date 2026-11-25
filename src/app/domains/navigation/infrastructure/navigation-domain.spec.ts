@@ -2,13 +2,15 @@ import { routeFromOsrm } from './osrm-format';
 import { Coordinate, bearing, distanceM, panCenter, pointAt, polyline, snap } from '../domain/geo';
 import {
   AnnouncementPlan,
+  Progress,
+  announcementsAhead,
   OffRouteDetector,
   formatDuration,
   maneuverKey,
   progressOn,
 } from '../domain/guidance';
 import { chooseMap } from '../domain/map-choice';
-import { NoRouteError } from '../domain/route';
+import { NoRouteError, Route } from '../domain/route';
 
 const A: Coordinate = [8.54, 47.37];
 const B: Coordinate = [8.54, 47.38]; // ~1112 m north
@@ -115,17 +117,50 @@ describe('guidance', () => {
     const plan = new AnnouncementPlan();
     const at = (distanceM: number) => ({ ...progressOn(route, A), stepIndex: 1, distanceM });
     expect(plan.next(at(900))).toBeNull();
-    expect(plan.next(at(790))).toEqual({ immediate: false });
+    expect(plan.next(at(790))).toMatchObject({ immediate: false });
     expect(plan.next(at(500))).toBeNull();
-    expect(plan.next(at(299))).toEqual({ immediate: false });
-    expect(plan.next(at(50))).toEqual({ immediate: true });
+    expect(plan.next(at(299))).toMatchObject({ immediate: false });
+    expect(plan.next(at(50))).toMatchObject({ immediate: true });
     expect(plan.next(at(40))).toBeNull();
+  });
+
+  it('says a round figure only where it is true', () => {
+    const said = (distanceM: number) =>
+      new AnnouncementPlan().next({ stepIndex: 1, distanceM } as Progress)?.spokenM;
+    expect(said(790)).toBe(800);
+    expect(said(500)).toBe(500);
+    expect(said(290)).toBe(300);
+    expect(said(180)).toBe(200);
+  });
+
+  it('knows beforehand what will be said', () => {
+    const step = (alongM: number) => ({
+      maneuver: { type: 'turn', modifier: 'left', exit: null },
+      street: '',
+      alongM,
+    });
+    const route = { steps: [step(0), step(2000), step(2415), step(2500), step(9000)] } as unknown as Route;
+    const ahead = announcementsAhead(route, { stepIndex: 1, alongM: 500 }, 3);
+    expect(
+      ahead.map(({ step: { alongM }, spokenM, immediate }) => [alongM, immediate || spokenM]),
+    ).toEqual([
+      [2000, 800],
+      [2000, 300],
+      [2000, true],
+      [2415, 400],
+      [2415, 300],
+      [2415, true],
+      [2500, 50],
+      [2500, true],
+    ]);
+    const near = announcementsAhead(route, { stepIndex: 1, alongM: 1800 }, 1);
+    expect(near.map(({ immediate }) => immediate)).toEqual([false, true]);
   });
 
   it('starting close to a turn announces only the nearest distance', () => {
     const plan = new AnnouncementPlan();
     const at = (distanceM: number) => ({ ...progressOn(route, A), stepIndex: 1, distanceM });
-    expect(plan.next(at(40))).toEqual({ immediate: true });
+    expect(plan.next(at(40))).toMatchObject({ immediate: true });
     expect(plan.next(at(41))).toBeNull();
   });
 

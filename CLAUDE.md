@@ -187,7 +187,7 @@ a special case in the UI. Everything must be testable without a car:
 
 ## Runtime: background, battery, performance
 
-- **Screen stays on** while a data source is connected or a route is active.
+- **Screen stays on** as long as the app is open (changed on request 2026-11-25).
   The prototype uses the Screen Wake Lock API and re-requests it on
   `visibilitychange`; native needs a keep-awake plugin. Both sit behind one
   port.
