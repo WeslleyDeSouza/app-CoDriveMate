@@ -39,6 +39,8 @@ export class DeviceProbes extends ProbeSource {
         'MapboxNative',
         'MediaNative',
         'SerialNative',
+        'VoiceNative',
+        'Keyboard',
         'BackgroundGeolocation',
         'SpeechRecognition',
         'LocalNotifications',

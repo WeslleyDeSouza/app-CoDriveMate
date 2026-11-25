@@ -8,7 +8,14 @@ import {
   signal,
   untracked,
 } from '@angular/core';
-import { AccountVoice, CLOUD_VOICES, CloudVoice, OPENAI_VOICES, SpeechOutput } from '@core/device';
+import {
+  AccountVoice,
+  CLOUD_VOICES,
+  CloudVoice,
+  OPENAI_VOICES,
+  SpeechOutput,
+  saveFile,
+} from '@core/device';
 import { ServiceReset } from '@core/http/service-reset';
 import { APP_LANGUAGES, TranslatePipe, TranslateService } from '@core/i18n';
 import { BackupFile, BackupService } from '@core/storage';
@@ -264,12 +271,8 @@ export class SettingsPage {
 
   protected async exportBackup(): Promise<void> {
     const file = await this.backup.export();
-    const url = URL.createObjectURL(new Blob([JSON.stringify(file)], { type: 'application/json' }));
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `codrivemate-backup-${file.exportedAt.slice(0, 10)}.json`;
-    link.click();
-    URL.revokeObjectURL(url);
+    const blob = new Blob([JSON.stringify(file)], { type: 'application/json' });
+    await saveFile(`codrivemate-backup-${file.exportedAt.slice(0, 10)}.json`, blob);
   }
 
   protected async importBackup(input: HTMLInputElement): Promise<void> {

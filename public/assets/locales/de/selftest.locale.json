@@ -14,6 +14,20 @@
       "native": "App-Plugins",
       "service": "Dienste ohne Key",
       "key": "Dienste mit Key"
+    },
+    "data": {
+      "title": "Daten auslesen",
+      "note": "Liest alles aus, was OBD-Adapter und ESP32-Module liefern, und zeigt es als JSON zum Kopieren. Es wird nur gelesen, nichts verändert und nichts gesendet. Ohne Fahrgestellnummer, Keys und Standort; beim ESP32 kann der Titel der laufenden Musik enthalten sein.",
+      "obd": "OBD-Daten",
+      "esp": "ESP32-Daten",
+      "scene": "3D-Ansicht",
+      "reading": "Wird gelesen…",
+      "stop": "Abbrechen",
+      "copy": "Kopieren",
+      "copied": "Kopiert",
+      "share": "Teilen",
+      "not_connected": "Kein OBD-Adapter verbunden. Zuerst verbinden und Zündung einschalten.",
+      "failed": "Die Daten konnten nicht gelesen werden."
     }
   }
 }

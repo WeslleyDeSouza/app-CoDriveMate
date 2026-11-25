@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { saveFile } from '@core/device';
 import { TranslatePipe, TranslateService } from '@core/i18n';
 import { UnitsStore } from '@core/units';
 import { consumptionIn, distanceIn, volumeIn } from '@shared/kernel/units';
@@ -287,12 +288,7 @@ export class LogbookPage {
     const header = CSV_COLUMNS.map((key) => this.translate.translate('logbook.csv.' + key) ?? key);
     // The mark makes spreadsheets read it as UTF-8.
     const text = '\ufeff' + toCsv(this.store.trips(), header);
-    const url = URL.createObjectURL(new Blob([text], { type: 'text/csv' }));
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'codrivemate-logbook.csv';
-    link.click();
-    setTimeout(() => URL.revokeObjectURL(url), 5000);
+    void saveFile('codrivemate-logbook.csv', new Blob([text], { type: 'text/csv' }));
   }
 
   protected monthName(month: string): string {

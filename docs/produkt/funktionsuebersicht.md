@@ -21,6 +21,7 @@ Stand: 24.11.2026. Nichts davon ist im echten Auto oder am echten Adapter getest
 | Fahrtenbuch | zeichnet automatisch auf (OBD, sonst GPS), Monate, Summen, Karte, CSV, Eco-Tipps; im Auto ungetestet |
 | Wartung | gebaut: Intervalle, eigene Einträge, MFK, Vignette, Hinweis beim Start, Punkt im Dock; Kilometerstand zählt bei OBD mit, im Auto ungetestet |
 | Gerätetest | gebaut: prüft Gerät, Sensoren, Plugins, Dienste und Keys; Bericht ohne Keys und Standort teilbar |
+| Daten auslesen | gebaut (Einstellungen): OBD, ESP32 (letzte 120 Bluetooth-Pakete je Modul) und 3D-Zustand als JSON zum Kopieren; nur lesend (`domain/obd-report.ts`), ohne Fahrgestellnummer; am Gerät ungetestet |
 | Hintergrund | gebaut: Standort läuft bei OBD oder aktiver Route weiter, abschaltbar; am Gerät ungetestet |
 | OSM-Karte ohne Netz | gebaut: geladene Gebiete und gespeicherte Routen; am Tablet ungetestet |
 | Gespeicherte Ziele ohne Netz | gebaut; am Tablet ungetestet |

@@ -1,4 +1,5 @@
 /** Public API of the media domain. */
+export { RemoteStore } from './application/remote.store';
 export { MediaStore } from './application/media.store';
 export { EspSettings } from './feature/esp-settings';
 export { MusicBar } from './feature/music-bar';

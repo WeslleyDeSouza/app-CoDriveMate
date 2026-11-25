@@ -183,6 +183,7 @@
       "infos": "hazards, traffic, weather, parking time",
       "conversation": "chat, companion, facts, quiz"
     },
-    "scene3d_both": "3D view and speedometer (large screen)"
+    "scene3d_both": "3D view and speedometer (large screen)",
+    "data": "Read data"
   }
 }

@@ -183,6 +183,7 @@
       "infos": "Gefahrenstellen, Verkehr, Wetter, Parkzeit",
       "conversation": "Plaudern, Begleiter, Fakten, Quiz"
     },
-    "scene3d_both": "3D-Ansicht und Tacho (grosser Bildschirm)"
+    "scene3d_both": "3D-Ansicht und Tacho (grosser Bildschirm)",
+    "data": "Daten auslesen"
   }
 }

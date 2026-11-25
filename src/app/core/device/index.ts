@@ -12,6 +12,7 @@ export type { Reminder } from './reminders';
 export { CloudVoice } from './cloud-voice';
 export type { AccountVoice, CloudVoiceSettings } from './cloud-voice';
 export { CLOUD_VOICES, OPENAI_VOICES } from './cloud-voice-services';
+export { saveFile } from './save-file';
 export { SpeechOutput } from './speech';
 export type { SpeechKind } from './speech';
 

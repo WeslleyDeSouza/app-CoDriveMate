@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
 import { BleClient } from '@capacitor-community/bluetooth-le';
 import {
@@ -13,6 +13,7 @@ import {
   BleUnavailableError,
   BleUnsubscribe,
 } from './ble-transport';
+import { BleTrace } from './ble-trace';
 
 /**
  * BleTransport on top of @capacitor-community/bluetooth-le. The plugin runs
@@ -21,6 +22,7 @@ import {
  */
 @Injectable()
 export class CapacitorBleTransport extends BleTransport {
+  private readonly trace = inject(BleTrace);
   private initialized?: Promise<void>;
   /** Devices picked in this session. */
   private readonly seen = new Set<string>();
@@ -90,7 +92,11 @@ export class CapacitorBleTransport extends BleTransport {
 
   async connect(deviceId: string, onDisconnect?: () => void): Promise<void> {
     await this.enabled();
-    await BleClient.connect(deviceId, () => onDisconnect?.());
+    await BleClient.connect(deviceId, () => {
+      this.trace.connected(deviceId, false);
+      onDisconnect?.();
+    });
+    this.trace.connected(deviceId, true);
   }
 
   async disconnect(deviceId: string): Promise<void> {
@@ -116,6 +122,7 @@ export class CapacitorBleTransport extends BleTransport {
     data: Uint8Array,
     withoutResponse = false,
   ): Promise<void> {
+    this.trace.data(deviceId, 'out', target.characteristic, data);
     const value = new DataView(data.buffer, data.byteOffset, data.byteLength);
     if (withoutResponse) {
       await BleClient.writeWithoutResponse(deviceId, target.service, target.characteristic, value);
@@ -129,9 +136,11 @@ export class CapacitorBleTransport extends BleTransport {
     target: BleCharacteristicRef,
     onData: (data: Uint8Array) => void,
   ): Promise<BleUnsubscribe> {
-    await BleClient.startNotifications(deviceId, target.service, target.characteristic, (value) =>
-      onData(new Uint8Array(value.buffer, value.byteOffset, value.byteLength)),
-    );
+    await BleClient.startNotifications(deviceId, target.service, target.characteristic, (value) => {
+      const bytes = new Uint8Array(value.buffer, value.byteOffset, value.byteLength);
+      this.trace.data(deviceId, 'in', target.characteristic, bytes);
+      onData(bytes);
+    });
     return () => BleClient.stopNotifications(deviceId, target.service, target.characteristic);
   }
 }

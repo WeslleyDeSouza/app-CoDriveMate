@@ -10,6 +10,7 @@ import {
   emptySnapshot,
   isAllowedRequest,
 } from '../domain/telemetry';
+import { ObdReport, collectObd, isReportRequest } from '../domain/obd-report';
 import { VehicleProfile, XSARA_PICASSO } from '../domain/vehicle-profile';
 import { AdapterStore } from './adapter.store';
 
@@ -97,6 +98,38 @@ export class TelemetryStore {
     const mode = this._mode();
     if (!this.active || (mode !== 'obd' && mode !== 'demo')) throw new Error('Not connected.');
     return this.active.request(command, timeoutMs);
+  }
+
+  /** Everything the car and the adapter tell, for finding faults. Rejects without a connection. */
+  async report(
+    onProgress: (share: number) => void,
+    cancelled: () => boolean,
+  ): Promise<ObdReport & Record<string, unknown>> {
+    const source = this.active;
+    const mode = this._mode();
+    if (!source || (mode !== 'obd' && mode !== 'demo')) throw new Error('Not connected.');
+    const gone = () => cancelled() || this.active !== source || this._mode() !== mode;
+    const report = await collectObd(
+      (command) => {
+        if (!isReportRequest(command)) throw new Error('Request not allowed: ' + command);
+        return source.request(command, 5000);
+      },
+      onProgress,
+      gone,
+    );
+    const { adapter } = this.adapters.settings();
+    return {
+      source: mode,
+      adapter: mode === 'obd' && adapter ? { kind: adapter.kind, name: adapter.name } : null,
+      rateHz: this._rateHz(),
+      live: this._snapshot(),
+      calculated: {
+        gear: this.gear(),
+        fuelRateLph: this.fuelRateLph(),
+        consumptionPer100Km: this.consumptionPer100Km(),
+      },
+      ...report,
+    };
   }
 
   async stop(): Promise<void> {

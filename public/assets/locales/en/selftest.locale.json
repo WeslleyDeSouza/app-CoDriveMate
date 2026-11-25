@@ -14,6 +14,20 @@
       "native": "App plugins",
       "service": "Services without key",
       "key": "Services with key"
+    },
+    "data": {
+      "title": "Read data",
+      "note": "Reads everything the OBD adapter and the ESP32 modules deliver and shows it as JSON to copy. It only reads; nothing is changed or sent. Without chassis number, keys and location; ESP32 data may contain the title of the music playing.",
+      "obd": "OBD data",
+      "esp": "ESP32 data",
+      "scene": "3D view",
+      "reading": "Reading…",
+      "stop": "Cancel",
+      "copy": "Copy",
+      "copied": "Copied",
+      "share": "Share",
+      "not_connected": "No OBD adapter connected. Connect it first and switch on the ignition.",
+      "failed": "The data could not be read."
     }
   }
 }
