@@ -23,6 +23,7 @@ import {
   QuizQuestion,
   TALK_MODES,
   TalkMode,
+  TalkPace,
   TalkRepository,
   carRemark,
   directionTo,
@@ -33,6 +34,7 @@ import {
   pickLandmark,
   pickMode,
   quizAnswer,
+  talkPause,
 } from '../domain/conversation';
 import { ChatError, ChatMessage, ChatModel, MAX_HISTORY, passengerPrompt } from '../domain/copilot';
 import {
@@ -54,8 +56,12 @@ const START_MS = 1500;
 const LISTEN_MS = 8000;
 const RETRY_MS = 4000;
 const FAILED_MS = 60_000;
+/** Cut off by an announcement: soon again, not after the whole pause. */
+const INTERRUPTED_MS = 15_000;
 const NOTHING_NEAR_MS = 120_000;
 const CHAT_PAUSE_MS = 120_000;
+const FACTS_PAUSE_MS = 200_000;
+const FACTS_FAST_PAUSE_MS = 150_000;
 const QUIZ_PAUSE_MS = 45_000;
 const MONOLOGUE_PAUSE_MS = 60_000;
 const RIDE_PAUSE_MS = 240_000;
@@ -111,6 +117,7 @@ export class ConversationStore {
   readonly notice = this._notice.asReadonly();
   /** Switched on in the settings. */
   readonly allowed = computed(() => this.settings().voice.conversation);
+  readonly pace = computed<TalkPace>(() => this.settings().ai.talkPace);
   readonly style = computed<TalkStyle>(() => this.settings().ai.talkStyle);
   /** A quiz needs answers, so it does not exist in a monologue. */
   readonly offered = computed(() =>
@@ -141,6 +148,12 @@ export class ConversationStore {
     effect(() => {
       if (!this.allowed()) untracked(() => this.stop());
     });
+    // Back online: no need to sit out the pause after a failure.
+    globalThis.addEventListener?.('online', () => {
+      if (this._notice() !== 'failed') return;
+      this._notice.set(null);
+      this.nextAt = Math.min(this.nextAt, Date.now() + RETRY_MS);
+    });
   }
 
   /** Adds a mode, or takes it away again. */
@@ -162,6 +175,19 @@ export class ConversationStore {
     this.interrupt();
     await this.settingsStore.update({ ai: { talkStyle } });
     if (modes.length) this.use(modes.filter((mode) => this.offered().includes(mode)));
+  }
+
+  async setPace(talkPace: TalkPace): Promise<void> {
+    if (talkPace === this.pace()) return;
+    await this.settingsStore.update({ ai: { talkPace } });
+    // The pause running belongs to the old pace.
+    if (talkPace === 'much') this.nextAt = Math.min(this.nextAt, Date.now() + RETRY_MS);
+  }
+
+  /** Pause after something was said, or was cut off. */
+  private pauseFor(pauseMs: number, spoken = true): void {
+    const pause = talkPause(pauseMs, this.pace());
+    this.nextAt = Date.now() + (spoken ? pause : Math.min(pause, INTERRUPTED_MS));
   }
 
   private use(wanted: readonly TalkMode[]): void {
@@ -265,12 +291,14 @@ export class ConversationStore {
     let said = await this.reply(opening(style, topic, !this.history.length), session);
     if (style === 'monologue') {
       // Thinking takes time; a manoeuvre may have come close.
-      if (said && this.free()) await this.say(said, session);
-      if (session === this.session) this.nextAt = Date.now() + MONOLOGUE_PAUSE_MS;
+      const spoken = !!said && this.free() && (await this.say(said, session));
+      if (session === this.session) this.pauseFor(MONOLOGUE_PAUSE_MS, spoken);
       return;
     }
+    let told = false;
     for (let turn = 0; said && this.free() && turn < MAX_TURNS; turn++) {
       const spoken = await this.say(said, session);
+      told = spoken;
       // Interrupted by navigation or a warning: do not go on in the middle of it.
       if (!spoken || !this.free()) break;
       const heard = await this.listen(session);
@@ -283,7 +311,7 @@ export class ConversationStore {
       }
       said = await this.reply(heard, session);
     }
-    if (session === this.session) this.nextAt = Date.now() + CHAT_PAUSE_MS;
+    if (session === this.session) this.pauseFor(CHAT_PAUSE_MS, told);
   }
 
   /** Remarks about the drive and the usual destination. Nothing of it leaves the app. */
@@ -304,7 +332,7 @@ export class ConversationStore {
     if (await this.mention(this.t('copilot.talk.remark.' + remark, { range }), session)) {
       this.ride.made.add(remark);
     }
-    if (session === this.session) this.nextAt = Date.now() + RIDE_PAUSE_MS;
+    if (session === this.session) this.pauseFor(RIDE_PAUSE_MS);
   }
 
   /** True if something was offered. */
@@ -328,7 +356,7 @@ export class ConversationStore {
     const dialogue = this.style() === 'dialogue' && !this.deaf;
     const key = dialogue ? 'copilot.talk.usual_offer' : 'copilot.talk.usual';
     const spoken = await this.mention(this.t(key, { name }), session);
-    this.nextAt = Date.now() + RIDE_PAUSE_MS;
+    this.pauseFor(RIDE_PAUSE_MS);
     if (!dialogue || !spoken || !this.free()) return true;
     const heard = await this.listen(session);
     if (session !== this.session) return true;
@@ -398,12 +426,13 @@ export class ConversationStore {
       : '';
     if (session !== this.session) return;
     // Thinking takes time; a manoeuvre may have come close.
+    let told = false;
     if (this.free()) {
       const plain = `${place.title}, ${where}. ${firstSentences(extract, 2, 280)}`;
-      await this.say(text || plain, session);
+      told = await this.say(text || plain, session);
     }
     if (session === this.session) {
-      this.nextAt = Date.now() + (this.telemetry.snapshot().speed > 60 ? 150_000 : 200_000);
+      this.pauseFor((this.speedKmh() ?? 0) > 60 ? FACTS_FAST_PAUSE_MS : FACTS_PAUSE_MS, told);
     }
   }
 
@@ -449,7 +478,7 @@ export class ConversationStore {
     this._quiz.set(null);
     if (!answer && !spoken) {
       // Interrupted: it does not count as a wrong answer.
-      this.nextAt = Date.now() + QUIZ_PAUSE_MS;
+      this.pauseFor(QUIZ_PAUSE_MS, false);
       return;
     }
     const right = answer === quiz.correct;
@@ -457,7 +486,7 @@ export class ConversationStore {
     const result = right ? 'right' : answer ? 'wrong' : 'none';
     const verdict = this.t('copilot.talk.' + result, { key: quiz.correct.toUpperCase() });
     await this.say(`${verdict} ${quiz.explanation}`.trim(), session);
-    if (session === this.session) this.nextAt = Date.now() + QUIZ_PAUSE_MS;
+    if (session === this.session) this.pauseFor(QUIZ_PAUSE_MS);
   }
 
   private async reply(text: string, session: number): Promise<string> {
@@ -492,7 +521,8 @@ export class ConversationStore {
       return await this.input.listen(this.translate.lang === 'de' ? 'de-CH' : 'en-GB', LISTEN_MS);
     } catch (error) {
       if (error instanceof ListeningUnavailableError) {
-        this.deaf = true;
+        // Without a connection the recognition is missing only for now.
+        this.deaf = error.denied;
         this._notice.set('no_microphone');
       }
       return '';
@@ -509,10 +539,18 @@ export class ConversationStore {
   private quiet(): boolean {
     return mayTalk({
       maneuverM: this.navigation.progress()?.distanceM ?? null,
+      speedKmh: this.speedKmh(),
       speaking: false,
       visible: !document.hidden,
       warning: this.warnings.shown() !== null || this.road.hazard() !== null,
     });
+  }
+
+  /** GPS too: without OBD the telemetry stands at zero. */
+  private speedKmh(): number | null {
+    const gps = this.positions.speedKmh();
+    const connected = ['obd', 'demo'].includes(this.telemetry.mode());
+    return connected ? Math.max(this.telemetry.snapshot().speed, gps ?? 0) : gps;
   }
 
   /** Places nearby; asked again only after some kilometres. */
@@ -527,7 +565,7 @@ export class ConversationStore {
     const position = this.positions.position();
     if (!position || !this.around) return [];
     const { coordinate, heading } = position;
-    const { speed } = this.telemetry.snapshot();
+    const speed = this.speedKmh() ?? 0;
     return this.around.places.map((place) => ({
       ...place,
       distanceM: distanceM(coordinate, place.at),

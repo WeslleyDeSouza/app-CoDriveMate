@@ -55,7 +55,7 @@ import { TranslatePipe } from '@core/i18n';
       overscroll-behavior: contain;
       flex: 1;
     }
-    @media (max-width: 600px), (max-width: 960px) and (max-height: 500px) {
+    @media (max-width: 600px), (max-width: 1023.98px) and (max-height: 500px) {
       header {
         padding: 8px 14px 4px;
       }

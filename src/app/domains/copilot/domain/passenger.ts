@@ -12,6 +12,10 @@ export const TOPICS = {
   curiosity: 'a surprising fact from science, history or nature',
   car: 'the car, driving or the history of motoring, with affection',
   humour: 'a light, kind joke or a funny observation',
+  legend: 'a local legend, an odd custom or a curious record from Switzerland or the region',
+  past: 'how people lived and travelled in former times',
+  dilemma: 'a funny "would you rather", with a choice of your own and a reason for it',
+  riddle: 'a short riddle and its surprising solution',
   thought: 'a small thought experiment or a question without a right answer',
 } as const;
 export type Topic = keyof typeof TOPICS;

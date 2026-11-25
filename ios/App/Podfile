@@ -21,6 +21,7 @@ def capacitor_pods
   pod 'CodrivemateMapboxNative', :path => '../../plugins/mapbox-native'
   pod 'CodrivemateMediaNative', :path => '../../plugins/media-native'
   pod 'CodrivemateSerialNative', :path => '../../plugins/serial-native'
+  pod 'CodrivemateVoiceNative', :path => '../../plugins/voice-native'
 end
 
 target 'App' do

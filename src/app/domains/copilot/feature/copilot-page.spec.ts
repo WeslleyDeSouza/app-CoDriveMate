@@ -190,6 +190,25 @@ describe('copilot', () => {
       expect(ai.input.listened).toBe(0);
     });
 
+    it('tries again soon after it was interrupted', async () => {
+      await start('chat');
+      nav.speech.completes = false;
+      await wait();
+      await wait(20_000);
+      expect(nav.speech.said.length).toBeGreaterThan(1);
+    });
+
+    it('talks more often when told to', async () => {
+      await start('chat');
+      await store.setStyle('monologue');
+      await store.setPace('little');
+      await wait(60_000);
+      expect(nav.speech.said).toHaveLength(1);
+      await store.setPace('much');
+      await wait(60_000);
+      expect(nav.speech.said.length).toBeGreaterThan(3);
+    });
+
     it('stays silent while something else is spoken', async () => {
       await start('chat');
       nav.speech.busy.set(true);

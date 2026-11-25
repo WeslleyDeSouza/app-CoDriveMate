@@ -51,6 +51,12 @@
       "right": "Correct!",
       "wrong": "Sorry, the answer is {{key}}.",
       "none": "No answer recognised. The answer is {{key}}.",
+      "pace": {
+        "label": "How often",
+        "little": "Little",
+        "medium": "Medium",
+        "much": "Much"
+      },
       "style": {
         "dialogue": "Dialogue",
         "monologue": "Monologue"

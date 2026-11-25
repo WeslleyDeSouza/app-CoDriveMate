@@ -47,6 +47,11 @@ export class RealtimeVoice {
   private readonly http = inject(HttpPort);
   private secret?: { readonly of: string; readonly value: string; readonly until: number };
 
+  /** The next text fetches a new short-lived key. */
+  forget(): void {
+    this.secret = undefined;
+  }
+
   /** The spoken text as a WAV file. */
   async synthesize(request: VoiceRequest, signal: AbortSignal): Promise<Blob> {
     const secret = await this.clientSecret(request);

@@ -9,6 +9,8 @@ import {
   pickLandmark,
   pickMode,
   quizAnswer,
+  TALK_PACES,
+  talkPause,
 } from './conversation';
 import {
   CarSnapshot,
@@ -69,13 +71,28 @@ describe('what the copilot is told', () => {
 
 describe('conversation', () => {
   it('is silent near a manoeuvre, during speech, warnings and in the background', () => {
-    const free = { maneuverM: null, speaking: false, visible: true, warning: false };
+    const free = {
+      maneuverM: null,
+      speedKmh: null,
+      speaking: false,
+      visible: true,
+      warning: false,
+    };
     expect(mayTalk(free)).toBe(true);
     expect(mayTalk({ ...free, maneuverM: 900 })).toBe(true);
     expect(mayTalk({ ...free, maneuverM: 699 })).toBe(false);
+    expect(mayTalk({ ...free, speedKmh: 50, maneuverM: 320 })).toBe(true);
+    expect(mayTalk({ ...free, speedKmh: 30, maneuverM: 290 })).toBe(false);
+    expect(mayTalk({ ...free, speedKmh: 120, maneuverM: 600 })).toBe(false);
     expect(mayTalk({ ...free, speaking: true })).toBe(false);
     expect(mayTalk({ ...free, visible: false })).toBe(false);
     expect(mayTalk({ ...free, warning: true })).toBe(false);
+  });
+
+  it('pauses longer the less it is to talk', () => {
+    const [little, medium, much] = TALK_PACES.map((pace) => talkPause(60_000, pace));
+    expect(little).toBeGreaterThan(medium);
+    expect(medium).toBeGreaterThan(much);
   });
 
   it('understands that the driver wants silence', () => {

@@ -1,27 +1,27 @@
-/* Phone layouts. Tablets in landscape match neither. */
+/* Phones only: from the iPad mini (744 x 1133) on, everything is a tablet. */
 @mixin portrait {
-  @media (max-width: 600px), (max-width: 760px) and (orientation: portrait) {
+  @media (max-width: 600px), (max-width: 743.98px) and (orientation: portrait) {
     @content;
   }
 }
 
 @mixin landscape {
-  @media (min-width: 601px) and (max-width: 960px) and (max-height: 500px) and (orientation: landscape) {
+  @media (min-width: 601px) and (max-width: 1023.98px) and (max-height: 500px) and (orientation: landscape) {
     @content;
   }
 }
 
 @mixin any {
   @media (max-width: 600px),
-    (max-width: 760px) and (orientation: portrait),
-    (max-width: 960px) and (max-height: 500px) and (orientation: landscape) {
+    (max-width: 743.98px) and (orientation: portrait),
+    (max-width: 1023.98px) and (max-height: 500px) and (orientation: landscape) {
     @content;
   }
 }
 
 /* Too small for the dock: its areas open from a floating button. */
 @mixin compact {
-  @media (max-width: 859.98px), (max-height: 399.98px) {
+  @media (max-width: 743.98px), (max-width: 1023.98px) and (max-height: 500px) {
     @content;
   }
 }

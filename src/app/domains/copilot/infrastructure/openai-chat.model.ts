@@ -7,6 +7,7 @@ import { AnthropicChatModel } from './anthropic-chat.model';
 const URL = 'https://api.openai.com/v1/responses';
 /** Thinking counts too, so this is far more than the short answers need. */
 const MAX_TOKENS = 3000;
+const TIMEOUT_MS = 45_000;
 
 interface OpenAiAnswer {
   readonly output?: {
@@ -28,6 +29,7 @@ export class OpenAiChatModel extends ChatModel {
     const response = await this.http
       .fetch(URL, {
         method: 'POST',
+        signal: AbortSignal.timeout(TIMEOUT_MS),
         headers: { 'content-type': 'application/json', authorization: 'Bearer ' + keys.openai },
         body: JSON.stringify({
           model: ai.model,

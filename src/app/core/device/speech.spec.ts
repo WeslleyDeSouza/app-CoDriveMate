@@ -56,6 +56,17 @@ describe('SpeechQueue', () => {
     expect(said).toEqual(['turn left', 'chat']);
   });
 
+  it('goes on after a voice that never ends', async () => {
+    vi.useFakeTimers();
+    const stuck = speak('a', 'nav');
+    void speak('b', 'nav');
+    await vi.advanceTimersByTimeAsync(20_000);
+    expect(await stuck).toBe(false);
+    expect(silenced).toBe(1);
+    expect(said).toEqual(['a', 'b']);
+    vi.useRealTimers();
+  });
+
   it('stops one kind only', async () => {
     void speak('turn left', 'nav');
     const talk = speak('chat', 'talk');

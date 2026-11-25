@@ -25,13 +25,18 @@ Beide Prompts verbieten Hinweise auf Kontrollen und Blitzer.
 | Fakten zur Route | Wikipedia, 10 km Umkreis | nein (mit Key umformuliert) |
 | Quiz | Anthropic, Antwort per Stimme oder Tippen | ja |
 
-Still unter 700 m vor einem Manöver, während anderer Ansagen und im Hintergrund. Ein Tipp
+Still 20 Sekunden vor einem Manöver (300 bis 700 m, je nach Tempo aus OBD oder GPS; fest 700 m
+hiess in der Stadt: nie), während anderer Ansagen und im Hintergrund. Ein Tipp
 auf den Knopf über der Karte oder «Stopp» beendet. Wikipedia erhält den Ort auf drei
 Nachkommastellen (rund 100 m).
 
 **Dialog oder Monolog** (Einstellung `ai.talkStyle`): Im Monolog wird nur erzählt
-(4 bis 6 Sätze), das Mikrofon bleibt aus und es gibt kein Quiz. Kommt ein Manöver auf
-700 m heran oder eine Warnung, bricht die laufende Erzählung ab.
+(5 bis 8 Sätze), das Mikrofon bleibt aus und es gibt kein Quiz. Kommt ein Manöver
+nahe oder eine Warnung, bricht die laufende Erzählung ab.
+
+**Wie oft** (Einstellung `ai.talkPace`): wenig, mittel (Vorgabe), viel; Faktor 1.5, 0.6 und 0.2
+auf alle Pausen. Wurde etwas unterbrochen, geht es nach höchstens 15 Sekunden weiter. «Viel»
+braucht entsprechend mehr Anfragen ans Sprachmodell.
 
 **Begleiter:** Jede Bemerkung kommt höchstens einmal pro Fahrt. Wo gebremst wurde, ist
 nicht bekannt (keine Ampeln). Das übliche Ziel braucht mindestens drei Fahrten vom
@@ -46,7 +51,17 @@ hintereinander derselbe.
 ## Sprachvorrang
 
 `SpeechOutput` kennt `nav` > `answer` > `talk`. Höheres unterbricht Tieferes sofort,
-Gleiches wartet.
+Gleiches wartet. Eine Ansage, die nie endet, wird nach 12 Sekunden (lange Texte 35) plus
+0.15 Sekunden pro Zeichen abgebrochen, damit sie nicht alle weiteren blockiert.
+
+## Ton auf iOS
+
+`plugins/voice-native` spielt Cloud-Stimmen, spricht mit der Gerätestimme und hört zu. Die
+Audiositzung stellt Musik anderer Apps leiser (`duckOthers`) und gibt sie eine halbe Sekunde
+nach der Ansage wieder frei. Das Zuhören endet 1.6 Sekunden nach dem letzten Wort. Nach einer
+Verbindungslücke werden abgelehnte Cloud-Stimmen neu versucht; Anfragen enden nach 60 Sekunden.
+**Nicht kompiliert, am Gerät ungetestet.** Nicht abgedeckt: Musik in der eigenen App (YouTube)
+und Android, dort entscheidet das System.
 
 ## Lizenzen
 

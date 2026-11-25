@@ -13,6 +13,7 @@ import { SpeechInput } from '@core/device';
 import { TranslatePipe, TranslateService } from '@core/i18n';
 import { SheetPage } from '@shared/ui/sheet-page';
 import { ConversationStore } from '../application/conversation.store';
+import { TALK_PACES } from '../domain/conversation';
 import { ChatLine, CopilotStore } from '../application/copilot.store';
 import { TalkStyle } from '../domain/passenger';
 
@@ -44,6 +45,20 @@ const LISTEN_MS = 10_000;
                   (click)="talk.setStyle(style)"
                 >
                   {{ 'copilot.talk.style.' + style | translate }}
+                </button>
+              }
+            </div>
+            <div class="row" role="group" [attr.aria-label]="'copilot.talk.pace.label' | translate">
+              @for (pace of paces; track pace) {
+                <button
+                  class="btn"
+                  type="button"
+                  [attr.data-section-test]="'copilot-pace-' + pace"
+                  [class.pri]="talk.pace() === pace"
+                  [attr.aria-pressed]="talk.pace() === pace"
+                  (click)="talk.setPace(pace)"
+                >
+                  {{ 'copilot.talk.pace.' + pace | translate }}
                 </button>
               }
             </div>
@@ -264,6 +279,7 @@ export class CopilotPage {
   private readonly translate = inject(TranslateService);
   private readonly chat = viewChild.required<ElementRef<HTMLElement>>('chat');
 
+  protected readonly paces = TALK_PACES;
   protected readonly styles: readonly TalkStyle[] = ['dialogue', 'monologue'];
   protected readonly questions = QUESTIONS;
   protected readonly listening = signal(false);

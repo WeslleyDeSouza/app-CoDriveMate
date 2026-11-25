@@ -44,5 +44,5 @@ und /youtube/iframe_api_reference.
 Apples Dokumentation zu `MPMusicPlayerController` liess sich nicht laden; der Teil
 ist aus Erfahrung geschrieben und beim ersten Build zu prüfen.
 
-Ansagen: Das Sprach-Plugin nutzt auf iOS nicht die Audiositzung der App und sollte
-Musik nur leiser stellen. Am Gerät prüfen.
+Ansagen: Auf iOS stellt `plugins/voice-native` die Musik anderer Apps leiser, statt sie
+anzuhalten (siehe `copilot.md`). Am Gerät prüfen.

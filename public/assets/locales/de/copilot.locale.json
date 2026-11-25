@@ -51,6 +51,12 @@
       "right": "Richtig!",
       "wrong": "Leider falsch, richtig ist {{key}}.",
       "none": "Keine Antwort erkannt. Richtig ist {{key}}.",
+      "pace": {
+        "label": "Wie oft",
+        "little": "Wenig",
+        "medium": "Mittel",
+        "much": "Viel"
+      },
       "style": {
         "dialogue": "Dialog",
         "monologue": "Monolog"

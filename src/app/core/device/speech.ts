@@ -1,8 +1,8 @@
 import { Injectable, Signal, inject, signal } from '@angular/core';
-import { Capacitor } from '@capacitor/core';
 import { TextToSpeech } from '@capacitor-community/text-to-speech';
 import { CloudVoice } from './cloud-voice';
 import { VOICE_LOCALES, bestVoice } from './device-voice';
+import { nativeVoice } from './native-voice';
 
 /**
  * Who speaks. Navigation prompts and warnings ('nav') interrupt everything else;
@@ -34,6 +34,30 @@ interface Utterance {
   readonly rate: number;
   readonly kind: SpeechKind;
   readonly done: (spoken: boolean) => void;
+}
+
+/** Time to fetch the sound, longer for stories. */
+const START_LIMIT_MS = 12_000;
+const LONG_START_LIMIT_MS = 35_000;
+const LONG_TEXT = 160;
+/** Slower than any voice speaks. */
+const LIMIT_PER_CHAR_MS = 150;
+const SILENCE_LIMIT_MS = 2000;
+
+/** After this time an utterance counts as stuck: it must not silence all later ones. */
+function limitMs({ text, rate }: Utterance): number {
+  const start = text.length > LONG_TEXT ? LONG_START_LIMIT_MS : START_LIMIT_MS;
+  return start + (text.length * LIMIT_PER_CHAR_MS) / Math.min(1, rate || 1);
+}
+
+class StuckError extends Error {}
+
+function within<T>(work: Promise<T>, ms: number): Promise<T> {
+  let timer: ReturnType<typeof setTimeout>;
+  const late = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new StuckError('Speech output is stuck')), ms);
+  });
+  return Promise.race([work, late]).finally(() => clearTimeout(timer));
 }
 
 /** Order of utterances by priority; same kinds follow each other. */
@@ -75,8 +99,12 @@ export class SpeechQueue {
     const cut = this.current;
     this.current = undefined;
     cut?.done(false);
-    await this.voice.silence().catch(() => undefined);
+    await this.hush();
     if (!this.current) await this.next();
+  }
+
+  private async hush(): Promise<void> {
+    await within(this.voice.silence(), SILENCE_LIMIT_MS).catch(() => undefined);
   }
 
   private async next(): Promise<void> {
@@ -86,10 +114,12 @@ export class SpeechQueue {
     this.current = utterance;
     let spoken = true;
     try {
-      await this.voice.say(utterance.text, utterance.lang, utterance.rate);
+      const { text, lang, rate } = utterance;
+      await within(this.voice.say(text, lang, rate), limitMs(utterance));
     } catch (error) {
       spoken = false;
       console.warn('Speech output failed', error);
+      if (error instanceof StuckError && this.current === utterance) await this.hush();
     }
     if (this.current !== utterance) return;
     this.current = undefined;
@@ -115,19 +145,16 @@ export class DeviceSpeechOutput extends SpeechOutput {
         }
       }
       const locale = VOICE_LOCALES[lang] ?? lang;
-      const voice = await this.deviceVoice(locale);
+      const native = nativeVoice();
+      const voice = native ? await this.iosVoice(locale) : undefined;
       if (run !== this.stopped) return;
-      await TextToSpeech.speak({
-        text,
-        lang: locale,
-        rate,
-        category: 'playback',
-        ...(voice >= 0 ? { voice } : {}),
-      });
+      if (native) return native.speak({ text, locale, rate, ...(voice ? { voice } : {}) });
+      await TextToSpeech.speak({ text, lang: locale, rate });
     },
     silence: async () => {
       this.stopped++;
-      await Promise.all([this.cloud.silence(), TextToSpeech.stop().catch(() => undefined)]);
+      const device = nativeVoice() ?? TextToSpeech;
+      await Promise.all([this.cloud.silence(), device.stop().catch(() => undefined)]);
     },
   });
   readonly busy = this.queue.busy;
@@ -140,13 +167,13 @@ export class DeviceSpeechOutput extends SpeechOutput {
     return this.queue.stop(kind);
   }
 
-  /** Asked every time: the index moves when a voice is downloaded. */
-  private async deviceVoice(locale: string): Promise<number> {
-    if (Capacitor.getPlatform() !== 'ios') return -1;
+  /** Asked every time: a voice may have been downloaded. */
+  private async iosVoice(locale: string): Promise<string | undefined> {
     try {
-      return bestVoice((await TextToSpeech.getSupportedVoices()).voices, locale);
+      const { voices } = await TextToSpeech.getSupportedVoices();
+      return voices[bestVoice(voices, locale)]?.voiceURI;
     } catch {
-      return -1;
+      return undefined;
     }
   }
 }

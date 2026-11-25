@@ -12,7 +12,7 @@ Stand: 24.11.2026. Nichts davon ist im echten Auto oder am echten Adapter getest
 | Verkehrsmeldungen | TomTom mit Key; Schweizer Meldungen: siehe «Offen»; ungetestet |
 | Innenlicht | gebaut nach dem Protokoll des Prototyps; am Modul ungetestet |
 | Google-Karte | gebaut; ohne Key ungetestet |
-| Stimme (Gerät, Google, OpenAI, ElevenLabs) | in den Einstellungen wählbar; mit Keys und auf dem iPad ungetestet |
+| Stimme (Gerät, Google, OpenAI, ElevenLabs) | in den Einstellungen wählbar; stellt auf iOS Musik leiser (`voice-native`, nicht kompiliert); mit Keys und auf dem Gerät ungetestet |
 | OBD2 über BLE | Assistent mit Geräteliste in der App («Passt vermutlich»), Verbindungstest, automatisch verbinden und wiederverbinden; am Gerät ungetestet |
 | Einheiten | Distanz, Temperatur, Verbrauch, Volumen, Druck; Eingaben (Kilometerstand, Tank, Preis) bleiben metrisch |
 | Demo-Fahrt | gebaut |
@@ -31,8 +31,8 @@ Stand: 24.11.2026. Nichts davon ist im echten Auto oder am echten Adapter getest
 | Suche | Vorschläge beim Tippen, Spracheingabe, Zuhause, Arbeit, letzte Ziele, parkiertes Auto |
 | Parkplatz | gebaut: merken (von Hand oder nach OBD-Fahrt), Karte, Rückweg, Notiz, Parkuhr mit Ansage und Mitteilung, QR-Code fürs Handy, Parkplätze am Ziel; Mitteilungen am Gerät ungetestet |
 | KI-Copilot | gebaut: Fragen mit Fahrzeugdaten, Sprache; mit echtem Key ungetestet |
-| Unterhaltung | Begleiter, Plaudern, Fakten, Quiz; Dialog oder Monolog; im Auto ungetestet |
-| Kleine Bildschirme (Breite < 860 oder Höhe < 400) | Bereiche und «Wohin» als schwebende Knöpfe; auf dem Gerät ungetestet |
+| Unterhaltung | Begleiter, Plaudern, Fakten, Quiz; Dialog oder Monolog; wenig, mittel oder viel; im Auto ungetestet |
+| Handys (unter 744 Breite, oder quer bis 500 Höhe); ab iPad mini Tablet-Ansicht | Bereiche und «Wohin» als schwebende Knöpfe; auf dem Gerät ungetestet |
 | Anzeige links | 3D-Ansicht, runder Tacho (Tempo, Drehzahl, Gang, Limit), beides (ab 1100 × 700) oder ausgeblendet; Idee für später: Widgets selbst anordnen; im Auto ungetestet |
 | Vorlesen | Navigation, Warnungen, Infos und Unterhaltung einzeln schaltbar |
 | Zu schnell | Tempo gelb ab 4, rot ab 10 km/h über dem Limit (OpenStreetMap), mit Differenz; im Auto ungetestet |

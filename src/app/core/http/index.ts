@@ -1,5 +1,5 @@
 import { Injectable, Provider } from '@angular/core';
-import { Capacitor, CapacitorHttp } from '@capacitor/core';
+import { Capacitor, CapacitorHttp, HttpOptions, HttpResponse } from '@capacitor/core';
 
 export interface HttpResult {
   readonly status: number;
@@ -20,6 +20,8 @@ export abstract class HttpPort {
 }
 
 const TIMEOUT_MS = 15000;
+/** The plugin alone would wait ten minutes for a connection that was lost. */
+const FETCH_TIMEOUT_MS = 60_000;
 
 /** Native: CapacitorHttp (no CORS). Web: fetch. */
 @Injectable()
@@ -47,13 +49,16 @@ export class CapacitorHttpPort extends HttpPort {
 
   async fetchBinary(url: string, init: RequestInit): Promise<Response> {
     if (!Capacitor.isNativePlatform()) return fetch(url, init);
-    const { data, status } = await CapacitorHttp.request({
-      url,
-      method: init.method ?? 'GET',
-      headers: Object.fromEntries(new Headers(init.headers).entries()),
-      data: typeof init.body === 'string' ? parse(init.body) : undefined,
-      responseType: 'arraybuffer',
-    });
+    const { data, status } = await request(
+      {
+        url,
+        method: init.method ?? 'GET',
+        headers: Object.fromEntries(new Headers(init.headers).entries()),
+        data: typeof init.body === 'string' ? parse(init.body) : undefined,
+        responseType: 'arraybuffer',
+      },
+      init.signal,
+    );
     // The plugin hands binary data over as base64; errors come as JSON.
     if (status < 300 && typeof data === 'string') {
       return new Response(
@@ -66,17 +71,33 @@ export class CapacitorHttpPort extends HttpPort {
 
   async fetch(url: string, init: RequestInit): Promise<Response> {
     if (!Capacitor.isNativePlatform()) return fetch(url, init);
-    const response = await CapacitorHttp.request({
-      url,
-      method: init.method ?? 'GET',
-      headers: Object.fromEntries(new Headers(init.headers).entries()),
-      data: typeof init.body === 'string' ? parse(init.body) : undefined,
-      responseType: 'text',
-    });
+    const response = await request(
+      {
+        url,
+        method: init.method ?? 'GET',
+        headers: Object.fromEntries(new Headers(init.headers).entries()),
+        data: typeof init.body === 'string' ? parse(init.body) : undefined,
+        responseType: 'text',
+      },
+      init.signal,
+    );
     const body =
       typeof response.data === 'string' ? response.data : JSON.stringify(response.data ?? null);
     return new Response(body, { status: response.status, headers: response.headers });
   }
+}
+
+/** The plugin knows no signal, so an aborted request is left behind. */
+function request(options: HttpOptions, signal?: AbortSignal | null): Promise<HttpResponse> {
+  const limit = { connectTimeout: FETCH_TIMEOUT_MS, readTimeout: FETCH_TIMEOUT_MS };
+  const answer = CapacitorHttp.request({ ...options, ...limit });
+  if (!signal) return answer;
+  return new Promise((resolve, reject) => {
+    const abort = () => reject(signal.reason);
+    if (signal.aborted) abort();
+    signal.addEventListener('abort', abort, { once: true });
+    void answer.then(resolve, reject).finally(() => signal.removeEventListener('abort', abort));
+  });
 }
 
 function parse(text: string): unknown {

@@ -80,6 +80,8 @@ export interface AppSettings {
     model: string;
     /** conversation: only told, or with questions and answers */
     talkStyle: 'monologue' | 'dialogue';
+    /** how often the conversation says something */
+    talkPace: 'little' | 'medium' | 'much';
   };
   /**
    * API keys entered by the user. They live only on this device; nothing is
@@ -145,7 +147,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     swissTrafficReports: false,
     swissTrafficUrl: '',
   },
-  ai: { model: 'claude-haiku-5-5', talkStyle: 'dialogue' },
+  ai: { model: 'claude-haiku-5-5', talkStyle: 'dialogue', talkPace: 'medium' },
   keys: { anthropic: '', openai: '', elevenlabs: '', google: '', mapbox: '', tomtom: '' },
   proxyUrl: '',
 };

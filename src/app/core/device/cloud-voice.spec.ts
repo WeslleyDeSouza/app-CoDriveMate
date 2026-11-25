@@ -32,7 +32,7 @@ describe('CloudVoice', () => {
     TestBed.configureTestingModule({
       providers: [
         { provide: HttpPort, useValue: { fetch, fetchBinary } },
-        { provide: RealtimeVoice, useValue: { synthesize } },
+        { provide: RealtimeVoice, useValue: { synthesize, forget: () => undefined } },
         {
           provide: CacheStore,
           useValue: {
@@ -76,6 +76,15 @@ describe('CloudVoice', () => {
     expect(voice.available).toBe(false);
     expect(voice.problem()).toBe('refused');
     voice.configure({ provider: 'google', key: 'good', voice: 'Kore' });
+    expect(voice.available).toBe(true);
+    expect(voice.problem()).toBeNull();
+  });
+
+  it('tries a refused key again when the connection comes back', async () => {
+    voice.configure({ provider: 'google', key: 'k', voice: 'Kore' });
+    answer(403);
+    await expect(voice.say('Hallo', 'de', 1)).rejects.toThrow();
+    window.dispatchEvent(new Event('online'));
     expect(voice.available).toBe(true);
     expect(voice.problem()).toBeNull();
   });

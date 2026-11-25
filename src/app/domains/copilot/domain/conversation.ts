@@ -55,20 +55,46 @@ export abstract class TalkRepository {
   abstract saveSeen(ids: readonly number[]): Promise<void>;
 }
 
-/** No talking this close to a manoeuvre. */
-export const QUIET_BEFORE_MANEUVER_M = 700;
+/** How much is talked. */
+export type TalkPace = 'little' | 'medium' | 'much';
+export const TALK_PACES: readonly TalkPace[] = ['little', 'medium', 'much'];
+const PAUSE_FACTOR: Record<TalkPace, number> = { little: 1.5, medium: 0.6, much: 0.2 };
+
+/** The pause after something was said. */
+export function talkPause(pauseMs: number, pace: TalkPace): number {
+  return Math.round(pauseMs * PAUSE_FACTOR[pace]);
+}
+
+/** No talking this shortly before a manoeuvre; in town, 700 m would mean never. */
+const QUIET_BEFORE_MANEUVER_S = 20;
+const QUIET_MIN_M = 300;
+const QUIET_MAX_M = 700;
+
+export function quietBeforeM(speedKmh: number | null): number {
+  if (speedKmh === null) return QUIET_MAX_M;
+  const metres = (speedKmh / 3.6) * QUIET_BEFORE_MANEUVER_S;
+  return Math.min(QUIET_MAX_M, Math.max(QUIET_MIN_M, metres));
+}
 
 export interface TalkConditions {
   /** metres to the next manoeuvre, null without a route */
   readonly maneuverM: number | null;
+  /** null if unknown */
+  readonly speedKmh: number | null;
   readonly speaking: boolean;
   readonly visible: boolean;
   /** vehicle warning or hazard notice on screen */
   readonly warning: boolean;
 }
 
-export function mayTalk({ maneuverM, speaking, visible, warning }: TalkConditions): boolean {
-  const close = maneuverM !== null && maneuverM < QUIET_BEFORE_MANEUVER_M;
+export function mayTalk({
+  maneuverM,
+  speedKmh,
+  speaking,
+  visible,
+  warning,
+}: TalkConditions): boolean {
+  const close = maneuverM !== null && maneuverM < quietBeforeM(speedKmh);
   return visible && !speaking && !warning && !close;
 }
 

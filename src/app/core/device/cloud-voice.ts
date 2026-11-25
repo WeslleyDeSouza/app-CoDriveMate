@@ -9,6 +9,7 @@ import {
   googleVoice,
   voiceProblem,
 } from './cloud-voice-services';
+import { nativeVoice } from './native-voice';
 import { RealtimeRefusedError, RealtimeVoice } from './realtime-voice';
 import { Voice } from './speech';
 
@@ -76,9 +77,10 @@ export class CloudVoice implements Voice {
   constructor() {
     effect(() => {
       if (!this.reset.count()) return;
-      this.refused = '';
-      this._problem.set(null);
+      this.retry();
     });
+    // A refusal may have come from a hotspot's login page or a lost connection.
+    globalThis.addEventListener?.('online', () => this.retry());
   }
 
   configure(settings: CloudVoiceSettings): void {
@@ -133,7 +135,11 @@ export class CloudVoice implements Voice {
     const generation = this.generation;
     const blob = await this.synthesize(text, lang, rate);
     // Stopped while the sound was on its way.
-    if (generation === this.generation) await this.play(blob);
+    if (generation !== this.generation) return;
+    const native = nativeVoice();
+    if (!native) return this.play(blob);
+    const data = encode(new Uint8Array(await blob.arrayBuffer()));
+    if (generation === this.generation) await native.play({ data });
   }
 
   async silence(): Promise<void> {
@@ -141,6 +147,12 @@ export class CloudVoice implements Voice {
     this.request?.abort();
     this.audio?.pause();
     this.finish?.();
+  }
+
+  private retry(): void {
+    this.refused = '';
+    this._problem.set(null);
+    this.realtime.forget();
   }
 
   private async synthesize(text: string, lang: string, rate: number): Promise<Blob> {
@@ -217,7 +229,8 @@ export class CloudVoice implements Voice {
         end();
         resolve();
       };
-      audio.onended = this.finish;
+      // Paused from outside (call, other app): it would never end.
+      audio.onended = audio.onpause = this.finish;
       audio.onerror = () => {
         end();
         reject(new Error('Sound could not be played.'));
@@ -232,6 +245,14 @@ export class CloudVoice implements Voice {
 
 function identity({ provider, key, voice }: CloudVoiceSettings): string {
   return `${provider}|${key}|${voice}`;
+}
+
+function encode(bytes: Uint8Array): string {
+  let text = '';
+  for (let at = 0; at < bytes.length; at += 0x8000) {
+    text += String.fromCharCode(...bytes.subarray(at, at + 0x8000));
+  }
+  return btoa(text);
 }
 
 function decode(base64: string): Uint8Array<ArrayBuffer> {

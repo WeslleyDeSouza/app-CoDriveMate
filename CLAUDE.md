@@ -268,7 +268,8 @@ Existing rules of the prototype; they are requirements, not details:
 
 - Speech priority: navigation prompts and warnings interrupt everything;
   conversation mode is interrupted by everything else.
-- Conversation mode stays silent within 700 m of the next manoeuvre, while a
+- Conversation mode stays silent within 20 s of the next manoeuvre (at least 300 m, at
+  most 700 m, 700 m if the speed is unknown; changed on request 2026-11-25), while a
   vehicle warning or hazard notice is active, while another voice output runs
   and when the app is not visible. It is stopped by one tap or by voice.
 - Interior lighting is dimmed to the driving brightness as soon as the car

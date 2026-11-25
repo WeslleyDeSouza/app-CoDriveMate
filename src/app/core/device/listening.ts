@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { SpeechRecognition } from '@capacitor-community/speech-recognition';
 import { Capacitor } from '@capacitor/core';
+import { nativeVoice } from './native-voice';
 
 /** The user does not allow the microphone, or the device cannot listen. */
 export class ListeningUnavailableError extends Error {
@@ -16,6 +17,8 @@ export abstract class SpeechInput {
   abstract listen(lang: string, maxMs: number): Promise<string>;
   abstract abort(): void;
 }
+
+const GRACE_MS = 3000;
 
 interface WebRecognition {
   lang: string;
@@ -66,6 +69,31 @@ export class DeviceSpeechInput extends SpeechInput {
     });
   }
 
+  private async ios(
+    voice: NonNullable<ReturnType<typeof nativeVoice>>,
+    language: string,
+    maxMs: number,
+  ): Promise<string> {
+    let cancel: () => void = () => undefined;
+    const cancelled = new Promise<string>((resolve) => (cancel = () => resolve('')));
+    const mine = (this.cancel = () => {
+      cancel();
+      void voice.stopListening().catch(() => undefined);
+    });
+    // Whatever happens to the recognition, the caller gets an answer.
+    const timer = setTimeout(mine, maxMs + GRACE_MS);
+    try {
+      const heard = voice.listen({ language, maxMs }).then(({ text }) => text.trim());
+      return await Promise.race([heard, cancelled]);
+    } catch {
+      // Without a connection there is no recognition; the next time may work.
+      return '';
+    } finally {
+      clearTimeout(timer);
+      if (this.cancel === mine) this.cancel = undefined;
+    }
+  }
+
   private async native(lang: string, maxMs: number): Promise<string> {
     const { available } = await SpeechRecognition.available();
     if (!available) throw new ListeningUnavailableError(false);
@@ -74,6 +102,9 @@ export class DeviceSpeechInput extends SpeechInput {
       ({ speechRecognition } = await SpeechRecognition.requestPermissions());
     }
     if (speechRecognition !== 'granted') throw new ListeningUnavailableError(true);
+
+    const ios = nativeVoice();
+    if (ios) return this.ios(ios, lang, maxMs);
 
     let text = '';
     let end: () => void = () => undefined;
