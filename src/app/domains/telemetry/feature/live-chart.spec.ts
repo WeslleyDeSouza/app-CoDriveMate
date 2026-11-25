@@ -4,10 +4,11 @@ import { provideI18nTesting } from '@core/i18n/testing';
 import { hook, textOf } from '@shared/testing';
 import { HistoryStore } from '../application/history.store';
 import { TelemetryStore } from '../application/telemetry.store';
+import { SERIES } from '../domain/history';
 import { telemetryTesting } from '../testing';
-import { ChartPage } from './chart-page';
+import { LiveChart } from './live-chart';
 
-describe('ChartPage', () => {
+describe('LiveChart', () => {
   beforeEach(() => vi.useFakeTimers());
   afterEach(() => vi.useRealTimers());
 
@@ -17,7 +18,8 @@ describe('ChartPage', () => {
       providers: [provideRouter([]), provideI18nTesting(), ...car.providers],
     });
     TestBed.inject(HistoryStore);
-    const fixture = TestBed.createComponent(ChartPage);
+    const fixture = TestBed.createComponent(LiveChart);
+    fixture.componentRef.setInput('series', SERIES[0]);
     const root: HTMLElement = fixture.nativeElement;
     fixture.detectChanges();
     expect(textOf(hook(root, 'chart-hint'))).toBe('telemetry.chart.empty');
@@ -30,7 +32,10 @@ describe('ChartPage', () => {
     expect(hook(root, 'chart-line').getAttribute('d')).toContain('L');
     expect(textOf(hook(root, 'chart-value'))).toBe('62 km/h');
 
-    hook(root, 'chart-series-voltage').click();
+    fixture.componentRef.setInput(
+      'series',
+      SERIES.find(({ key }) => key === 'voltage'),
+    );
     fixture.detectChanges();
     expect(textOf(hook(root, 'chart-value'))).toBe('14.1 V');
   });

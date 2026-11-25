@@ -1,3 +1,5 @@
+import { TripStats, TripValues } from './trip-values';
+
 export type Coordinate = readonly [lon: number, lat: number];
 export type TripSource = 'obd' | 'gps' | 'demo';
 
@@ -21,6 +23,8 @@ export interface Trip {
   driving: DrivingStyle;
   path: Coordinate[];
   end: Coordinate | null;
+  /** lowest, highest and average values; missing on older trips */
+  stats?: TripStats;
 }
 
 /** What the eco score is calculated from. */
@@ -318,4 +322,9 @@ export abstract class TripRepository {
   abstract all(): Promise<Trip[]>;
   abstract save(trip: Trip): Promise<void>;
   abstract delete(id: number): Promise<void>;
+  /** Null if none were measured or they are too old. */
+  abstract values(id: number): Promise<TripValues | null>;
+  abstract saveValues(values: TripValues): Promise<void>;
+  /** Drops the values of trips that began earlier. */
+  abstract pruneValues(before: number): Promise<void>;
 }

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@core/i18n';
 import { UnitsStore } from '@core/units';
 import { consumptionIn, distanceIn, volumeIn } from '@shared/kernel/units';
@@ -23,7 +23,7 @@ const CSV_COLUMNS = [
 
 @Component({
   selector: 'app-logbook-page',
-  imports: [SheetPage, TranslatePipe],
+  imports: [RouterLink, SheetPage, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-sheet-page section="logbook" [title]="'logbook.title' | translate">
@@ -107,6 +107,17 @@ const CSV_COLUMNS = [
                 <small data-section-test="logbook-events">{{ text }}</small>
               }
             </div>
+            @if (trip.stats) {
+              <a
+                class="btn"
+                [attr.data-section-test]="'logbook-values-' + trip.id"
+                [routerLink]="['/chart']"
+                [queryParams]="{ trip: trip.id }"
+                [attr.aria-label]="'logbook.values' | translate"
+              >
+                <i class="ti ti-chart-line" aria-hidden="true"></i>
+              </a>
+            }
             @if (trip.path.length > 1) {
               <button
                 class="btn"
@@ -174,6 +185,10 @@ const CSV_COLUMNS = [
     }
     .btn:not(.pri) {
       background: var(--p3);
+    }
+    a.btn {
+      color: inherit;
+      text-decoration: none;
     }
     .btn.sure {
       background: var(--ba);

@@ -41,6 +41,25 @@
       "cost": "CHF",
       "per100": "l/100",
       "eco": "Eco"
+    },
+    "values": "Verlauf der Fahrt zeigen",
+    "history": {
+      "view": {
+        "live": "Live",
+        "day": "Tag",
+        "week": "Woche",
+        "month": "Monat"
+      },
+      "all": "Alle Fahrten",
+      "earlier": "Früher",
+      "later": "Später",
+      "average": "Durchschnitt",
+      "min": "Tiefster",
+      "max": "Höchster",
+      "per_distance": "Verbrauch",
+      "empty": "Keine Fahrten in diesem Zeitraum.",
+      "not_measured": "Dieser Wert wurde nicht aufgezeichnet. Motorwerte brauchen den OBD-Adapter.",
+      "only_stats": "Die Messpunkte dieser Fahrt sind nicht mehr vorhanden (90 Tage), Durchschnitt und Grenzwerte bleiben."
     }
   }
 }

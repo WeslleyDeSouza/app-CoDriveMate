@@ -25,7 +25,8 @@ export const routes: Routes = [
   { path: 'navigation', children: [] },
   {
     path: 'chart',
-    loadComponent: () => import('@domains/telemetry/feature/chart-page').then((m) => m.ChartPage),
+    loadComponent: () =>
+      import('@domains/logbook/feature/history-page').then((m) => m.HistoryPage),
   },
   {
     path: 'diagnostics',

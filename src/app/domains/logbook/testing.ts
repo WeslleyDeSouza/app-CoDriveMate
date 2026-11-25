@@ -1,5 +1,6 @@
 import { Provider } from '@angular/core';
 import { Trip, TripRepository } from './domain/trip';
+import { TripValues } from './domain/trip-values';
 
 export class FakeTripRepository extends TripRepository {
   trips: Trip[] = [];
@@ -12,6 +13,18 @@ export class FakeTripRepository extends TripRepository {
   }
   async delete(id: number): Promise<void> {
     this.trips = this.trips.filter((trip) => trip.id !== id);
+    this.measured.delete(id);
+  }
+
+  readonly measured = new Map<number, TripValues>();
+  async values(id: number): Promise<TripValues | null> {
+    return this.measured.get(id) ?? null;
+  }
+  async saveValues(values: TripValues): Promise<void> {
+    this.measured.set(values.id, values);
+  }
+  async pruneValues(before: number): Promise<void> {
+    for (const id of this.measured.keys()) if (id < before) this.measured.delete(id);
   }
 }
 

@@ -2,10 +2,19 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { MapPinsStore, PositionStore } from '@domains/navigation';
 import { SceneStore } from '@domains/scene3d';
 import { SettingsStore } from '@domains/settings';
-import { TelemetryStore } from '@domains/telemetry';
+import { TelemetryStore, sampleOf } from '@domains/telemetry';
 import { EcoTip, Trip, TripRecorder, TripRepository, TripSource } from '../domain/trip';
+import { TripValueRecorder, TripValues, VALUES_MAX_AGE_MS, Values } from '../domain/trip-values';
 
 const TICK_MS = 250;
+/** Without the adapter only the speed is known. */
+const GPS_ONLY: Omit<Values, 'speed'> = {
+  rpm: null,
+  coolantTemp: null,
+  consumption: null,
+  throttle: null,
+  voltage: null,
+};
 const TIP_MS = 7000;
 /** The live trip is shown about once per second. */
 const SHOW_TICKS = 4;
@@ -20,6 +29,7 @@ export class LogbookStore {
   private readonly pins = inject(MapPinsStore);
   private readonly settings = inject(SettingsStore).settings;
   private readonly recorder = new TripRecorder();
+  private readonly values = new TripValueRecorder();
 
   private readonly _trips = signal<Trip[]>([]);
   private readonly _loaded = signal(false);
@@ -53,6 +63,12 @@ export class LogbookStore {
   async load(): Promise<void> {
     this._trips.set(await this.repository.all());
     this._loaded.set(true);
+  }
+
+  /** What was measured, also of the drive going on. Null if there is nothing (any more). */
+  async valuesOf(id: number): Promise<TripValues | null> {
+    if (id === this.recorder.current?.id) return this.values.points(id);
+    return this.repository.values(id).catch(() => null);
   }
 
   async save(trip: Trip): Promise<void> {
@@ -101,15 +117,31 @@ export class LogbookStore {
       street: this.scene.street(),
       fuelPrice: this.settings().fuelPrice,
     });
+    const trip = this.recorder.current;
+    if (trip && source) {
+      const measured =
+        source === 'gps'
+          ? { ...GPS_ONLY, speed: this.positions.speedKmh() }
+          : sampleOf(this.telemetry.snapshot(), this.telemetry.fuelRateLph());
+      this.values.add(trip.id, now, seconds, measured);
+    }
     // Demo drives are shown, but not kept.
     if (finished && finished.source !== 'demo') {
-      void this.save(finished).catch((e: unknown) => console.warn('Saving the trip failed', e));
+      void this.keep(finished).catch((e: unknown) => console.warn('Saving the trip failed', e));
     }
     if (tip && this.settings().ecoTips) this.showTip(tip);
     if (finished || ++this.ticks % SHOW_TICKS === 0) {
       const { current } = this.recorder;
       this._current.set(current && { ...current });
     }
+  }
+
+  private async keep(trip: Trip): Promise<void> {
+    // Taken now: the next trip may begin while this one is stored.
+    const values = this.values.points(trip.id);
+    await this.save({ ...trip, stats: this.values.stats(trip.id) });
+    if (values) await this.repository.saveValues(values);
+    await this.repository.pruneValues(Date.now() - VALUES_MAX_AGE_MS);
   }
 
   private showTip(tip: EcoTip): void {

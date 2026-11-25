@@ -7,7 +7,7 @@ Stand: 24.11.2026. Nichts davon ist im echten Auto oder am echten Adapter getest
 | Cockpit | Tempo, Gang, Tempolimit, Trip, Schnitt, Verbrauch, Kühlmittel, Batterie, Reichweite; Kacheln färben sich bei Warnungen |
 | Fahrzeugwarnungen | gebaut wie im Prototyp: Temperatur, Ladespannung, Reichweite, Motorkontrollleuchte; Karte, Ansage, «Verstanden» |
 | Diagnose | gebaut: Fehlercodes lesen, im Stand löschen, KI fragen; am Auto ungetestet |
-| Verlauf | gebaut: sechs Werte über zwei Minuten |
+| Verlauf | gebaut: sechs Werte live, pro Fahrt, und Fahrten im Vergleich nach Tag, Woche, Monat; im Auto ungetestet |
 | Gefahrenhinweise, Tempolimit | gebaut aus OpenStreetMap (Overpass, oft überlastet); nie Kontrollen |
 | Verkehrsmeldungen | TomTom mit Key; Schweizer Meldungen: siehe «Offen»; ungetestet |
 | Innenlicht | gebaut nach dem Protokoll des Prototyps; am Modul ungetestet |

@@ -41,6 +41,25 @@
       "cost": "CHF",
       "per100": "l/100",
       "eco": "Eco"
+    },
+    "values": "Show the values of the drive",
+    "history": {
+      "view": {
+        "live": "Live",
+        "day": "Day",
+        "week": "Week",
+        "month": "Month"
+      },
+      "all": "All drives",
+      "earlier": "Earlier",
+      "later": "Later",
+      "average": "Average",
+      "min": "Lowest",
+      "max": "Highest",
+      "per_distance": "Consumption",
+      "empty": "No drives in this period.",
+      "not_measured": "This value was not recorded. Engine values need the OBD adapter.",
+      "only_stats": "The points of this drive are gone (90 days); average and limits remain."
     }
   }
 }

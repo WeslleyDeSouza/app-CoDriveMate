@@ -40,6 +40,10 @@ export class CollectionAccess<T extends { id: IDBValidKey }> {
     return (await this.db()).get(this.name, id) as Promise<T | undefined>;
   }
 
+  async keys(): Promise<T['id'][]> {
+    return (await this.db()).getAllKeys(this.name) as Promise<T['id'][]>;
+  }
+
   async put(doc: T): Promise<void> {
     await (await this.db()).put(this.name, doc);
   }
