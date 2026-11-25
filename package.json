@@ -43,6 +43,7 @@
     "@codrivemate/mapbox-native": "file:plugins/mapbox-native",
     "@codrivemate/media-native": "file:plugins/media-native",
     "@codrivemate/serial-native": "file:plugins/serial-native",
+    "@codrivemate/voice-native": "file:plugins/voice-native",
     "@mapbox/vector-tile": "^3.0.0",
     "@tabler/icons-webfont": "^3.52.0",
     "3d-tiles-renderer": "^0.5.4",
