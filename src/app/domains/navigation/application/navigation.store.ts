@@ -12,7 +12,9 @@ import {
 } from '@shared/kernel/provider-chain';
 import { Coordinate, polyline } from '../domain/geo';
 import {
+  Announcement,
   AnnouncementPlan,
+  announcementsAhead,
   OffRouteDetector,
   Progress,
   formatDuration,
@@ -28,6 +30,8 @@ import { PositionStore } from './position.store';
 const FASTER_CHECK_MS = 240_000;
 const FASTER_GAIN_S = 180;
 const DELAY_WARNING_S = 300;
+/** More would be paid for in vain with every new route. */
+const PREPARED_MANOEUVRES = 5;
 const DEMO_START: Coordinate = [8.5402, 47.3782];
 const DEMO_END: Coordinate = [8.553, 47.3555];
 
@@ -85,6 +89,7 @@ export class NavigationStore {
 
   private readonly chain: ProviderChain<[Coordinate, Coordinate], Route>;
   private announcements = new AnnouncementPlan();
+  private prepared: { route?: Route; for: string } = { for: '' };
   private offRoute = new OffRouteDetector();
   private lastFasterCheck = 0;
   private delayWarned = false;
@@ -194,6 +199,8 @@ export class NavigationStore {
     this._route.set(null);
     this._destination.set(null);
     this._progress.set(null);
+    this.prepared = { for: '' };
+    this.speech.prepare([], this.translate.lang, this.settings().voice.rate);
     void this.speech.stop();
   }
 
@@ -278,7 +285,8 @@ export class NavigationStore {
       return;
     }
     const announcement = this.announcements.next(progress);
-    if (announcement) this.announce(progress, announcement.immediate);
+    if (announcement) this.say(this.announcementText(progress.next, announcement));
+    this.prepareVoice(route, progress);
 
     const now = Date.now();
     if (!this.positions.isDemo() && this.offRoute.shouldReroute(progress.offRouteM, now)) {
@@ -334,20 +342,32 @@ export class NavigationStore {
     if (this.positions.isDemo() && !this._route()) this.positions.driveDemoAlong(line);
   }
 
-  private announce(progress: Progress, immediate: boolean): void {
-    const arriving = progress.next.maneuver.type === 'arrive';
-    if (arriving && immediate) return this.say(this.t('navigation.say.arriving'));
-    const distance = this.spokenDistance(progress.distanceM);
-    if (arriving) return this.say(this.t('navigation.say.arriving_in', { distance }));
-    const instruction = this.instruction(progress.next);
-    this.say(
-      immediate
-        ? instruction
-        : this.t('navigation.say.in_distance', {
-            distance,
-            instruction: instruction.charAt(0).toLowerCase() + instruction.slice(1),
-          }),
+  private announcementText(step: RouteStep, { immediate, spokenM }: Announcement): string {
+    const arriving = step.maneuver.type === 'arrive';
+    if (arriving && immediate) return this.t('navigation.say.arriving');
+    const distance = this.spokenDistance(spokenM);
+    if (arriving) return this.t('navigation.say.arriving_in', { distance });
+    const instruction = this.instruction(step);
+    return immediate
+      ? instruction
+      : this.t('navigation.say.in_distance', {
+          distance,
+          instruction: instruction.charAt(0).toLowerCase() + instruction.slice(1),
+        });
+  }
+
+  /** A natural voice fetches the next sentences, for speaking at once and in dead spots. */
+  private prepareVoice(route: Route, progress: Progress): void {
+    const { navigation, rate, provider } = this.settings().voice;
+    const { lang } = this.translate;
+    const now = [progress.stepIndex, navigation, rate, provider, lang].join('|');
+    if (route === this.prepared.route && now === this.prepared.for) return;
+    this.prepared = { route, for: now };
+    if (!navigation) return this.speech.prepare([], lang, rate);
+    const texts = announcementsAhead(route, progress, PREPARED_MANOEUVRES).map((one) =>
+      this.announcementText(one.step, one),
     );
+    this.speech.prepare([...texts, this.t('navigation.say.rerouting')], lang, rate);
   }
 
   private sayStart(route: Route, place: Place): void {

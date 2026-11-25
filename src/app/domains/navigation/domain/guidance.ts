@@ -52,17 +52,53 @@ export function progressOn(route: Route, position: Coordinate, previousM?: numbe
 /** Announcement distances in metres, nearest first. */
 const THRESHOLDS = [60, 300, 800];
 
+/** Nearer to the threshold than this share, its round figure is said. */
+const ROUND_SHARE = 0.85;
+/** Positions come once a second, so a manoeuvre is passed by some metres. */
+const PASSED_M = 15;
+
+export interface Announcement {
+  readonly immediate: boolean;
+  /** metres to say */
+  readonly spokenM: number;
+}
+
+/** A fixed figure where it is true, so that the sentence is known beforehand. */
+function announcement(stage: number, distanceM: number): Announcement {
+  const spokenM =
+    distanceM >= stage * ROUND_SHARE ? stage : Math.max(50, Math.round(distanceM / 50) * 50);
+  return { immediate: stage === THRESHOLDS[0], spokenM };
+}
+
+/** What will probably be announced for the next manoeuvres, in order. */
+export function announcementsAhead(
+  route: Route,
+  { stepIndex, alongM }: Pick<Progress, 'stepIndex' | 'alongM'>,
+  manoeuvres: number,
+): (Announcement & { readonly step: RouteStep })[] {
+  return route.steps.slice(stepIndex, stepIndex + manoeuvres).flatMap((step, i) => {
+    const before = i ? route.steps[stepIndex + i - 1].alongM + PASSED_M : alongM;
+    const distanceM = step.alongM - before;
+    const first = THRESHOLDS.find((threshold) => distanceM <= threshold);
+    const later = THRESHOLDS.filter((threshold) => threshold < (first ?? Infinity)).reverse();
+    return [
+      ...(first === undefined ? [] : [announcement(first, distanceM)]),
+      ...later.map((threshold) => announcement(threshold, threshold)),
+    ].map((one) => ({ ...one, step }));
+  });
+}
+
 /** Decides when a manoeuvre is announced; every distance is announced once. */
 export class AnnouncementPlan {
   private readonly done = new Map<number, number>();
 
   /** The distance stage to announce now, or null. */
-  next(progress: Progress): { immediate: boolean } | null {
+  next(progress: Progress): Announcement | null {
     const stage = THRESHOLDS.find((t) => progress.distanceM <= t);
     if (stage === undefined) return null;
     if ((this.done.get(progress.stepIndex) ?? Infinity) <= stage) return null;
     this.done.set(progress.stepIndex, stage);
-    return { immediate: stage === THRESHOLDS[0] };
+    return announcement(stage, progress.distanceM);
   }
 }
 

@@ -89,6 +89,72 @@ describe('CloudVoice', () => {
     expect(voice.problem()).toBeNull();
   });
 
+  describe('ahead', () => {
+    const settle = () => new Promise((resolve) => setTimeout(resolve, 10));
+    beforeEach(() => voice.configure({ provider: 'elevenlabs', key: 'k', voice: 'v' }));
+
+    it('fetches once, also for speaking without a connection', async () => {
+      fetchBinary.mockImplementation(async () => new Response('mp3'));
+      voice.prepare(['Links', 'Rechts', 'Links'], 'de', 1);
+      await settle();
+      expect(fetchBinary).toHaveBeenCalledTimes(2);
+      vi.stubGlobal('navigator', { onLine: false });
+      expect(voice.available).toBe(false);
+      expect(voice.prepared('Links', 'de', 1)).toBe(true);
+      await voice.say('Links', 'de', 1);
+      expect(fetchBinary).toHaveBeenCalledTimes(2);
+    });
+
+    it('waits for a sentence that is on its way', async () => {
+      let deliver: (response: Response) => void = () => undefined;
+      fetchBinary.mockReturnValue(new Promise((resolve) => (deliver = resolve)));
+      voice.prepare(['Links'], 'de', 1);
+      const said = voice.say('Links', 'de', 1);
+      deliver(new Response('mp3'));
+      await said;
+      expect(fetchBinary).toHaveBeenCalledTimes(1);
+    });
+
+    it('drops what is not needed any more', async () => {
+      fetchBinary.mockImplementation(async () => new Response('mp3'));
+      voice.prepare(['Links'], 'de', 1);
+      await settle();
+      voice.prepare(['Rechts'], 'de', 1);
+      expect(voice.prepared('Links', 'de', 1)).toBe(false);
+    });
+
+    it('neither switches the voice off nor keeps asking after a failure', async () => {
+      fetchBinary.mockImplementation(async () => new Response('', { status: 429 }));
+      voice.prepare(['Links', 'Rechts'], 'de', 1);
+      await settle();
+      expect(fetchBinary).toHaveBeenCalledTimes(1);
+      expect(voice.available).toBe(true);
+      expect(voice.problem()).toBeNull();
+    });
+
+    it('does not use the sound of another voice', async () => {
+      fetchBinary.mockImplementation(async () => new Response('mp3'));
+      voice.prepare(['Links'], 'de', 1);
+      await settle();
+      voice.configure({ provider: 'elevenlabs', key: 'k', voice: 'other' });
+      expect(voice.prepared('Links', 'de', 1)).toBe(false);
+    });
+
+    it('goes on fetching when speaking is stopped', async () => {
+      let aborted = false;
+      voice.configure({ provider: 'openai', key: 'o', voice: 'marin' });
+      synthesize.mockImplementation(async (_: unknown, signal: AbortSignal) => {
+        await voice.silence();
+        aborted = signal.aborted;
+        return new Blob(['wav']);
+      });
+      voice.prepare(['Links'], 'de', 1);
+      await settle();
+      expect(aborted).toBe(false);
+      expect(voice.prepared('Links', 'de', 1)).toBe(true);
+    });
+  });
+
   it('speaks with ElevenLabs without keeping the sound', async () => {
     fetchBinary.mockImplementation(async () => new Response('mp3'));
     voice.configure({ provider: 'elevenlabs', key: 'k', voice: 'v/1' });

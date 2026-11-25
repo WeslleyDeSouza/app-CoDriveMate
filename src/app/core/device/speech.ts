@@ -18,6 +18,10 @@ export abstract class SpeechOutput {
   abstract readonly busy: Signal<boolean>;
   /** Resolves when the text was spoken or dropped; true if it was spoken to its end. */
   abstract speak(text: string, lang: string, rate: number, kind?: SpeechKind): Promise<boolean>;
+  /** Texts that will be spoken soon, nearest first; replaces those named before. */
+  prepare(texts: readonly string[], lang: string, rate: number): void {
+    void [texts, lang, rate];
+  }
   /** Stops everything, or only one kind. */
   abstract stop(kind?: SpeechKind): Promise<void>;
 }
@@ -136,7 +140,7 @@ export class DeviceSpeechOutput extends SpeechOutput {
   private readonly queue = new SpeechQueue({
     say: async (text, lang, rate) => {
       const run = this.stopped;
-      if (this.cloud.available) {
+      if (this.cloud.available || this.cloud.prepared(text, lang, rate)) {
         try {
           return await this.cloud.say(text, lang, rate);
         } catch (error) {
@@ -161,6 +165,10 @@ export class DeviceSpeechOutput extends SpeechOutput {
 
   speak(text: string, lang: string, rate: number, kind: SpeechKind = 'nav'): Promise<boolean> {
     return this.queue.speak(text, lang, rate, kind);
+  }
+
+  override prepare(texts: readonly string[], lang: string, rate: number): void {
+    this.cloud.prepare(texts, lang, rate);
   }
 
   stop(kind?: SpeechKind): Promise<void> {

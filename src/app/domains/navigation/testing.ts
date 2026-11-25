@@ -188,6 +188,10 @@ export class FakeSpeech extends SpeechOutput {
     this.kinds.push(kind ?? 'nav');
     return this.completes;
   }
+  preparedTexts: readonly string[] = [];
+  override prepare(texts: readonly string[]): void {
+    this.preparedTexts = texts;
+  }
   async stop(): Promise<void> {
     /* silent */
   }

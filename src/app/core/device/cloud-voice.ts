@@ -45,6 +45,16 @@ const TIMEOUT_MS = 6000;
 /** Stories are long and nothing depends on their moment. */
 const LONG_TIMEOUT_MS = 25_000;
 
+interface Prepared {
+  readonly id: string;
+  readonly text: string;
+  readonly lang: string;
+  readonly rate: number;
+}
+
+/** After a failure, sentences are not fetched ahead for this long. */
+const PREPARE_PAUSE_MS = 30_000;
+
 /** The service does not work with this key; pointless until it changes. */
 class VoiceRefusedError extends Error {}
 
@@ -69,6 +79,12 @@ export class CloudVoice implements Voice {
   private audio?: HTMLAudioElement;
   private finish?: () => void;
   private generation = 0;
+  /** Sentences of the route ahead, only in memory: not every provider allows more. */
+  private readonly ready = new Map<string, Blob>();
+  private readonly pending = new Map<string, Promise<Blob>>();
+  private wanted: readonly Prepared[] = [];
+  private preparing = false;
+  private prepareAgainAt = 0;
   private request?: AbortController;
 
   /** Why the cloud voice is not used, null if it is fine. */
@@ -133,13 +149,64 @@ export class CloudVoice implements Voice {
 
   async say(text: string, lang: string, rate: number): Promise<void> {
     const generation = this.generation;
-    const blob = await this.synthesize(text, lang, rate);
+    const id = this.idOf(text, lang, rate);
+    const fetching = this.pending.get(id);
+    const blob =
+      this.ready.get(id) ??
+      (await (fetching ? inTime(fetching, TIMEOUT_MS) : this.synthesize(text, lang, rate)));
     // Stopped while the sound was on its way.
     if (generation !== this.generation) return;
     const native = nativeVoice();
     if (!native) return this.play(blob);
     const data = encode(new Uint8Array(await blob.arrayBuffer()));
     if (generation === this.generation) await native.play({ data });
+  }
+
+  /** Whether a sentence is there, also without a connection. */
+  prepared(text: string, lang: string, rate: number): boolean {
+    return this.ready.has(this.idOf(text, lang, rate));
+  }
+
+  /** Fetches sentences ahead, one after the other; those not named any more are dropped. */
+  prepare(texts: readonly string[], lang: string, rate: number): void {
+    const ids = new Set<string>();
+    this.wanted = texts.flatMap((text) => {
+      const id = this.idOf(text, lang, rate);
+      if (ids.has(id)) return [];
+      ids.add(id);
+      return [{ id, text, lang, rate }];
+    });
+    for (const id of this.ready.keys()) if (!ids.has(id)) this.ready.delete(id);
+    void this.fetchAhead();
+  }
+
+  private async fetchAhead(): Promise<void> {
+    if (this.preparing) return;
+    this.preparing = true;
+    try {
+      while (this.available && Date.now() >= this.prepareAgainAt) {
+        const next = this.wanted.find(({ id }) => !this.ready.has(id));
+        // Another voice was chosen in the meantime: named anew with the next manoeuvre.
+        if (!next || next.id !== this.idOf(next.text, next.lang, next.rate)) return;
+        const sound = this.synthesize(next.text, next.lang, next.rate, true);
+        this.pending.set(next.id, sound);
+        try {
+          const blob = await sound;
+          if (this.wanted.some(({ id }) => id === next.id)) this.ready.set(next.id, blob);
+        } catch {
+          this.prepareAgainAt = Date.now() + PREPARE_PAUSE_MS;
+          setTimeout(() => void this.fetchAhead(), PREPARE_PAUSE_MS);
+        } finally {
+          this.pending.delete(next.id);
+        }
+      }
+    } finally {
+      this.preparing = false;
+    }
+  }
+
+  private idOf(text: string, lang: string, rate: number): string {
+    return `${identity(this.settings())}|${lang}|${rate}|${text}`;
   }
 
   async silence(): Promise<void> {
@@ -153,13 +220,18 @@ export class CloudVoice implements Voice {
     this.refused = '';
     this._problem.set(null);
     this.realtime.forget();
+    this.prepareAgainAt = 0;
+    void this.fetchAhead();
   }
 
-  private async synthesize(text: string, lang: string, rate: number): Promise<Blob> {
+  /** @param ahead nobody waits for it: a failure must not switch the voice off */
+  private async synthesize(text: string, lang: string, rate: number, ahead = false): Promise<Blob> {
     const settings = this.settings();
     const { provider, key, voice } = settings;
     const timeout = text.length <= MAX_CACHED_LENGTH ? TIMEOUT_MS : LONG_TIMEOUT_MS;
-    if (provider === 'openai') return this.realtimeSpeech(settings, text, lang, rate, timeout);
+    if (provider === 'openai') {
+      return this.realtimeSpeech(settings, text, lang, rate, timeout, ahead);
+    }
     const service = VOICE_SERVICES[provider];
     const cacheKey = `${googleVoice(voice, lang).name}|${rate}|${text}`;
     const keep = service.cacheable && text.length <= MAX_CACHED_LENGTH;
@@ -174,7 +246,7 @@ export class CloudVoice implements Voice {
     );
     if (!response.ok) {
       const problem = voiceProblem(response.status, await response.text().catch(() => ''));
-      if (problem) this.refuse(settings, problem);
+      if (problem && !ahead) this.refuse(settings, problem);
       throw new VoiceRefusedError('Cloud voice: HTTP ' + response.status);
     }
     const bytes = service.binary
@@ -194,9 +266,12 @@ export class CloudVoice implements Voice {
     lang: string,
     rate: number,
     timeout: number,
+    ahead: boolean,
   ): Promise<Blob> {
     const { key, voice } = settings;
-    const request = (this.request = new AbortController());
+    const request = new AbortController();
+    // Silence ends what is spoken, not what is fetched ahead.
+    if (!ahead) this.request = request;
     try {
       const speech = this.realtime.synthesize({ key, voice, text, lang, rate }, request.signal);
       return await inTime(speech, timeout);
@@ -204,7 +279,7 @@ export class CloudVoice implements Voice {
       request.abort();
       if (error instanceof RealtimeRefusedError) {
         const problem = voiceProblem(error.status, error.body);
-        if (problem) this.refuse(settings, problem);
+        if (problem && !ahead) this.refuse(settings, problem);
       }
       throw error;
     }
