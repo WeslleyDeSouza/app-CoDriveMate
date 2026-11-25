@@ -23,6 +23,7 @@ describe('Shell', () => {
   let fixture: ComponentFixture<Shell>;
   let root: HTMLElement;
   let router: Router;
+  const settings = signal(DEFAULT_SETTINGS);
 
   beforeEach(async () => {
     TestBed.configureTestingModule({
@@ -42,7 +43,7 @@ describe('Shell', () => {
         ...roadTesting().providers,
         ...logbookTesting().providers,
         ...copilotTesting().providers,
-        { provide: SettingsStore, useValue: { settings: signal(DEFAULT_SETTINGS) } },
+        { provide: SettingsStore, useValue: { settings } },
       ],
     });
     router = TestBed.inject(Router);
@@ -64,6 +65,15 @@ describe('Shell', () => {
     expect(root.querySelector('app-dock')).not.toBeNull();
     expect(findHook(root, 'cockpit-speed')).not.toBeNull();
     expect(findHook(root, 'dock-demo')).not.toBeNull();
+  });
+
+  it('hides the 3D view completely when it is switched off', () => {
+    expect(root.querySelector('app-scene-view')).not.toBeNull();
+    settings.update((s) => ({ ...s, map: { ...s.map, scene3d: false } }));
+    fixture.detectChanges();
+    expect(root.querySelector('app-scene-view')).toBeNull();
+    expect(root.classList).toContain('no-scene');
+    settings.set(DEFAULT_SETTINGS);
   });
 
   it('keeps the side sheet closed and inert on the start route', () => {

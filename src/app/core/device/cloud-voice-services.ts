@@ -3,7 +3,18 @@ import { VOICE_LOCALES } from './device-voice';
 export type CloudVoiceProvider = 'google' | 'openai' | 'elevenlabs';
 
 export const CLOUD_VOICES = ['Aoede', 'Kore', 'Leda', 'Charon', 'Puck', 'Fenrir'] as const;
-export const OPENAI_VOICES = ['marin', 'cedar', 'coral', 'nova', 'sage', 'ash', 'onyx'] as const;
+export const OPENAI_VOICES = [
+  'marin',
+  'cedar',
+  'alloy',
+  'ash',
+  'ballad',
+  'coral',
+  'echo',
+  'sage',
+  'shimmer',
+  'verse',
+] as const;
 
 export interface VoiceRequest {
   readonly key: string;
@@ -34,7 +45,8 @@ export function googleVoice(voice: string, lang: string): { languageCode: string
   return { languageCode, name: `${languageCode}-Chirp3-HD-${voice}` };
 }
 
-export const VOICE_SERVICES: Record<CloudVoiceProvider, VoiceService> = {
+/** Services asked by one HTTP request; OpenAI is spoken to by RealtimeVoice. */
+export const VOICE_SERVICES: Record<Exclude<CloudVoiceProvider, 'openai'>, VoiceService> = {
   google: {
     cacheable: true,
     binary: false,
@@ -46,24 +58,6 @@ export const VOICE_SERVICES: Record<CloudVoiceProvider, VoiceService> = {
           input: { text },
           voice: googleVoice(voice, lang),
           audioConfig: { audioEncoding: 'MP3', speakingRate: rate },
-        },
-      ),
-    }),
-  },
-  // OpenAI shuts this model down on 2027-01-06; the device speaks from then on.
-  openai: {
-    cacheable: false,
-    binary: true,
-    request: ({ key, voice, text, rate }) => ({
-      url: 'https://api.openai.com/v1/audio/speech',
-      init: post(
-        { authorization: 'Bearer ' + key },
-        {
-          model: 'gpt-4o-mini-tts',
-          voice,
-          input: text,
-          speed: clamp(rate, 0.25, 4),
-          response_format: 'mp3',
         },
       ),
     }),

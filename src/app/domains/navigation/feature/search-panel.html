@@ -14,6 +14,16 @@
     }
   </div>
 }
+<button
+  class="launch"
+  type="button"
+  data-section-test="map-search-open"
+  [attr.aria-label]="'navigation.where_to' | translate"
+  [attr.aria-expanded]="open()"
+  (click)="focus()"
+>
+  <i class="ti ti-search" aria-hidden="true"></i>
+</button>
 <form class="search" role="search" (submit)="$event.preventDefault(); submit(query.value)">
   <i class="ti ti-search" aria-hidden="true"></i>
   <input

@@ -20,7 +20,7 @@ import { MaintenanceNotice, MaintenanceStore } from '@domains/maintenance';
 import { MapStage, NavigationStore, PositionStore } from '@domains/navigation';
 import { ParkingAlert, ParkingStore } from '@domains/parking';
 import { HazardHint, RoadStore } from '@domains/road';
-import { SceneView } from '@domains/scene3d';
+import { SceneStore, SceneView } from '@domains/scene3d';
 import { SettingsStore } from '@domains/settings';
 import { CockpitExtras, CockpitPanel, TelemetryStore } from '@domains/telemetry';
 import { Dock } from './dock';
@@ -52,12 +52,16 @@ const KEYBOARD_MIN_PX = 120;
     YoutubeSlot,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { '[class.sheet-open]': 'sheetOpen()', '[class.keyboard]': 'keyboard()' },
+  host: {
+    '[class.sheet-open]': 'sheetOpen()',
+    '[class.keyboard]': 'keyboard()',
+    '[class.no-scene]': '!scene.enabled() && !media.youtube()',
+  },
   template: `
     <app-cockpit-panel class="left" [extras]="extras()">
       @if (media.youtube(); as item) {
         <app-youtube-slot [item]="item" />
-      } @else {
+      } @else if (scene.enabled()) {
         <app-scene-view class="scene" />
       }
       <app-music-bar />
@@ -92,6 +96,7 @@ const KEYBOARD_MIN_PX = 120;
 })
 export class Shell {
   protected readonly media = inject(MediaStore);
+  protected readonly scene = inject(SceneStore);
   protected readonly sheetOpen = signal(false);
   protected readonly keyboard = signal(false);
   private readonly fuel = inject(FuelStore);

@@ -159,3 +159,57 @@ describe('Dock', () => {
     });
   });
 });
+
+describe('Dock menu on small screens', () => {
+  async function setup() {
+    TestBed.configureTestingModule({
+      providers: [
+        provideRouter(DOCK_APPS.map((app) => ({ path: app.path, component: Page }))),
+        provideI18nTesting(),
+        ...telemetryTesting().providers,
+        ...maintenanceTesting().providers,
+      ],
+    });
+    const fixture = TestBed.createComponent(Dock);
+    fixture.detectChanges();
+    const root: HTMLElement = fixture.nativeElement;
+    const press = async (name: string) => {
+      hook(root, name).click();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
+    const open = () => hook(root, 'dock-menu').getAttribute('aria-expanded') === 'true';
+    return { fixture, root, press, open };
+  }
+
+  it('opens and closes with the button', async () => {
+    const { root, press, open } = await setup();
+    expect(open()).toBe(false);
+    await press('dock-menu');
+    expect(open()).toBe(true);
+    expect(root.classList).toContain('open');
+    await press('dock-menu');
+    expect(open()).toBe(false);
+  });
+
+  it('closes when an area is chosen, beside the entries and with Escape', async () => {
+    const { fixture, root, press, open } = await setup();
+    await press('dock-menu');
+    await press('dock-open-settings');
+    expect(open()).toBe(false);
+    await press('dock-menu');
+    await press('dock-menu-view');
+    expect(open()).toBe(false);
+    await press('dock-menu');
+    root.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    fixture.detectChanges();
+    expect(open()).toBe(false);
+  });
+
+  it('stays open while OBD is switched', async () => {
+    const { press, open } = await setup();
+    await press('dock-menu');
+    await press('dock-obd');
+    expect(open()).toBe(true);
+  });
+});

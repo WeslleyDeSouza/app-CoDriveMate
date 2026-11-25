@@ -2,16 +2,19 @@ import { TestBed } from '@angular/core/testing';
 import { HttpPort } from '@core/http';
 import { CacheStore } from '@core/storage';
 import { CloudVoice } from './cloud-voice';
+import { RealtimeRefusedError, RealtimeVoice } from './realtime-voice';
 
 describe('CloudVoice', () => {
   const fetch = vi.fn();
   const fetchBinary = vi.fn();
+  const synthesize = vi.fn();
   const stored = new Map<string, unknown>();
   let voice: CloudVoice;
 
   beforeEach(() => {
     fetch.mockReset();
     fetchBinary.mockReset();
+    synthesize.mockReset();
     stored.clear();
     vi.stubGlobal('URL', { createObjectURL: () => 'blob:x', revokeObjectURL: () => undefined });
     vi.stubGlobal(
@@ -29,6 +32,7 @@ describe('CloudVoice', () => {
     TestBed.configureTestingModule({
       providers: [
         { provide: HttpPort, useValue: { fetch, fetchBinary } },
+        { provide: RealtimeVoice, useValue: { synthesize } },
         {
           provide: CacheStore,
           useValue: {
@@ -76,7 +80,7 @@ describe('CloudVoice', () => {
     expect(voice.problem()).toBeNull();
   });
 
-  it('speaks with ElevenLabs and OpenAI without keeping the sound', async () => {
+  it('speaks with ElevenLabs without keeping the sound', async () => {
     fetchBinary.mockImplementation(async () => new Response('mp3'));
     voice.configure({ provider: 'elevenlabs', key: 'k', voice: 'v/1' });
     await voice.say('Links abbiegen', 'de', 2);
@@ -87,10 +91,28 @@ describe('CloudVoice', () => {
       language_code: 'de',
       voice_settings: { speed: 1.2 },
     });
+    expect(stored.size).toBe(0);
+  });
+
+  it('speaks with OpenAI in real time, and can be stopped', async () => {
+    synthesize.mockResolvedValue(new Blob(['wav']));
     voice.configure({ provider: 'openai', key: 'o', voice: 'marin' });
     await voice.say('Links abbiegen', 'de', 1);
-    expect(fetchBinary.mock.calls[1][1].headers.authorization).toBe('Bearer o');
+    expect(synthesize.mock.calls[0][0]).toMatchObject({ key: 'o', voice: 'marin' });
     expect(stored.size).toBe(0);
+    await voice.silence();
+    expect(synthesize.mock.calls[0][1].aborted).toBe(true);
+  });
+
+  it('gives up on a refused OpenAI key, but not on a wrong reading', async () => {
+    voice.configure({ provider: 'openai', key: 'o', voice: 'marin' });
+    synthesize.mockRejectedValue(new Error('not as it is'));
+    await expect(voice.say('Hallo', 'de', 1)).rejects.toThrow();
+    expect(voice.available).toBe(true);
+    synthesize.mockRejectedValue(new RealtimeRefusedError(401, ''));
+    await expect(voice.say('Hallo', 'de', 1)).rejects.toThrow();
+    expect(voice.problem()).toBe('refused');
+    expect(voice.available).toBe(false);
   });
 
   it('is off until an ElevenLabs voice is chosen', () => {

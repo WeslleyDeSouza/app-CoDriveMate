@@ -163,3 +163,33 @@
     overscroll-behavior: contain;
   }
 }
+
+.launch {
+  display: none;
+}
+
+/* Small screens: only a button until a destination is looked for. */
+@include phone.compact {
+  :host(:not(.open)) {
+    position: relative;
+    overflow: hidden;
+
+    .launch {
+      display: grid;
+      place-items: center;
+      width: 60px;
+      height: 60px;
+      border: 0;
+      background: none;
+      color: var(--a);
+      font-size: 26px;
+    }
+    /* Not displayed, it could not take the focus within the same tap. */
+    .search {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+  }
+}

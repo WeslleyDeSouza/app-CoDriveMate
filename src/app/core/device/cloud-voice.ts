@@ -9,6 +9,7 @@ import {
   googleVoice,
   voiceProblem,
 } from './cloud-voice-services';
+import { RealtimeRefusedError, RealtimeVoice } from './realtime-voice';
 import { Voice } from './speech';
 
 export interface CloudVoiceSettings {
@@ -40,6 +41,8 @@ const MAX_ENTRIES = 400;
 const MAX_CACHED_LENGTH = 160;
 /** A prompt that comes too late is useless: then the device speaks. */
 const TIMEOUT_MS = 6000;
+/** Stories are long and nothing depends on their moment. */
+const LONG_TIMEOUT_MS = 25_000;
 
 /** The service does not work with this key; pointless until it changes. */
 class VoiceRefusedError extends Error {}
@@ -53,6 +56,7 @@ export class CloudVoice implements Voice {
   private readonly http = inject(HttpPort);
   private readonly cache = inject(CacheStore);
   private readonly reset = inject(ServiceReset);
+  private readonly realtime = inject(RealtimeVoice);
   private readonly settings = signal<CloudVoiceSettings>({
     provider: 'google',
     key: '',
@@ -64,6 +68,7 @@ export class CloudVoice implements Voice {
   private audio?: HTMLAudioElement;
   private finish?: () => void;
   private generation = 0;
+  private request?: AbortController;
 
   /** Why the cloud voice is not used, null if it is fine. */
   readonly problem = this._problem.asReadonly();
@@ -133,6 +138,7 @@ export class CloudVoice implements Voice {
 
   async silence(): Promise<void> {
     this.generation++;
+    this.request?.abort();
     this.audio?.pause();
     this.finish?.();
   }
@@ -140,6 +146,8 @@ export class CloudVoice implements Voice {
   private async synthesize(text: string, lang: string, rate: number): Promise<Blob> {
     const settings = this.settings();
     const { provider, key, voice } = settings;
+    const timeout = text.length <= MAX_CACHED_LENGTH ? TIMEOUT_MS : LONG_TIMEOUT_MS;
+    if (provider === 'openai') return this.realtimeSpeech(settings, text, lang, rate, timeout);
     const service = VOICE_SERVICES[provider];
     const cacheKey = `${googleVoice(voice, lang).name}|${rate}|${text}`;
     const keep = service.cacheable && text.length <= MAX_CACHED_LENGTH;
@@ -150,6 +158,7 @@ export class CloudVoice implements Voice {
     const { url, init } = service.request({ key, voice, text, lang, rate });
     const response = await inTime(
       service.binary ? this.http.fetchBinary(url, init) : this.http.fetch(url, init),
+      timeout,
     );
     if (!response.ok) {
       const problem = voiceProblem(response.status, await response.text().catch(() => ''));
@@ -165,6 +174,28 @@ export class CloudVoice implements Voice {
       if (Math.random() < 0.05) void this.cache.prune(BUCKET, MAX_ENTRIES).catch(() => 0);
     }
     return blob;
+  }
+
+  private async realtimeSpeech(
+    settings: CloudVoiceSettings,
+    text: string,
+    lang: string,
+    rate: number,
+    timeout: number,
+  ): Promise<Blob> {
+    const { key, voice } = settings;
+    const request = (this.request = new AbortController());
+    try {
+      const speech = this.realtime.synthesize({ key, voice, text, lang, rate }, request.signal);
+      return await inTime(speech, timeout);
+    } catch (error) {
+      request.abort();
+      if (error instanceof RealtimeRefusedError) {
+        const problem = voiceProblem(error.status, error.body);
+        if (problem) this.refuse(settings, problem);
+      }
+      throw error;
+    }
   }
 
   private refuse(settings: CloudVoiceSettings, problem: 'refused' | 'quota'): void {
@@ -207,10 +238,10 @@ function decode(base64: string): Uint8Array<ArrayBuffer> {
   return Uint8Array.from(atob(base64), (char) => char.charCodeAt(0));
 }
 
-function inTime<T>(work: Promise<T>): Promise<T> {
+function inTime<T>(work: Promise<T>, timeout: number): Promise<T> {
   let timer: ReturnType<typeof setTimeout>;
   const late = new Promise<never>((_, reject) => {
-    timer = setTimeout(() => reject(new Error('Cloud voice: too slow')), TIMEOUT_MS);
+    timer = setTimeout(() => reject(new Error('Cloud voice: too slow')), timeout);
   });
   return Promise.race([work, late]).finally(() => clearTimeout(timer));
 }

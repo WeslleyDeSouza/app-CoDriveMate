@@ -52,6 +52,16 @@ describe('saved places', () => {
 });
 
 describe('SearchPanel', () => {
+  it('opens from the button of small screens', async () => {
+    expect(root.classList).not.toContain('open');
+    hook(root, 'map-search-open').click();
+    fixture.detectChanges();
+    expect(root.classList).toContain('open');
+    hook(root, 'map-search-close').click();
+    fixture.detectChanges();
+    expect(root.classList).not.toContain('open');
+  });
+
   let fixture: ComponentFixture<SearchPanel>;
   let root: HTMLElement;
   let nav: ReturnType<typeof navigationTesting>;

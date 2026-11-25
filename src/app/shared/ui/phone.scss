@@ -18,3 +18,10 @@
     @content;
   }
 }
+
+/* Too small for the dock: its areas open from a floating button. */
+@mixin compact {
+  @media (max-width: 859.98px), (max-height: 399.98px) {
+    @content;
+  }
+}

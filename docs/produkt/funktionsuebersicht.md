@@ -32,6 +32,9 @@ Stand: 24.11.2026. Nichts davon ist im echten Auto oder am echten Adapter getest
 | Parkplatz | gebaut: merken (von Hand oder nach OBD-Fahrt), Karte, Rückweg, Notiz, Parkuhr mit Ansage und Mitteilung, QR-Code fürs Handy, Parkplätze am Ziel; Mitteilungen am Gerät ungetestet |
 | KI-Copilot | gebaut: Fragen mit Fahrzeugdaten, Sprache; mit echtem Key ungetestet |
 | Unterhaltung | Begleiter, Plaudern, Fakten, Quiz; Dialog oder Monolog; im Auto ungetestet |
+| Kleine Bildschirme (Breite < 860 oder Höhe < 400) | Bereiche und «Wohin» als schwebende Knöpfe; auf dem Gerät ungetestet |
+| 3D-Ansicht | ganz ausblendbar |
+| Zu schnell | Tempo gelb ab 4, rot ab 10 km/h über dem Limit (OpenStreetMap), mit Differenz; im Auto ungetestet |
 | Unterhaltungsmodus | gebaut: Plaudern, Fakten zur Route (ohne Key), Quiz; Fahrzeugwarnungen unterbrechen noch nicht, weil nicht portiert |
 | Tank und Tankstellen | gebaut: Füllstand (Sensor oder gezählt), Reichweite, Kosten, Tankstellen in der Nähe und auf der Route, Warnung unter 80 km; Zählung im Auto ungetestet, keine Preise |
 | Kartenansicht | drei Zustände: frei, hinter dem Pfeil, Norden oben; Zoom frei wählbar |

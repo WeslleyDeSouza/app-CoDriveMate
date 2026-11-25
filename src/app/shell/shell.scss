@@ -317,3 +317,35 @@
     }
   }
 }
+
+/* Without the 3D view its room goes to the values. */
+:host(.no-scene) .left ::ng-deep .stats {
+  flex: 1;
+}
+
+@include phone.portrait {
+  :host(.no-scene) .left ::ng-deep > .top {
+    grid-column: 1 / -1;
+  }
+}
+
+/* The dock is a floating button and needs no row. */
+@include phone.compact {
+  :host(:not(.keyboard)) {
+    grid-template-rows: minmax(0, 1fr);
+  }
+  .dock {
+    grid-area: auto;
+    margin: 0;
+  }
+}
+@include phone.portrait {
+  :host(:not(.keyboard)) {
+    grid-template-rows: auto auto minmax(0, 1fr);
+
+    .dock {
+      grid-area: auto;
+      margin: 0;
+    }
+  }
+}

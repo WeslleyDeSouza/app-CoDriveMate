@@ -511,3 +511,33 @@
     }
   }
 }
+
+/* Next to or above the floating button of the dock */
+@include phone.compact {
+  .bcard {
+    left: 8px;
+    bottom: 36px;
+  }
+  .bcard:has(app-search-panel:not(.open)) {
+    width: auto;
+    right: auto;
+    padding: 0;
+  }
+  .bcard:not(:has(app-search-panel:not(.open))) {
+    right: 86px;
+    width: auto;
+    max-width: 500px;
+  }
+}
+@include phone.portrait {
+  .bcard:not(:has(app-search-panel:not(.open))) {
+    right: 8px;
+    bottom: 104px;
+    max-height: calc(100% - 112px);
+  }
+  /* the keyboard hides the button */
+  :host-context(.keyboard) .bcard {
+    bottom: 36px;
+    max-height: calc(100% - 44px);
+  }
+}
