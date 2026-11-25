@@ -11,7 +11,8 @@ Stand: 24.11.2026. Nichts davon ist im echten Auto oder am echten Adapter getest
 | Gefahrenhinweise, Tempolimit | gebaut aus OpenStreetMap (Overpass, oft überlastet); nie Kontrollen |
 | Verkehrsmeldungen | TomTom mit Key; Schweizer Meldungen: siehe «Offen»; ungetestet |
 | Innenlicht | gebaut nach dem Protokoll des Prototyps; am Modul ungetestet |
-| Google-Karte, Google-Stimme | gebaut; ohne Key ungetestet |
+| Google-Karte | gebaut; ohne Key ungetestet |
+| Stimme (Gerät, Google, OpenAI, ElevenLabs) | in den Einstellungen wählbar; mit Keys und auf dem iPad ungetestet |
 | OBD2 über BLE | Assistent mit Geräteliste in der App («Passt vermutlich»), Verbindungstest, automatisch verbinden und wiederverbinden; am Gerät ungetestet |
 | Einheiten | Distanz, Temperatur, Verbrauch, Volumen, Druck; Eingaben (Kilometerstand, Tank, Preis) bleiben metrisch |
 | Demo-Fahrt | gebaut |
@@ -30,6 +31,7 @@ Stand: 24.11.2026. Nichts davon ist im echten Auto oder am echten Adapter getest
 | Suche | Vorschläge beim Tippen, Spracheingabe, Zuhause, Arbeit, letzte Ziele, parkiertes Auto |
 | Parkplatz | gebaut: merken (von Hand oder nach OBD-Fahrt), Karte, Rückweg, Notiz, Parkuhr mit Ansage und Mitteilung, QR-Code fürs Handy, Parkplätze am Ziel; Mitteilungen am Gerät ungetestet |
 | KI-Copilot | gebaut: Fragen mit Fahrzeugdaten, Sprache; mit echtem Key ungetestet |
+| Unterhaltung | Begleiter, Plaudern, Fakten, Quiz; Dialog oder Monolog; im Auto ungetestet |
 | Unterhaltungsmodus | gebaut: Plaudern, Fakten zur Route (ohne Key), Quiz; Fahrzeugwarnungen unterbrechen noch nicht, weil nicht portiert |
 | Tank und Tankstellen | gebaut: Füllstand (Sensor oder gezählt), Reichweite, Kosten, Tankstellen in der Nähe und auf der Route, Warnung unter 80 km; Zählung im Auto ungetestet, keine Preise |
 | Kartenansicht | drei Zustände: frei, hinter dem Pfeil, Norden oben; Zoom frei wählbar |
@@ -42,5 +44,5 @@ Stand: 24.11.2026. Nichts davon ist im echten Auto oder am echten Adapter getest
 - Schweizer Verkehrsmeldungen (opentransportdata.swiss): liefern keine Koordinaten, nur TMC-Ortscodes. Nötig sind ein API-Key und die TMC-Ortstabelle, die das ASTRA auf Anfrage abgibt (verkehrsdaten-plattform@astra.admin.ch). Vorher ist ein Proxy nicht sinnvoll
 - Mapbox Navigation SDK für Routen ohne Netz auf der Mapbox-Karte: nach dem ersten iOS-Build (entschieden 24.11.2026)
 - Freie Ortssuche ohne Netz
-- Aus dem Mock fehlen in den Einstellungen: aktueller Tankstand, Vollgetankt, Wahl der Google-Stimme, Stimme anhören
+- Aus dem Mock fehlen in den Einstellungen: aktueller Tankstand, Vollgetankt
 - Startpaket liegt knapp über der Warngrenze von 800 kB

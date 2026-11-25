@@ -328,6 +328,8 @@
             (change)="patch({ voice: { provider: $any(text($event)) } })"
           >
             <option value="auto">{{ 'settings.voice_auto' | translate }}</option>
+            <option value="openai">{{ 'settings.voice_openai' | translate }}</option>
+            <option value="elevenlabs">{{ 'settings.voice_elevenlabs' | translate }}</option>
             <option value="browser">{{ 'settings.voice_browser' | translate }}</option>
           </select>
         </label>
@@ -354,18 +356,71 @@
             data-section-test="settings-cloud-voice"
             (change)="patch({ voice: { cloudVoice: text($event) } })"
           >
-            @for (name of cloudVoices; track name) {
+            @for (name of cloudVoices(); track name) {
               <option [value]="name" [selected]="name === draft().voice.cloudVoice">
-                {{ 'settings.cloud_voices.' + name | translate }}
+                {{ cloudVoiceLabel(name) }}
               </option>
             }
           </select>
         </label>
-        @if (voiceProblem(); as problem) {
-          <p class="hint" role="status" data-section-test="settings-voice-problem">
-            {{ 'settings.voice_problem.' + problem | translate }}
+      }
+      @if (draft().voice.provider === 'openai') {
+        <label class="f">
+          <span>
+            {{ 'settings.openai_voice' | translate }}
+            <em>{{ 'settings.openai_voice_note' | translate }}</em>
+          </span>
+          <select
+            data-section-test="settings-openai-voice"
+            (change)="patch({ voice: { openaiVoice: text($event) } })"
+          >
+            @for (name of openaiVoices; track name) {
+              <option [value]="name" [selected]="name === draft().voice.openaiVoice">
+                {{ name }}
+              </option>
+            }
+          </select>
+        </label>
+      }
+      @if (draft().voice.provider === 'elevenlabs') {
+        <ng-container
+          *ngTemplateOutlet="
+            keyField;
+            context: { name: 'elevenlabs', hint: keyHints['elevenlabs'] }
+          "
+        />
+        <label class="f">
+          {{ 'settings.eleven_voice' | translate }}
+          <select data-section-test="settings-eleven-voice" (change)="setElevenVoice($event)">
+            <option value="" [selected]="!draft().voice.elevenVoice.id">
+              {{ 'settings.eleven_choose' | translate }}
+            </option>
+            @for (voice of elevenVoices(); track voice.id) {
+              <option [value]="voice.id" [selected]="voice.id === draft().voice.elevenVoice.id">
+                {{ voiceLabel(voice) }}
+              </option>
+            }
+          </select>
+        </label>
+        <button
+          class="btn"
+          type="button"
+          data-section-test="settings-eleven-load"
+          [disabled]="!draft().keys.elevenlabs"
+          (click)="loadElevenVoices()"
+        >
+          <i class="ti ti-refresh" aria-hidden="true"></i>{{ 'settings.eleven_load' | translate }}
+        </button>
+        @if (accountVoicesFailed()) {
+          <p class="hint" role="status" data-section-test="settings-eleven-failed">
+            {{ 'settings.eleven_failed' | translate }}
           </p>
         }
+      }
+      @if (draft().voice.provider !== 'browser' && voiceProblem(); as problem) {
+        <p class="hint" role="status" data-section-test="settings-voice-problem">
+          {{ 'settings.voice_problem.' + problem | translate }}
+        </p>
       }
       <button class="btn" type="button" data-section-test="settings-voice-try" (click)="tryVoice()">
         <i class="ti ti-volume" aria-hidden="true"></i>{{ 'settings.voice_try' | translate }}

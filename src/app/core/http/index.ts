@@ -15,6 +15,8 @@ export abstract class HttpPort {
   abstract getBlob(url: string): Promise<Blob | null>;
   /** A request in the shape of `fetch`, for libraries that bring their own client. */
   abstract fetch(url: string, init: RequestInit): Promise<Response>;
+  /** Like `fetch`, for an answer that is not text. */
+  abstract fetchBinary(url: string, init: RequestInit): Promise<Response>;
 }
 
 const TIMEOUT_MS = 15000;
@@ -41,6 +43,25 @@ export class CapacitorHttpPort extends HttpPort {
   async getBlob(url: string): Promise<Blob | null> {
     const response = await fetch(url, { signal: AbortSignal.timeout(TIMEOUT_MS) });
     return response.ok ? response.blob() : null;
+  }
+
+  async fetchBinary(url: string, init: RequestInit): Promise<Response> {
+    if (!Capacitor.isNativePlatform()) return fetch(url, init);
+    const { data, status } = await CapacitorHttp.request({
+      url,
+      method: init.method ?? 'GET',
+      headers: Object.fromEntries(new Headers(init.headers).entries()),
+      data: typeof init.body === 'string' ? parse(init.body) : undefined,
+      responseType: 'arraybuffer',
+    });
+    // The plugin hands binary data over as base64; errors come as JSON.
+    if (status < 300 && typeof data === 'string') {
+      return new Response(
+        Uint8Array.from(atob(data), (char) => char.charCodeAt(0)),
+        { status },
+      );
+    }
+    return new Response(typeof data === 'string' ? data : JSON.stringify(data ?? null), { status });
   }
 
   async fetch(url: string, init: RequestInit): Promise<Response> {

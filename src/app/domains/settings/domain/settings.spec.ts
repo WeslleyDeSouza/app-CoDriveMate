@@ -1,12 +1,12 @@
 import { settingsFromLegacy } from './legacy-settings';
-import { aiAvailable, DEFAULT_SETTINGS, mergeSettings } from './settings';
+import { aiAvailable, cloudVoice, DEFAULT_SETTINGS, mergeSettings } from './settings';
 
 describe('AI provider', () => {
   it('follows the model and asks for its key', () => {
     const use = (model: string, keys: Partial<typeof DEFAULT_SETTINGS.keys>, proxyUrl = '') =>
       aiAvailable({
         ...DEFAULT_SETTINGS,
-        ai: { model },
+        ai: { ...DEFAULT_SETTINGS.ai, model },
         keys: { ...DEFAULT_SETTINGS.keys, ...keys },
         proxyUrl,
       });
@@ -24,6 +24,7 @@ describe('mergeSettings', () => {
     expect(merged.keys).toEqual({
       anthropic: '',
       openai: '',
+      elevenlabs: '',
       google: '',
       mapbox: 'pk.test',
       tomtom: '',
@@ -70,6 +71,7 @@ describe('settingsFromLegacy', () => {
     expect(settings.keys).toEqual({
       anthropic: 'sk-ant-x',
       openai: '',
+      elevenlabs: '',
       google: 'g',
       mapbox: 'pk.m',
       tomtom: 't',
@@ -93,5 +95,24 @@ describe('settingsFromLegacy', () => {
   it('falls back to defaults for missing or invalid values', () => {
     const settings = settingsFromLegacy({ prov: 'bing', disp: 'abc', theme: 'neon' });
     expect(settings).toEqual(DEFAULT_SETTINGS);
+  });
+});
+
+describe('cloudVoice', () => {
+  const keys = { ...DEFAULT_SETTINGS.keys, google: 'g', openai: 'o', elevenlabs: 'e' };
+  const choose = (provider: 'auto' | 'browser' | 'openai' | 'elevenlabs') =>
+    cloudVoice({
+      keys,
+      voice: { ...DEFAULT_SETTINGS.voice, provider, elevenVoice: { id: 'v1', name: 'Anna' } },
+    });
+
+  it('uses the key and voice of the chosen provider', () => {
+    expect(choose('auto')).toEqual({ provider: 'google', key: 'g', voice: 'Aoede' });
+    expect(choose('openai')).toEqual({ provider: 'openai', key: 'o', voice: 'marin' });
+    expect(choose('elevenlabs')).toEqual({ provider: 'elevenlabs', key: 'e', voice: 'v1' });
+  });
+
+  it('sends nothing anywhere with the device voice', () => {
+    expect(choose('browser').key).toBe('');
   });
 });

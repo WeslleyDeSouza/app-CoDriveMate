@@ -20,13 +20,25 @@ Beide Prompts verbieten Hinweise auf Kontrollen und Blitzer.
 
 | Modus | Quelle | Key nötig |
 |---|---|---|
-| Plaudern | Anthropic, hört bis 6-mal zu | ja |
+| Begleiter zur Fahrt | Auf dem Gerät: Tank, Pause, kalter Motor, Bremsen, Beschleunigen, Drehzahl, Leerlauf; übliches Ziel | nein |
+| Plaudern | Sprachmodell mit wechselnden Themen, hört bis 6-mal zu | ja |
 | Fakten zur Route | Wikipedia, 10 km Umkreis | nein (mit Key umformuliert) |
 | Quiz | Anthropic, Antwort per Stimme oder Tippen | ja |
 
 Still unter 700 m vor einem Manöver, während anderer Ansagen und im Hintergrund. Ein Tipp
 auf den Knopf über der Karte oder «Stopp» beendet. Wikipedia erhält den Ort auf drei
 Nachkommastellen (rund 100 m).
+
+**Dialog oder Monolog** (Einstellung `ai.talkStyle`): Im Monolog wird nur erzählt
+(4 bis 6 Sätze), das Mikrofon bleibt aus und es gibt kein Quiz. Kommt ein Manöver auf
+700 m heran oder eine Warnung, bricht die laufende Erzählung ab.
+
+**Begleiter:** Jede Bemerkung kommt höchstens einmal pro Fahrt. Wo gebremst wurde, ist
+nicht bekannt (keine Ampeln). Das übliche Ziel braucht mindestens drei Fahrten vom
+gleichen Ort (300 m), zur gleichen Zeit (±90 Min.) und Art von Tag (Werktag,
+Wochenende); die Route startet nur nach einem klaren Ja. Diese Sätze gehen nicht ans
+Sprachmodell; mit gewählter Cloud-Stimme geht der gesprochene Text an deren Anbieter.
+Ungetestet im Auto.
 
 Mehrere Modi lassen sich zusammen einschalten; dann wechseln sie zufällig, nie zweimal
 hintereinander derselbe.

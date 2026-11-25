@@ -1,6 +1,14 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { CLOUD_VOICES, CloudVoice, SpeechOutput } from '@core/device';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+  untracked,
+} from '@angular/core';
+import { AccountVoice, CLOUD_VOICES, CloudVoice, OPENAI_VOICES, SpeechOutput } from '@core/device';
 import { ServiceReset } from '@core/http/service-reset';
 import { APP_LANGUAGES, TranslatePipe, TranslateService } from '@core/i18n';
 import { BackupFile, BackupService } from '@core/storage';
@@ -10,7 +18,7 @@ import { Units } from '@shared/kernel/units';
 import { RouterLink } from '@angular/router';
 import { SheetPage } from '@shared/ui/sheet-page';
 import { SettingsStore } from '../application/settings.store';
-import { AppSettings, DeepPartial, mergeSettings } from '../domain/settings';
+import { AppSettings, DeepPartial, cloudVoice, mergeSettings } from '../domain/settings';
 
 type KeyName = keyof AppSettings['keys'];
 
@@ -57,12 +65,32 @@ export class SettingsPage {
   protected readonly keyHints: Record<string, string> = {
     anthropic: 'sk-ant-…',
     openai: 'sk-…',
+    elevenlabs: 'sk_…',
     google: 'AIza…',
     mapbox: 'pk.…',
     tomtom: 'developer.tomtom.com',
   };
   protected readonly visibleKeys = signal<ReadonlySet<KeyName>>(new Set());
   protected readonly backupError = signal(false);
+
+  constructor() {
+    // With a new key, or when ElevenLabs is chosen, its voices are fetched.
+    const key = computed(() => {
+      const { voice, keys } = this.draft();
+      return voice.provider === 'elevenlabs' ? keys.elevenlabs : '';
+    });
+    effect(() => {
+      if (key()) untracked(() => void this.loadElevenVoices());
+    });
+    const google = computed(() => {
+      const { voice, keys } = this.draft();
+      return voice.provider === 'auto' ? keys.google : '';
+    });
+    effect(() => {
+      const [current, lang] = [google(), this.language()];
+      if (current) untracked(() => void this.loadGoogleVoices(current, lang));
+    });
+  }
 
   protected patch(change: DeepPartial<AppSettings>): void {
     this.draft.update((draft) => mergeSettings(draft, change));
@@ -113,14 +141,64 @@ export class SettingsPage {
     this.patch({ map: { scene: { [part]: this.on(event) } } });
   }
 
-  protected readonly cloudVoices = CLOUD_VOICES;
+  private readonly googleVoices = signal<readonly string[]>([]);
+  /** The known voices with a description first, then what Google has besides. */
+  protected readonly cloudVoices = computed(() => [
+    ...new Set<string>([...CLOUD_VOICES, this.draft().voice.cloudVoice, ...this.googleVoices()]),
+  ]);
+
+  protected cloudVoiceLabel(name: string): string {
+    const known = (CLOUD_VOICES as readonly string[]).includes(name);
+    return (known && this.translate.translate('settings.cloud_voices.' + name)) || name;
+  }
+
+  /** The list is an extra: without it the known voices stay. */
+  private async loadGoogleVoices(key: string, lang: string): Promise<void> {
+    const voices = await this.cloudVoice.googleVoices(key, lang).catch(() => []);
+    if (key === this.draft().keys.google && lang === this.language()) this.googleVoices.set(voices);
+  }
+
+  protected readonly openaiVoices = OPENAI_VOICES;
   protected readonly voiceProblem = this.cloudVoice.problem;
+  protected readonly accountVoices = signal<readonly AccountVoice[]>([]);
+  protected readonly accountVoicesFailed = signal(false);
+
+  /** Voices of the app language first; the chosen one even before they are loaded. */
+  protected readonly elevenVoices = computed<readonly AccountVoice[]>(() => {
+    const chosen = this.draft().voice.elevenVoice;
+    const speaks = ({ languages }: AccountVoice) => languages.includes(this.language());
+    const loaded = [...this.accountVoices()].sort((a, b) => Number(speaks(b)) - Number(speaks(a)));
+    return !chosen.id || loaded.some(({ id }) => id === chosen.id)
+      ? loaded
+      : [{ ...chosen, languages: [] }, ...loaded];
+  });
+
+  protected voiceLabel({ name, languages }: AccountVoice): string {
+    return languages.length ? `${name} (${languages.slice(0, 4).join(', ')})` : name;
+  }
+
+  protected async loadElevenVoices(): Promise<void> {
+    const key = this.draft().keys.elevenlabs;
+    this.accountVoicesFailed.set(false);
+    if (!key) return this.accountVoices.set([]);
+    try {
+      const voices = await this.cloudVoice.accountVoices(key);
+      if (key === this.draft().keys.elevenlabs) this.accountVoices.set(voices);
+    } catch {
+      if (key === this.draft().keys.elevenlabs) this.accountVoicesFailed.set(true);
+    }
+  }
+
+  protected setElevenVoice(event: Event): void {
+    const id = this.text(event);
+    const name = this.elevenVoices().find((voice) => voice.id === id)?.name ?? '';
+    this.patch({ voice: { elevenVoice: { id, name } } });
+  }
 
   /** Speaks a sentence with what is chosen in the draft. */
   protected async tryVoice(): Promise<void> {
-    const { keys, voice } = this.draft();
-    const key = voice.provider === 'browser' ? '' : keys.google;
-    this.cloudVoice.configure({ key, voice: voice.cloudVoice });
+    const { voice } = this.draft();
+    this.cloudVoice.configure(cloudVoice(this.draft()));
     const text = this.translate.translate('settings.voice_sample') ?? '';
     await this.speech.stop();
     await this.speech.speak(text, this.translate.lang, voice.rate, 'nav');

@@ -7,7 +7,9 @@ import { DeviceSpeechOutput, SpeechOutput } from './speech';
 export { ListeningUnavailableError, SpeechInput } from './listening';
 export { Reminders } from './reminders';
 export type { Reminder } from './reminders';
-export { CLOUD_VOICES, CloudVoice } from './cloud-voice';
+export { CloudVoice } from './cloud-voice';
+export type { AccountVoice, CloudVoiceSettings } from './cloud-voice';
+export { CLOUD_VOICES, OPENAI_VOICES } from './cloud-voice-services';
 export { SpeechOutput } from './speech';
 export type { SpeechKind } from './speech';
 

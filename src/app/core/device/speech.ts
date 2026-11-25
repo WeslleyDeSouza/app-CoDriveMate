@@ -1,6 +1,8 @@
 import { Injectable, Signal, inject, signal } from '@angular/core';
+import { Capacitor } from '@capacitor/core';
 import { TextToSpeech } from '@capacitor-community/text-to-speech';
 import { CloudVoice } from './cloud-voice';
+import { VOICE_LOCALES, bestVoice } from './device-voice';
 
 /**
  * Who speaks. Navigation prompts and warnings ('nav') interrupt everything else;
@@ -112,7 +114,16 @@ export class DeviceSpeechOutput extends SpeechOutput {
           if (run !== this.stopped) return;
         }
       }
-      await TextToSpeech.speak({ text, lang, rate, category: 'playback' });
+      const locale = VOICE_LOCALES[lang] ?? lang;
+      const voice = await this.deviceVoice(locale);
+      if (run !== this.stopped) return;
+      await TextToSpeech.speak({
+        text,
+        lang: locale,
+        rate,
+        category: 'playback',
+        ...(voice >= 0 ? { voice } : {}),
+      });
     },
     silence: async () => {
       this.stopped++;
@@ -127,5 +138,15 @@ export class DeviceSpeechOutput extends SpeechOutput {
 
   stop(kind?: SpeechKind): Promise<void> {
     return this.queue.stop(kind);
+  }
+
+  /** Asked every time: the index moves when a voice is downloaded. */
+  private async deviceVoice(locale: string): Promise<number> {
+    if (Capacitor.getPlatform() !== 'ios') return -1;
+    try {
+      return bestVoice((await TextToSpeech.getSupportedVoices()).voices, locale);
+    } catch {
+      return -1;
+    }
   }
 }

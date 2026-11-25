@@ -6,7 +6,7 @@ export type RoutingProvider = 'auto' | 'google' | 'mapbox' | 'osm';
 export type BaseMap = 'auto' | 'ofm' | 'mapbox' | 'mapboxnav' | 'google';
 export type SceneWorld = 'real' | 'plain' | 'mapbox' | 'google';
 export type SceneQuality = 'low' | 'normal' | 'high';
-export type VoiceProvider = 'auto' | 'browser';
+export type VoiceProvider = 'auto' | 'browser' | 'openai' | 'elevenlabs';
 
 export interface AppSettings {
   theme: Theme;
@@ -30,12 +30,15 @@ export interface AppSettings {
   voice: {
     navigation: boolean;
     readAnswers: boolean;
-    /** 'auto' = cloud voice with the browser voice as fallback */
+    /** 'auto' = Google voice; every cloud voice falls back to the device voice */
     provider: VoiceProvider;
     /** speaking rate, 1 = normal */
     rate: number;
     /** name of the Google voice */
     cloudVoice: string;
+    openaiVoice: string;
+    /** chosen voice of the ElevenLabs account, '' = none */
+    elevenVoice: { id: string; name: string };
   };
   map: {
     routingProvider: RoutingProvider;
@@ -67,6 +70,8 @@ export interface AppSettings {
   };
   ai: {
     model: string;
+    /** conversation: only told, or with questions and answers */
+    talkStyle: 'monologue' | 'dialogue';
   };
   /**
    * API keys entered by the user. They live only on this device; nothing is
@@ -75,6 +80,7 @@ export interface AppSettings {
   keys: {
     anthropic: string;
     openai: string;
+    elevenlabs: string;
     google: string;
     mapbox: string;
     tomtom: string;
@@ -98,7 +104,15 @@ export const DEFAULT_SETTINGS: AppSettings = {
   hazardHints: true,
   autoPark: true,
   background: true,
-  voice: { navigation: true, readAnswers: true, provider: 'auto', rate: 1.05, cloudVoice: 'Aoede' },
+  voice: {
+    navigation: true,
+    readAnswers: true,
+    provider: 'auto',
+    rate: 1.05,
+    cloudVoice: 'Aoede',
+    openaiVoice: 'marin',
+    elevenVoice: { id: '', name: '' },
+  },
   map: {
     routingProvider: 'auto',
     baseMap: 'auto',
@@ -119,10 +133,28 @@ export const DEFAULT_SETTINGS: AppSettings = {
     swissTrafficReports: false,
     swissTrafficUrl: '',
   },
-  ai: { model: 'claude-haiku-5-5' },
-  keys: { anthropic: '', openai: '', google: '', mapbox: '', tomtom: '' },
+  ai: { model: 'claude-haiku-5-5', talkStyle: 'dialogue' },
+  keys: { anthropic: '', openai: '', elevenlabs: '', google: '', mapbox: '', tomtom: '' },
   proxyUrl: '',
 };
+
+/** The natural voice to use; without a key the device speaks. */
+export function cloudVoice({ voice, keys }: Pick<AppSettings, 'voice' | 'keys'>): {
+  provider: 'google' | 'openai' | 'elevenlabs';
+  key: string;
+  voice: string;
+} {
+  switch (voice.provider) {
+    case 'openai':
+      return { provider: 'openai', key: keys.openai, voice: voice.openaiVoice };
+    case 'elevenlabs':
+      return { provider: 'elevenlabs', key: keys.elevenlabs, voice: voice.elevenVoice.id };
+    case 'browser':
+      return { provider: 'google', key: '', voice: voice.cloudVoice };
+    default:
+      return { provider: 'google', key: keys.google, voice: voice.cloudVoice };
+  }
+}
 
 export type AiProvider = 'anthropic' | 'openai';
 

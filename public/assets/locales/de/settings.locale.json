@@ -35,8 +35,8 @@
     "scene3d_off": "Aus (spart Akku)",
     "nav_voice": "Navi-Ansagen",
     "voice_provider": "Stimme",
-    "voice_auto": "Google-Stimme (natürlich), sonst Gerätestimme",
-    "voice_browser": "Nur Gerätestimme (gratis, offline)",
+    "voice_auto": "Google (natürlich)",
+    "voice_browser": "Gerätestimme (gratis, offline)",
     "voice_rate": "Tempo",
     "rate_calm": "ruhig",
     "rate_normal": "normal",
@@ -133,7 +133,7 @@
       "roadDetails": "Asphalt, Randlinien, Fussgängerstreifen"
     },
     "scene_privacy": "Für die 3D-Ansicht werden Kartenausschnitte um die Position geladen: von swisstopo (Schweiz), OpenFreeMap und Overpass, bei «Mapbox» und «Google» von diesen Anbietern (USA). «Mapbox» und «Google» können je nach Nutzung etwas kosten. Gespeichert wird alles ausser Google und, im Browser, Mapbox.",
-    "ai_privacy": "Mit jeder Frage gehen an den Anbieter des gewählten Modells, Anthropic oder OpenAI (beide USA): Frage und Verlauf der Sitzung, Fahrzeug, Live-Werte, aktuelle Strasse, Ziel und Ankunft. Im Unterhaltungsmodus zusätzlich Ortsnamen in der Nähe, die Uhrzeit und der Zustand des Autos (Tank fast leer, Motor kalt, steht); dafür erhält Wikipedia den ungefähren Standort (rund 100 m). Nie gesendet werden gefahrene Strecken, Fahrtenbuch und andere Keys. Die Spracheingabe läuft über den Dienst des Geräts (Apple oder Google).",
+    "ai_privacy": "Mit jeder Frage gehen an den Anbieter des gewählten Modells, Anthropic oder OpenAI (beide USA): Frage und Verlauf der Sitzung, Fahrzeug, Live-Werte, aktuelle Strasse, Ziel und Ankunft. Im Unterhaltungsmodus zusätzlich Ortsnamen in der Nähe, die Uhrzeit, der Zustand des Autos (Tank fast leer, Motor kalt, steht) und Zahlen zur laufenden Fahrt (Distanz, Dauer, starkes Bremsen und Beschleunigen); dafür erhält Wikipedia den ungefähren Standort (rund 100 m). Nie gesendet werden gefahrene Strecken, Fahrtenbuch und andere Keys. Die Spracheingabe läuft über den Dienst des Geräts (Apple oder Google).",
     "key_openai": "OpenAI API-Key",
     "key_openai_note": "für ChatGPT; ein ChatGPT-Abo genügt nicht",
     "model_luna": "ChatGPT (GPT-6 Luna, schnell, günstig)",
@@ -152,14 +152,24 @@
     "voice_try": "Stimme anhören",
     "voice_sample": "In 300 Metern rechts abbiegen auf die Bahnhofstrasse.",
     "voice_problem": {
-      "refused": "Google lehnt den Key für die Stimme ab. Ist «Cloud Text-to-Speech API» eingeschaltet? Bis dahin spricht das Gerät.",
-      "quota": "Das Kontingent der Google-Stimme ist aufgebraucht. Bis dahin spricht das Gerät."
+      "refused": "Der Dienst lehnt den Key oder die Stimme ab. Bei Google muss «Cloud Text-to-Speech API» eingeschaltet sein. Bis dahin spricht das Gerät.",
+      "quota": "Das Kontingent der Stimme ist aufgebraucht. Bis dahin spricht das Gerät."
     },
     "background": "Im Hintergrund weiterlaufen",
     "background_note": "Ansagen und Fahrtenbuch auch bei gesperrtem Bildschirm, nur mit OBD oder aktiver Route; braucht mehr Akku",
     "reset_pauses": "Gesperrte Dienste freigeben",
     "pauses_reset": "Freigegeben",
     "reset_pauses_note": "Dienste mit aufgebrauchtem Kontingent oder abgelehntem Key werden wieder versucht.",
-    "selftest": "Gerätetest"
+    "selftest": "Gerätetest",
+    "voice_openai": "ChatGPT / OpenAI (natürlich)",
+    "voice_elevenlabs": "ElevenLabs (natürlich)",
+    "openai_voice": "OpenAI-Stimme",
+    "openai_voice_note": "braucht den OpenAI-Key (Bereich «KI-Copilot»); ein ChatGPT-Abo genügt nicht. Sendet den gesprochenen Text an OpenAI (USA) und kostet pro Ansage. OpenAI stellt diese Schnittstelle am 6. Januar 2027 ein.",
+    "key_elevenlabs": "ElevenLabs API-Key",
+    "key_elevenlabs_note": "sendet den gesprochenen Text an ElevenLabs (USA); verbraucht Guthaben",
+    "eleven_voice": "ElevenLabs-Stimme",
+    "eleven_choose": "Stimme wählen",
+    "eleven_load": "Stimmen neu laden",
+    "eleven_failed": "Die Stimmen konnten nicht geladen werden. Stimmt der Key und darf er Stimmen lesen?"
   }
 }

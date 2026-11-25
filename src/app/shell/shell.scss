@@ -5,10 +5,13 @@
   grid-template-columns: minmax(320px, 35%) minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr) 76px;
   gap: 10px;
-  position: relative;
+  position: fixed;
+  top: var(--visible-top, 0);
+  left: 0;
+  right: 0;
   overflow: hidden;
   height: 100vh;
-  height: 100dvh;
+  height: var(--visible, 100dvh);
   /* keep clear of notches and system bars */
   padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right))
     max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
@@ -84,13 +87,19 @@
   grid-area: 2 / 1 / auto / -1;
 }
 
+/* While typing, the keyboard takes the place of the dock. */
+:host(.keyboard) {
+  grid-template-rows: minmax(0, 1fr);
+  padding-bottom: 10px;
+
+  .dock,
+  .over {
+    display: none;
+  }
+}
+
 @include phone.any {
   :host {
-    position: fixed;
-    top: var(--visible-top, 0);
-    left: 0;
-    right: 0;
-    height: var(--visible, 100dvh);
     gap: 8px;
     padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right))
       max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));

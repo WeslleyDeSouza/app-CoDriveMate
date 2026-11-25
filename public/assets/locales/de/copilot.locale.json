@@ -25,13 +25,14 @@
       "title": "Unterhaltung",
       "stop": "Unterhaltung beenden",
       "mode": {
+        "ride": "Begleiter zur Fahrt",
         "chat": "Plaudern",
         "facts": "Fakten zur Route",
         "quiz": "Quiz",
         "mixed": "Alles gemischt"
       },
       "notice": {
-        "needs_key": "Plaudern und Quiz brauchen einen KI-Key. Fakten zur Route gehen auch ohne.",
+        "needs_key": "Plaudern und Quiz brauchen einen KI-Key. Begleiter und Fakten zur Route gehen auch ohne.",
         "key_rejected": "Der KI-Key wurde abgelehnt.",
         "failed": "Gerade nicht möglich, ich versuche es wieder.",
         "no_microphone": "Kein Mikrofon verfügbar oder nicht erlaubt.",
@@ -49,7 +50,23 @@
       "question": "Quizfrage: {{question}} {{options}}",
       "right": "Richtig!",
       "wrong": "Leider falsch, richtig ist {{key}}.",
-      "none": "Keine Antwort erkannt. Richtig ist {{key}}."
+      "none": "Keine Antwort erkannt. Richtig ist {{key}}.",
+      "style": {
+        "dialogue": "Dialog",
+        "monologue": "Monolog"
+      },
+      "usual": "Sieht so aus, als ginge es wieder nach {{name}}. Gute Fahrt!",
+      "usual_offer": "Fährst du wieder nach {{name}}? Soll ich die Route starten?",
+      "remark": {
+        "tank": "Dein Tank ist bald leer, es reicht noch für etwa {{range}}. Plane einen Tankstopp ein.",
+        "pause": "Du fährst schon über zwei Stunden. Eine Pause täte dir gut.",
+        "cold": "Der Motor ist noch kalt. Mit weniger Drehzahl hält er länger.",
+        "braking": "Du hast heute schon ein paar Mal stark gebremst. Wenn du früher vom Gas gehst, schont das Bremsbeläge und Tank.",
+        "accelerating": "Du beschleunigst heute ziemlich kräftig. Sanfter angefahren sparst du Treibstoff.",
+        "revs": "Der Motor dreht oft hoch. Schalte ruhig etwas früher, dann wird es leiser und sparsamer.",
+        "idling": "Wir standen schon eine Weile mit laufendem Motor. Bei längeren Halten lohnt es sich, ihn abzustellen.",
+        "smooth": "Schön ruhig gefahren bis jetzt. So macht das Mitfahren Spass."
+      }
     }
   }
 }

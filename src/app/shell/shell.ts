@@ -141,8 +141,13 @@ export class Shell {
       this.keyboard.set(open);
       style.setProperty('--visible', open ? viewport.height + 'px' : '100dvh');
       style.setProperty('--visible-top', open ? viewport.offsetTop + 'px' : '0px');
+      // iOS pushes the whole page up for the field; the shell has made room for it already.
+      if (open && (window.scrollY || viewport.offsetTop)) window.scrollTo(0, 0);
       if (opened) {
-        setTimeout(() => document.activeElement?.scrollIntoView({ block: 'nearest' }), 100);
+        setTimeout(() => {
+          const field = document.activeElement;
+          if (field?.closest('.sheet')) field.scrollIntoView({ block: 'nearest' });
+        }, 100);
       }
     };
     viewport.addEventListener('resize', update);

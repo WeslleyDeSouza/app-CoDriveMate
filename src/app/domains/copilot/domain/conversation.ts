@@ -1,5 +1,7 @@
-export type TalkMode = 'chat' | 'facts' | 'quiz';
-export const TALK_MODES: readonly TalkMode[] = ['chat', 'facts', 'quiz'];
+export type TalkMode = 'ride' | 'chat' | 'facts' | 'quiz';
+export const TALK_MODES: readonly TalkMode[] = ['ride', 'chat', 'facts', 'quiz'];
+/** These work without a language model. */
+export const KEYLESS_MODES: readonly TalkMode[] = ['ride', 'facts'];
 
 const LOW_RANGE_KM = 80;
 const COLD_ENGINE_C = 60;

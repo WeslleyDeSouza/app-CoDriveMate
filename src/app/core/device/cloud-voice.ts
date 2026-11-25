@@ -2,39 +2,65 @@ import { Injectable, effect, inject, signal } from '@angular/core';
 import { HttpPort } from '@core/http';
 import { ServiceReset } from '@core/http/service-reset';
 import { CacheStore } from '@core/storage';
+import {
+  CLOUD_VOICES,
+  CloudVoiceProvider,
+  VOICE_SERVICES,
+  googleVoice,
+  voiceProblem,
+} from './cloud-voice-services';
 import { Voice } from './speech';
 
-export const CLOUD_VOICES = ['Aoede', 'Kore', 'Leda', 'Charon', 'Puck', 'Fenrir'] as const;
-
 export interface CloudVoiceSettings {
+  readonly provider: CloudVoiceProvider;
   /** '' = the voice of the device is used */
   readonly key: string;
-  /** one of CLOUD_VOICES */
+  /** name or ID of the voice at the provider */
   readonly voice: string;
 }
 
-const URL = 'https://texttospeech.googleapis.com/v1/text:synthesize';
+/** A voice in the account of the user. */
+export interface AccountVoice {
+  readonly id: string;
+  readonly name: string;
+  /** codes such as 'de' */
+  readonly languages: readonly string[];
+}
+
+interface ElevenVoice {
+  voice_id: string;
+  name: string;
+  labels?: Record<string, string> | null;
+  verified_languages?: { language?: string }[] | null;
+}
+
 const BUCKET = 'tts';
 const MAX_ENTRIES = 400;
 /** Only short sentences come back often enough to be worth keeping. */
 const MAX_CACHED_LENGTH = 160;
-const LOCALES: Record<string, string> = { de: 'de-DE', en: 'en-GB' };
+/** A prompt that comes too late is useless: then the device speaks. */
+const TIMEOUT_MS = 6000;
 
 /** The service does not work with this key; pointless until it changes. */
 class VoiceRefusedError extends Error {}
 
 /**
- * Google Cloud Text-to-Speech with the user's own key. Throws when it cannot
- * speak, so that the voice of the device takes over.
+ * Natural voice of Google, OpenAI or ElevenLabs with the user's own key. Throws
+ * when it cannot speak, so that the voice of the device takes over.
  */
 @Injectable({ providedIn: 'root' })
 export class CloudVoice implements Voice {
   private readonly http = inject(HttpPort);
   private readonly cache = inject(CacheStore);
   private readonly reset = inject(ServiceReset);
-  private readonly settings = signal<CloudVoiceSettings>({ key: '', voice: CLOUD_VOICES[0] });
+  private readonly settings = signal<CloudVoiceSettings>({
+    provider: 'google',
+    key: '',
+    voice: CLOUD_VOICES[0],
+  });
   private readonly _problem = signal<'refused' | 'quota' | null>(null);
-  private refusedKey = '';
+  /** What was refused; tried again as soon as anything of it changes. */
+  private refused = '';
   private audio?: HTMLAudioElement;
   private finish?: () => void;
   private generation = 0;
@@ -45,19 +71,57 @@ export class CloudVoice implements Voice {
   constructor() {
     effect(() => {
       if (!this.reset.count()) return;
-      this.refusedKey = '';
+      this.refused = '';
       this._problem.set(null);
     });
   }
 
   configure(settings: CloudVoiceSettings): void {
     this.settings.set(settings);
-    if (settings.key !== this.refusedKey) this._problem.set(null);
+    if (identity(settings) !== this.refused) this._problem.set(null);
   }
 
   get available(): boolean {
-    const { key } = this.settings();
-    return !!key && key !== this.refusedKey && globalThis.navigator?.onLine !== false;
+    const settings = this.settings();
+    return (
+      !!settings.key &&
+      !!settings.voice &&
+      identity(settings) !== this.refused &&
+      globalThis.navigator?.onLine !== false
+    );
+  }
+
+  get provider(): CloudVoiceProvider {
+    return this.settings().provider;
+  }
+
+  /** Names of the natural Google voices of a language, as in CLOUD_VOICES. */
+  async googleVoices(key: string, lang: string): Promise<string[]> {
+    const { languageCode, name: prefix } = googleVoice('', lang);
+    const response = await this.http.fetch(
+      `https://texttospeech.googleapis.com/v1/voices?languageCode=${languageCode}`,
+      { headers: { 'x-goog-api-key': key } },
+    );
+    if (!response.ok) throw new VoiceRefusedError('Voices: HTTP ' + response.status);
+    const { voices } = (await response.json()) as { voices?: { name: string }[] };
+    return (voices ?? [])
+      .filter(({ name }) => name.startsWith(prefix))
+      .map(({ name }) => name.slice(prefix.length))
+      .sort();
+  }
+
+  /** Voices of an ElevenLabs account. */
+  async accountVoices(key: string): Promise<AccountVoice[]> {
+    const response = await this.http.fetch('https://api.elevenlabs.io/v2/voices?page_size=100', {
+      headers: { 'xi-api-key': key },
+    });
+    if (!response.ok) throw new VoiceRefusedError('Voices: HTTP ' + response.status);
+    const { voices } = (await response.json()) as { voices: ElevenVoice[] };
+    return voices.map(({ voice_id, name, labels, verified_languages }) => {
+      const codes = [labels?.['language'], ...(verified_languages ?? []).map((v) => v.language)];
+      const languages = [...new Set(codes.filter((code): code is string => !!code))];
+      return { id: voice_id, name, languages };
+    });
   }
 
   async say(text: string, lang: string, rate: number): Promise<void> {
@@ -74,31 +138,27 @@ export class CloudVoice implements Voice {
   }
 
   private async synthesize(text: string, lang: string, rate: number): Promise<Blob> {
-    const { key, voice } = this.settings();
-    const languageCode = LOCALES[lang] ?? 'de-DE';
-    const name = `${languageCode}-Chirp3-HD-${voice}`;
-    const cacheKey = `${name}|${rate}|${text}`;
-    const keep = text.length <= MAX_CACHED_LENGTH;
+    const settings = this.settings();
+    const { provider, key, voice } = settings;
+    const service = VOICE_SERVICES[provider];
+    const cacheKey = `${googleVoice(voice, lang).name}|${rate}|${text}`;
+    const keep = service.cacheable && text.length <= MAX_CACHED_LENGTH;
     if (keep) {
       const stored = await this.cache.get<Blob>(BUCKET, cacheKey).catch(() => undefined);
       if (stored) return stored;
     }
-    const response = await this.http.fetch(URL, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', 'x-goog-api-key': key },
-      body: JSON.stringify({
-        input: { text },
-        voice: { languageCode, name },
-        audioConfig: { audioEncoding: 'MP3', speakingRate: rate },
-      }),
-    });
+    const { url, init } = service.request({ key, voice, text, lang, rate });
+    const response = await inTime(
+      service.binary ? this.http.fetchBinary(url, init) : this.http.fetch(url, init),
+    );
     if (!response.ok) {
-      if (response.status === 429) this.refuse(key, 'quota');
-      if ([400, 401, 403].includes(response.status)) this.refuse(key, 'refused');
+      const problem = voiceProblem(response.status, await response.text().catch(() => ''));
+      if (problem) this.refuse(settings, problem);
       throw new VoiceRefusedError('Cloud voice: HTTP ' + response.status);
     }
-    const { audioContent } = (await response.json()) as { audioContent: string };
-    const bytes = Uint8Array.from(atob(audioContent), (char) => char.charCodeAt(0));
+    const bytes = service.binary
+      ? await response.arrayBuffer()
+      : decode(((await response.json()) as { audioContent: string }).audioContent);
     const blob = new Blob([bytes], { type: 'audio/mpeg' });
     if (keep) {
       await this.cache.put(BUCKET, cacheKey, blob).catch(() => undefined);
@@ -107,8 +167,10 @@ export class CloudVoice implements Voice {
     return blob;
   }
 
-  private refuse(key: string, problem: 'refused' | 'quota'): void {
-    this.refusedKey = key;
+  private refuse(settings: CloudVoiceSettings, problem: 'refused' | 'quota'): void {
+    // The settings may have changed while the request was running.
+    if (identity(settings) !== identity(this.settings())) return;
+    this.refused = identity(settings);
     this._problem.set(problem);
   }
 
@@ -135,4 +197,20 @@ export class CloudVoice implements Voice {
       });
     });
   }
+}
+
+function identity({ provider, key, voice }: CloudVoiceSettings): string {
+  return `${provider}|${key}|${voice}`;
+}
+
+function decode(base64: string): Uint8Array<ArrayBuffer> {
+  return Uint8Array.from(atob(base64), (char) => char.charCodeAt(0));
+}
+
+function inTime<T>(work: Promise<T>): Promise<T> {
+  let timer: ReturnType<typeof setTimeout>;
+  const late = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error('Cloud voice: too slow')), TIMEOUT_MS);
+  });
+  return Promise.race([work, late]).finally(() => clearTimeout(timer));
 }

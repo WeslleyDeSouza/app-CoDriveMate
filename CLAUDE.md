@@ -223,7 +223,7 @@ a special case in the UI. Everything must be testable without a car:
 
 ## Keys and services
 
-- **No API keys in the code or the build** (Google, Mapbox, TomTom, Anthropic, OpenAI).
+- **No API keys in the code or the build** (Google, Mapbox, TomTom, Anthropic, OpenAI, ElevenLabs).
   Keys are entered by the user in settings (stored locally) or requests go
   through a proxy. Never commit keys, never put them into `environment` files.
 - Every external service is optional and has a fallback; the app must stay
@@ -248,13 +248,15 @@ a special case in the UI. Everything must be testable without a car:
   leave it only through a backup export the user starts.
 - Data leaves the device only as requests to the services the user enabled:
   position/route to the map, routing, geocoding, weather and traffic providers;
-  text to the TTS provider.
+  spoken text to the chosen voice provider (Google, OpenAI or ElevenLabs).
 - **AI copilot (Anthropic or OpenAI API, user's own key):** each request sends the
   question, the chat history of the session and a snapshot — vehicle name and
   engine, live OBD values, current street, speed limit, outside temperature,
   nearby traffic messages, destination/ETA, trip and tank figures. Conversation
   mode also sends street, nearby place names, time and remarks about the car
-  (tank almost empty with range, engine cold, standing still); Wikipedia gets the
+  (tank almost empty with range, engine cold, standing still) and figures of the
+  current drive (distance, duration, hard braking/acceleration). The usual destination
+  is worked out on the device and never goes to the copilot. Wikipedia gets the
   position rounded to about 100 m for them. Never sent: coordinates
   as a track, the logbook, stored trips, API keys of other services. Keep this
   list true — extending the snapshot means updating it and the settings text.

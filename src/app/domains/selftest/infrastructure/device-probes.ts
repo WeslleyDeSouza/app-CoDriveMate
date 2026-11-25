@@ -68,7 +68,7 @@ export class DeviceProbes extends ProbeSource {
       ),
       { id: 'mapbox', group: 'key', run: () => this.mapbox() },
       { id: 'google-routes', group: 'key', run: () => this.googleRoutes() },
-      { id: 'google-voice', group: 'key', manual: true, run: () => this.googleVoice() },
+      { id: 'cloud-voice', group: 'key', manual: true, run: () => this.cloudVoiceSpeaks() },
       { id: 'anthropic', group: 'key', run: () => this.anthropic() },
       { id: 'openai', group: 'key', run: () => this.openai() },
       { id: 'tomtom', group: 'key', run: () => this.tomtom() },
@@ -120,7 +120,7 @@ export class DeviceProbes extends ProbeSource {
       'nav',
     );
     if (!done) throw new Error('Was interrupted');
-    return this.cloudVoice.available ? 'Google' : 'device';
+    return this.cloudVoice.available ? this.cloudVoice.provider : 'device';
   }
 
   private async listen(): Promise<string> {
@@ -188,15 +188,14 @@ export class DeviceProbes extends ProbeSource {
     });
   }
 
-  private async googleVoice(): Promise<string> {
-    this.key('google');
-    if (!this.cloudVoice.available) throw new SkipProbe('Switched off or refused');
+  private async cloudVoiceSpeaks(): Promise<string> {
+    if (!this.cloudVoice.available) throw new SkipProbe('No key, switched off or refused');
     await this.cloudVoice.say(
       this.translate.translate('selftest.sentence') ?? 'Test',
       this.translate.lang,
       1,
     );
-    return 'spoken';
+    return this.cloudVoice.provider;
   }
 
   /** Listing models costs nothing. */

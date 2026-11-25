@@ -4,10 +4,13 @@ import { provideRouter } from '@angular/router';
 import { provideI18nTesting } from '@core/i18n/testing';
 import { fuelTesting } from '@domains/fuel/testing';
 import { roadTesting } from '@domains/road/testing';
-import { PositionStore } from '@domains/navigation';
+import { NavigationStore, PositionStore } from '@domains/navigation';
+import { LogbookStore } from '@domains/logbook';
+import { logbookTesting } from '@domains/logbook/testing';
 import { navigationTesting } from '@domains/navigation/testing';
 import { scene3dTesting } from '@domains/scene3d/testing';
 import { AppSettings, DEFAULT_SETTINGS, SettingsStore } from '@domains/settings';
+import { Trip } from '@domains/logbook';
 import { telemetryTesting } from '@domains/telemetry/testing';
 import { findHook, hook, hooks, textOf } from '@shared/testing';
 import { ConversationStore } from '../application/conversation.store';
@@ -20,11 +23,35 @@ describe('copilot', () => {
   let nav: ReturnType<typeof navigationTesting>;
   let ai: ReturnType<typeof copilotTesting>;
   const settings = signal<AppSettings>(DEFAULT_SETTINGS);
+  const update = async ({ ai: change }: { ai: Partial<AppSettings['ai']> }) =>
+    settings.update((s) => ({ ...s, ai: { ...s.ai, ...change } }));
+  const current = signal<Trip | null>(null);
+  const trips = signal<Trip[]>([]);
+  const logbook = { current, trips, loaded: signal(true), load: async () => undefined };
+  const TRIP: Trip = {
+    id: 1,
+    startedAt: new Date(2026, 10, 23, 7, 30).getTime(),
+    endedAt: new Date(2026, 10, 23, 7, 35).getTime(),
+    distanceKm: 1,
+    fuelL: 0,
+    maxSpeedKmh: 50,
+    from: 'Daheim',
+    to: 'Werkstrasse',
+    source: 'obd',
+    fuelPrice: 2,
+    cost: 0,
+    score: 100,
+    driving: { hardAccelerations: 0, hardBrakings: 0, highRpmSeconds: 0, idleSeconds: 0 },
+    path: [[8.54, 47.38]],
+    end: [8.64, 47.38],
+  };
 
   async function setup(key = 'sk-test'): Promise<void> {
     nav = navigationTesting();
     ai = copilotTesting();
     nav.gps.allowed = true;
+    current.set(null);
+    trips.set([]);
     settings.set({ ...DEFAULT_SETTINGS, keys: { ...DEFAULT_SETTINGS.keys, anthropic: key } });
     TestBed.configureTestingModule({
       providers: [
@@ -36,7 +63,9 @@ describe('copilot', () => {
         ...fuelTesting().providers,
         ...roadTesting().providers,
         ...ai.providers,
-        { provide: SettingsStore, useValue: { settings } },
+        ...logbookTesting().providers,
+        { provide: LogbookStore, useValue: logbook },
+        { provide: SettingsStore, useValue: { settings, update } },
       ],
     });
     await TestBed.inject(PositionStore).start(false);
@@ -120,7 +149,7 @@ describe('copilot', () => {
       vi.useRealTimers();
     });
 
-    async function start(mode: 'chat' | 'facts' | 'quiz', key?: string): Promise<void> {
+    async function start(mode: 'ride' | 'chat' | 'facts' | 'quiz', key?: string): Promise<void> {
       await setup(key);
       store = TestBed.inject(ConversationStore);
       nav.gps.emit([8.54, 47.38], 0);
@@ -192,13 +221,14 @@ describe('copilot', () => {
       await start('facts');
       ai.landmarks.places = [{ id: 7, title: 'Turm', at: [8.54, 47.39] }];
       store.toggleAll();
-      expect(store.modes()).toEqual(['chat', 'facts', 'quiz']);
+      expect(store.modes()).toEqual(['ride', 'chat', 'facts', 'quiz']);
       const random = vi.spyOn(Math, 'random').mockReturnValue(0.5);
       await wait();
       expect(ai.talk.seen).toEqual([7]);
       random.mockRestore();
       store.toggle('quiz');
-      expect(store.modes()).toEqual(['chat', 'facts']);
+      expect(store.modes()).toEqual(['ride', 'chat', 'facts']);
+      store.toggle('ride');
       store.toggle('chat');
       store.toggle('facts');
       expect(store.active()).toBe(false);
@@ -207,10 +237,72 @@ describe('copilot', () => {
     it('mixes only what works without a key', async () => {
       await start('facts', '');
       store.toggleAll();
-      expect(store.active()).toBe(false);
-      store.toggleAll();
-      expect(store.modes()).toEqual(['facts']);
+      expect(store.modes()).toEqual(['ride', 'facts']);
       expect(store.notice()).toBe('needs_key');
+      store.toggleAll();
+      expect(store.active()).toBe(false);
+    });
+
+    it('only tells in a monologue, without a quiz', async () => {
+      await start('chat');
+      store.toggle('quiz');
+      await store.setStyle('monologue');
+      expect(store.modes()).toEqual(['chat']);
+      expect(store.offered()).not.toContain('quiz');
+      ai.model.answers = ['Es war einmal.'];
+      await wait();
+      expect(nav.speech.said).toEqual(['Es war einmal.']);
+      expect(ai.input.listened).toBe(0);
+      expect(ai.model.requests[0].system).toContain('never ask a question');
+    });
+
+    it('stops talking when a warning comes or the app is hidden', async () => {
+      await start('chat');
+      const stop = vi.spyOn(nav.speech, 'stop');
+      vi.spyOn(nav.speech, 'speak').mockReturnValue(new Promise(() => undefined));
+      ai.model.answers = ['Lang.'];
+      await wait();
+      stop.mockClear();
+      const hidden = vi.spyOn(document, 'hidden', 'get').mockReturnValue(true);
+      await wait(1000);
+      expect(stop).toHaveBeenCalledWith('talk');
+      hidden.mockRestore();
+    });
+
+    it('remarks on the drive once, without a key and without sending it', async () => {
+      await start('ride', '');
+      current.set({ ...TRIP, driving: { ...TRIP.driving, hardBrakings: 4 } });
+      await wait();
+      expect(nav.speech.said).toEqual(['copilot.talk.remark.braking']);
+      await wait(600_000);
+      expect(nav.speech.said).toHaveLength(1);
+      expect(ai.model.requests).toEqual([]);
+    });
+
+    async function offer(heard: string) {
+      await start('ride', '');
+      const go = vi.spyOn(TestBed.inject(NavigationStore), 'navigateTo').mockResolvedValue(true);
+      const week = 7 * 86_400_000;
+      trips.set([1, 2, 3].map((i) => ({ ...TRIP, id: i, startedAt: TRIP.startedAt - i * week })));
+      current.set(TRIP);
+      ai.input.heard = [heard];
+      await wait();
+      return go;
+    }
+
+    it('offers the usual destination and starts it on a yes', async () => {
+      const go = await offer('Ja gerne');
+      expect(nav.speech.said).toEqual(['copilot.talk.usual_offer']);
+      expect(go).toHaveBeenCalledWith({
+        name: 'Werkstrasse',
+        detail: '',
+        coordinate: [8.64, 47.38],
+      });
+    });
+
+    it('does not start a route without a clear yes', async () => {
+      const go = await offer('Nein danke');
+      expect(go).not.toHaveBeenCalled();
     });
 
     it('ends with one tap on the bar', async () => {

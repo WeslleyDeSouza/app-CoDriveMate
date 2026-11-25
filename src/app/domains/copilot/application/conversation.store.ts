@@ -4,6 +4,7 @@ import { TranslateService } from '@core/i18n';
 import { UnitsStore } from '@core/units';
 import { WarningStore } from '@domains/diagnostics';
 import { FuelStore } from '@domains/fuel';
+import { LogbookStore } from '@domains/logbook';
 import { NavigationStore, PositionStore, bearing, distanceM } from '@domains/navigation';
 import { RoadStore } from '@domains/road';
 import { SceneStore } from '@domains/scene3d';
@@ -11,6 +12,7 @@ import { SettingsStore } from '@domains/settings';
 import { TelemetryStore } from '@domains/telemetry';
 import { formatDistanceIn } from '@shared/kernel/units';
 import {
+  KEYLESS_MODES,
   LandmarkAround,
   LandmarkSource,
   Landmark,
@@ -33,6 +35,18 @@ import {
   quizAnswer,
 } from '../domain/conversation';
 import { ChatError, ChatMessage, ChatModel, MAX_HISTORY, passengerPrompt } from '../domain/copilot';
+import {
+  Remark,
+  RideFacts,
+  TalkStyle,
+  Topic,
+  isYes,
+  opening,
+  pickRemark,
+  pickTopic,
+  rideText,
+  usualDestination,
+} from '../domain/passenger';
 import { CopilotStore } from './copilot.store';
 
 const TICK_MS = 1000;
@@ -43,6 +57,12 @@ const FAILED_MS = 60_000;
 const NOTHING_NEAR_MS = 120_000;
 const CHAT_PAUSE_MS = 120_000;
 const QUIZ_PAUSE_MS = 45_000;
+const MONOLOGUE_PAUSE_MS = 60_000;
+const RIDE_PAUSE_MS = 240_000;
+const RIDE_QUIET_MS = 30_000;
+/** The usual destination is offered at the start of a drive only. */
+const OFFER_MAX_KM = 2;
+const RECENT_TOPICS = 5;
 const MAX_TURNS = 6;
 const LANDMARKS_VALID_M = 3000;
 const MAX_SEEN = 500;
@@ -65,7 +85,9 @@ export class ConversationStore {
   private readonly fuel = inject(FuelStore);
   private readonly warnings = inject(WarningStore);
   private readonly road = inject(RoadStore);
-  private readonly settings = inject(SettingsStore).settings;
+  private readonly logbook = inject(LogbookStore);
+  private readonly settingsStore = inject(SettingsStore);
+  private readonly settings = this.settingsStore.settings;
   private readonly units = inject(UnitsStore).units;
   private readonly translate = inject(TranslateService);
 
@@ -87,6 +109,11 @@ export class ConversationStore {
   readonly quiz = this._quiz.asReadonly();
   readonly score = this._score.asReadonly();
   readonly notice = this._notice.asReadonly();
+  readonly style = computed<TalkStyle>(() => this.settings().ai.talkStyle);
+  /** A quiz needs answers, so it does not exist in a monologue. */
+  readonly offered = computed(() =>
+    TALK_MODES.filter((mode) => mode !== 'quiz' || this.style() === 'dialogue'),
+  );
 
   /** Raised with every start and stop: older steps end by themselves. */
   private session = 0;
@@ -99,6 +126,9 @@ export class ConversationStore {
   private picked: QuizKey | null = null;
   private deaf = false;
   private seen?: Set<number>;
+  private topics: Topic[] = [];
+  /** Remarks and offer already made, of which drive. */
+  private ride = { id: 0, made: new Set<Remark>(), offered: false };
   private around: { at: LonLat; places: Landmark[] } | null = null;
 
   constructor() {
@@ -117,7 +147,16 @@ export class ConversationStore {
 
   /** All modes, or none if all are on already. */
   toggleAll(): void {
-    this.use(this._modes().length === this.usable(TALK_MODES).length ? [] : TALK_MODES);
+    const all = this.offered();
+    this.use(this._modes().length === this.usable(all).length ? [] : all);
+  }
+
+  async setStyle(talkStyle: TalkStyle): Promise<void> {
+    if (talkStyle === this.style()) return;
+    const modes = this._modes();
+    this.interrupt();
+    await this.settingsStore.update({ ai: { talkStyle } });
+    if (modes.length) this.use(modes.filter((mode) => this.offered().includes(mode)));
   }
 
   private use(wanted: readonly TalkMode[]): void {
@@ -146,7 +185,7 @@ export class ConversationStore {
   }
 
   private usable(modes: readonly TalkMode[]): readonly TalkMode[] {
-    return this.copilot.available() ? modes : modes.filter((mode) => mode === 'facts');
+    return this.copilot.available() ? modes : modes.filter((mode) => KEYLESS_MODES.includes(mode));
   }
 
   stop(): void {
@@ -175,7 +214,13 @@ export class ConversationStore {
   }
 
   private async tick(): Promise<void> {
-    if (!this.active() || this.working || Date.now() < this.nextAt) return;
+    if (!this.active()) return;
+    // A long story must not run into a manoeuvre or a warning.
+    if (this.working && !this.quiet()) {
+      this.input.abort();
+      void this.output.stop('talk');
+    }
+    if (this.working || Date.now() < this.nextAt) return;
     if (!this.free()) {
       this.nextAt = Date.now() + RETRY_MS;
       return;
@@ -187,7 +232,10 @@ export class ConversationStore {
     this._current.set(mode);
     this.working = true;
     try {
-      await { chat: this.chat, facts: this.facts, quiz: this.ask }[mode].call(this, session);
+      await { ride: this.accompany, chat: this.chat, facts: this.facts, quiz: this.ask }[mode].call(
+        this,
+        session,
+      );
     } catch (error) {
       if (session !== this.session) return;
       this.nextAt = Date.now() + FAILED_MS;
@@ -205,11 +253,17 @@ export class ConversationStore {
 
   private async chat(session: number): Promise<void> {
     await this.loadAround().catch(() => undefined);
-    const opening = this.history.length
-      ? 'The driver said nothing. Briefly tell something new or interesting, without pressure to answer.'
-      : 'Begin a casual conversation with a short fitting thought or question.';
-    let said = await this.reply(opening, session);
-    for (let turn = 0; said && turn < MAX_TURNS; turn++) {
+    const style = this.style();
+    const topic = pickTopic(this.topics, Math.random);
+    this.topics = [...this.topics, topic].slice(-RECENT_TOPICS);
+    let said = await this.reply(opening(style, topic, !this.history.length), session);
+    if (style === 'monologue') {
+      // Thinking takes time; a manoeuvre may have come close.
+      if (said && this.free()) await this.say(said, session);
+      if (session === this.session) this.nextAt = Date.now() + MONOLOGUE_PAUSE_MS;
+      return;
+    }
+    for (let turn = 0; said && this.free() && turn < MAX_TURNS; turn++) {
       const spoken = await this.say(said, session);
       // Interrupted by navigation or a warning: do not go on in the middle of it.
       if (!spoken || !this.free()) break;
@@ -224,6 +278,76 @@ export class ConversationStore {
       said = await this.reply(heard, session);
     }
     if (session === this.session) this.nextAt = Date.now() + CHAT_PAUSE_MS;
+  }
+
+  /** Remarks about the drive and the usual destination. Nothing of it leaves the app. */
+  private async accompany(session: number): Promise<void> {
+    const trip = this.logbook.current();
+    if (trip && trip.id !== this.ride.id) {
+      this.ride = { id: trip.id, made: new Set(), offered: false };
+    }
+    if (await this.offerDestination(session)) return;
+    if (session !== this.session) return;
+    const facts = this.rideFacts();
+    const remark = trip && pickRemark(facts, this.ride.made);
+    if (!remark) {
+      this.nextAt = Date.now() + (this.mixed() ? RETRY_MS : RIDE_QUIET_MS);
+      return;
+    }
+    const range = formatDistanceIn((facts.rangeKm ?? 0) * 1000, this.units());
+    if (await this.mention(this.t('copilot.talk.remark.' + remark, { range }), session)) {
+      this.ride.made.add(remark);
+    }
+    if (session === this.session) this.nextAt = Date.now() + RIDE_PAUSE_MS;
+  }
+
+  /** True if something was offered. */
+  private async offerDestination(session: number): Promise<boolean> {
+    const trip = this.logbook.current();
+    const start = trip?.path[0];
+    if (!trip || !start || this.ride.offered) return false;
+    if (trip.distanceKm > OFFER_MAX_KM || this.navigation.destination()) return false;
+    if (!this.logbook.loaded()) await this.logbook.load().catch(() => undefined);
+    if (session !== this.session || !this.free()) return false;
+    const past = this.logbook.trips().map(({ startedAt, path, end, to }) => ({
+      startedAt,
+      from: path[0] ?? null,
+      end,
+      to,
+    }));
+    const usual = usualDestination(past, start, trip.startedAt, distanceM);
+    if (!usual) return false;
+    this.ride.offered = true;
+    const { name, at } = usual;
+    const dialogue = this.style() === 'dialogue' && !this.deaf;
+    const key = dialogue ? 'copilot.talk.usual_offer' : 'copilot.talk.usual';
+    const spoken = await this.mention(this.t(key, { name }), session);
+    this.nextAt = Date.now() + RIDE_PAUSE_MS;
+    if (!dialogue || !spoken || !this.free()) return true;
+    const heard = await this.listen(session);
+    if (session !== this.session) return true;
+    if (isStop(heard)) this.stop();
+    else if (isYes(heard) && !this.navigation.destination()) {
+      await this.navigation.navigateTo({ name, detail: '', coordinate: at });
+    }
+    return true;
+  }
+
+  private rideFacts(): RideFacts {
+    const trip = this.logbook.current();
+    const { coolantTemp, rpm } = this.telemetry.snapshot();
+    const connected = ['obd', 'demo'].includes(this.telemetry.mode());
+    return {
+      rangeKm: connected ? this.fuel.rangeKm() : null,
+      coolantC: connected ? coolantTemp : null,
+      rpm: connected ? rpm : 0,
+      minutes: trip ? (trip.endedAt - trip.startedAt) / 60_000 : 0,
+      km: trip?.distanceKm ?? 0,
+      hardBrakings: trip?.driving.hardBrakings ?? 0,
+      hardAccelerations: trip?.driving.hardAccelerations ?? 0,
+      highRpmSeconds: trip?.driving.highRpmSeconds ?? 0,
+      idleSeconds: trip?.driving.idleSeconds ?? 0,
+    };
   }
 
   private async facts(session: number): Promise<void> {
@@ -335,7 +459,8 @@ export class ConversationStore {
       ...this.history,
       { role: 'user', content: `[Context: ${this.context()}] ${text}` },
     ];
-    const answer = await this.model.ask({ system: passengerPrompt(this.translate.lang), messages });
+    const system = passengerPrompt(this.translate.lang, this.style());
+    const answer = await this.model.ask({ system, messages });
     if (session !== this.session) return '';
     const all: ChatMessage[] = [...messages, { role: 'assistant', content: answer }];
     this.history = all.slice(-MAX_HISTORY);
@@ -345,6 +470,12 @@ export class ConversationStore {
   private async say(text: string, session: number): Promise<boolean> {
     if (session !== this.session) return false;
     this.copilot.add('assistant', text);
+    return this.mention(text, session);
+  }
+
+  /** Spoken, but kept out of the chat, which goes to the language model. */
+  private async mention(text: string, session: number): Promise<boolean> {
+    if (session !== this.session) return false;
     return this.output.speak(text, this.translate.lang, this.settings().voice.rate, 'talk');
   }
 
@@ -365,9 +496,14 @@ export class ConversationStore {
   }
 
   private free(): boolean {
+    return this.quiet() && !this.output.busy();
+  }
+
+  /** Nothing on the road needs attention. */
+  private quiet(): boolean {
     return mayTalk({
       maneuverM: this.navigation.progress()?.distanceM ?? null,
-      speaking: this.output.busy(),
+      speaking: false,
       visible: !document.hidden,
       warning: this.warnings.shown() !== null || this.road.hazard() !== null,
     });
@@ -400,6 +536,7 @@ export class ConversationStore {
     const car = carRemark(this.fuel.rangeKm(), coolantTemp, speed, connected);
     const parts = [
       car ? `car: ${car}` : '',
+      this.logbook.current() ? `this drive: ${rideText(this.rideFacts())}` : '',
       `street: ${this.scene.street() || 'unknown'}`,
       near.length ? `nearby: ${near.join(', ')}` : '',
       `time: ${new Date().toTimeString().slice(0, 5)}`,

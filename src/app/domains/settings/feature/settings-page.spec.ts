@@ -37,6 +37,8 @@ describe('SettingsPage', () => {
   let root: HTMLElement;
   let repository: MemorySettingsRepository;
   let store: SettingsStore;
+  const accountVoices = vi.fn();
+  const googleVoices = vi.fn().mockResolvedValue([]);
   let backup: { export: ReturnType<typeof vi.fn>; import: ReturnType<typeof vi.fn> };
 
   async function setup(stored?: DeepPartial<AppSettings>): Promise<void> {
@@ -50,7 +52,10 @@ describe('SettingsPage', () => {
         provideRouter([]),
         provideI18nTesting(),
         ...telemetryTesting().providers,
-        { provide: CloudVoice, useValue: { problem: () => null, configure: vi.fn() } },
+        {
+          provide: CloudVoice,
+          useValue: { problem: () => null, configure: vi.fn(), accountVoices, googleVoices },
+        },
         { provide: SpeechOutput, useValue: { speak: vi.fn(), stop: vi.fn() } },
         ...mediaTesting().providers,
         { provide: SettingsRepository, useValue: repository },
@@ -265,6 +270,39 @@ describe('SettingsPage', () => {
     expect((await save()).units).toEqual({ ...DEFAULT_SETTINGS.units, distance: 'mi' });
   });
 
+  it('adds the voices Google has for the language', async () => {
+    googleVoices.mockResolvedValueOnce(['Kore', 'Zephyr']);
+    await setup({ keys: { google: 'AIza-1' } });
+    await settle();
+    const options = [...(control('settings-cloud-voice') as HTMLSelectElement).options];
+    expect(options.filter(({ value }) => value === 'Kore')).toHaveLength(1);
+    expect(options.map(({ value }) => value)).toContain('Zephyr');
+  });
+
+  describe('ElevenLabs', () => {
+    it('loads the voices with the key, those of the language first', async () => {
+      accountVoices.mockResolvedValue([
+        { id: 'e', name: 'Eve', languages: ['en'] },
+        { id: 'a', name: 'Anna', languages: ['de', 'en'] },
+      ]);
+      await setup({ voice: { provider: 'elevenlabs' } });
+      expect(accountVoices).not.toHaveBeenCalled();
+      await change('settings-key-elevenlabs', ' sk_1 ');
+      expect(accountVoices).toHaveBeenCalledWith('sk_1');
+      const options = [...(control('settings-eleven-voice') as HTMLSelectElement).options];
+      expect(options.map(({ value }) => value)).toEqual(['', 'a', 'e']);
+      await change('settings-eleven-voice', 'a');
+      expect((await save()).voice.elevenVoice).toEqual({ id: 'a', name: 'Anna' });
+    });
+
+    it('says so when the voices cannot be loaded', async () => {
+      accountVoices.mockRejectedValue(new Error('401'));
+      await setup({ voice: { provider: 'elevenlabs' }, keys: { elevenlabs: 'bad' } });
+      await settle();
+      expect(findHook(root, 'settings-eleven-failed')).not.toBeNull();
+    });
+  });
+
   describe('API keys', () => {
     it('hides every key until its eye button is pressed', async () => {
       await setup({ keys: { google: 'AIza-1', mapbox: 'pk.1' } });
@@ -301,6 +339,7 @@ describe('SettingsPage', () => {
       expect(saved.keys).toEqual({
         anthropic: 'sk-ant-2',
         openai: '',
+        elevenlabs: '',
         google: 'AIza-1',
         mapbox: '',
         tomtom: '',

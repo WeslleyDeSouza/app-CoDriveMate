@@ -35,8 +35,8 @@
     "scene3d_off": "Off (saves battery)",
     "nav_voice": "Navigation announcements",
     "voice_provider": "Voice",
-    "voice_auto": "Google voice (natural), otherwise device voice",
-    "voice_browser": "Device voice only (free, offline)",
+    "voice_auto": "Google (natural)",
+    "voice_browser": "Device voice (free, offline)",
     "voice_rate": "Speed",
     "rate_calm": "calm",
     "rate_normal": "normal",
@@ -133,7 +133,7 @@
       "roadDetails": "asphalt, edge lines, zebra crossings"
     },
     "scene_privacy": "The 3D view loads map sections around the position: from swisstopo (Switzerland), OpenFreeMap and Overpass, and with “Mapbox” and “Google” from these providers (USA). “Mapbox” and “Google” may cost money depending on use. Everything is stored except Google and, in the browser, Mapbox.",
-    "ai_privacy": "With every question the provider of the chosen model, Anthropic or OpenAI (both USA), receives: the question and the chat of this session, vehicle, live values, current street, destination and arrival. Conversation mode also sends nearby place names, the time and the state of the car (tank almost empty, engine cold, standing); for these, Wikipedia gets the approximate location (about 100 m). Driven routes, the logbook and other keys are never sent. Speech input uses the service of the device (Apple or Google).",
+    "ai_privacy": "With every question the provider of the chosen model, Anthropic or OpenAI (both USA), receives: the question and the chat of this session, vehicle, live values, current street, destination and arrival. Conversation mode also sends nearby place names, the time, the state of the car (tank almost empty, engine cold, standing) and figures of the current drive (distance, duration, hard braking and acceleration); for these, Wikipedia gets the approximate location (about 100 m). Driven routes, the logbook and other keys are never sent. Speech input uses the service of the device (Apple or Google).",
     "key_openai": "OpenAI API key",
     "key_openai_note": "for ChatGPT; a ChatGPT subscription is not enough",
     "model_luna": "ChatGPT (GPT-6 Luna, fast, cheap)",
@@ -152,14 +152,24 @@
     "voice_try": "Listen to the voice",
     "voice_sample": "In 300 metres turn right onto Station Street.",
     "voice_problem": {
-      "refused": "Google refuses the key for the voice. Is “Cloud Text-to-Speech API” switched on? Until then the device speaks.",
-      "quota": "The quota of the Google voice is used up. Until then the device speaks."
+      "refused": "The service refuses the key or the voice. For Google, “Cloud Text-to-Speech API” must be switched on. Until then the device speaks.",
+      "quota": "The quota of the voice is used up. Until then the device speaks."
     },
     "background": "Go on in the background",
     "background_note": "prompts and logbook also with a locked screen, only with OBD or an active route; needs more battery",
     "reset_pauses": "Release paused services",
     "pauses_reset": "Released",
     "reset_pauses_note": "Services with a used up quota or a refused key are tried again.",
-    "selftest": "Device test"
+    "selftest": "Device test",
+    "voice_openai": "ChatGPT / OpenAI (natural)",
+    "voice_elevenlabs": "ElevenLabs (natural)",
+    "openai_voice": "OpenAI voice",
+    "openai_voice_note": "needs the OpenAI key (section “AI copilot”); a ChatGPT subscription is not enough. Sends the spoken text to OpenAI (USA) and costs per prompt. OpenAI shuts this interface down on 6 January 2027.",
+    "key_elevenlabs": "ElevenLabs API key",
+    "key_elevenlabs_note": "sends the spoken text to ElevenLabs (USA); uses credits",
+    "eleven_voice": "ElevenLabs voice",
+    "eleven_choose": "Choose a voice",
+    "eleven_load": "Reload voices",
+    "eleven_failed": "The voices could not be loaded. Is the key right and may it read voices?"
   }
 }

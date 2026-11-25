@@ -25,13 +25,14 @@
       "title": "Conversation",
       "stop": "End conversation",
       "mode": {
+        "ride": "Driving companion",
         "chat": "Chat",
         "facts": "Facts on the way",
         "quiz": "Quiz",
         "mixed": "All mixed"
       },
       "notice": {
-        "needs_key": "Chat and quiz need an AI key. Facts on the way work without.",
+        "needs_key": "Chat and quiz need an AI key. The companion and facts on the way work without.",
         "key_rejected": "The AI key was rejected.",
         "failed": "Not possible right now, I will try again.",
         "no_microphone": "No microphone available or not allowed.",
@@ -49,7 +50,23 @@
       "question": "Quiz question: {{question}} {{options}}",
       "right": "Correct!",
       "wrong": "Sorry, the answer is {{key}}.",
-      "none": "No answer recognised. The answer is {{key}}."
+      "none": "No answer recognised. The answer is {{key}}.",
+      "style": {
+        "dialogue": "Dialogue",
+        "monologue": "Monologue"
+      },
+      "usual": "Looks like we are off to {{name}} again. Have a good drive!",
+      "usual_offer": "Are you going to {{name}} again? Shall I start the route?",
+      "remark": {
+        "tank": "Your tank is almost empty, about {{range}} left. Plan a stop to refuel.",
+        "pause": "You have been driving for over two hours. A break would do you good.",
+        "cold": "The engine is still cold. Lower revs make it last longer.",
+        "braking": "You have braked hard a few times today. Lifting off earlier saves brake pads and fuel.",
+        "accelerating": "You are accelerating quite hard today. A gentler start saves fuel.",
+        "revs": "The engine is often revving high. Shift up a bit earlier, it is quieter and saves fuel.",
+        "idling": "We have been standing with the engine running for a while. For longer stops it pays to switch it off.",
+        "smooth": "Nice and smooth so far. A pleasure to ride along."
+      }
     }
   }
 }

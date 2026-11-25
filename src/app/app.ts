@@ -2,7 +2,7 @@ import { DOCUMENT } from '@angular/common';
 import { ChangeDetectionStrategy, Component, effect, inject, untracked } from '@angular/core';
 import { CloudVoice } from '@core/device';
 import { UnitsStore } from '@core/units';
-import { SettingsStore } from '@domains/settings';
+import { SettingsStore, cloudVoice } from '@domains/settings';
 import { TelemetryStore } from '@domains/telemetry';
 import { isLightTheme } from '@shared/kernel/theme';
 import { Shell } from '@shell/shell';
@@ -26,11 +26,9 @@ export class App {
     const units = inject(UnitsStore);
     effect(() => units.set(settings().units));
 
-    const cloudVoice = inject(CloudVoice);
+    const speaker = inject(CloudVoice);
     effect(() => {
-      const { keys, voice } = settings();
-      const key = voice.provider === 'browser' ? '' : keys.google;
-      cloudVoice.configure({ key, voice: voice.cloudVoice });
+      speaker.configure(cloudVoice(settings()));
     });
 
     // The vehicle entered in the settings drives all vehicle-dependent rules.

@@ -14,7 +14,7 @@ import { TranslatePipe, TranslateService } from '@core/i18n';
 import { SheetPage } from '@shared/ui/sheet-page';
 import { ConversationStore } from '../application/conversation.store';
 import { ChatLine, CopilotStore } from '../application/copilot.store';
-import { TALK_MODES } from '../domain/conversation';
+import { TalkStyle } from '../domain/passenger';
 
 const QUESTIONS = ['engine', 'battery', 'saving', 'values'];
 const LISTEN_MS = 10_000;
@@ -33,7 +33,21 @@ const LISTEN_MS = 10_000;
             >{{ 'copilot.talk.title' | translate }}</span
           >
           <div class="row">
-            @for (mode of modes; track mode) {
+            @for (style of styles; track style) {
+              <button
+                class="btn"
+                type="button"
+                [attr.data-section-test]="'copilot-style-' + style"
+                [class.pri]="talk.style() === style"
+                [attr.aria-pressed]="talk.style() === style"
+                (click)="talk.setStyle(style)"
+              >
+                {{ 'copilot.talk.style.' + style | translate }}
+              </button>
+            }
+          </div>
+          <div class="row">
+            @for (mode of talk.offered(); track mode) {
               <button
                 class="btn"
                 type="button"
@@ -49,8 +63,8 @@ const LISTEN_MS = 10_000;
               class="btn"
               type="button"
               data-section-test="copilot-talk-all"
-              [class.pri]="talk.modes().length === modes.length"
-              [attr.aria-pressed]="talk.modes().length === modes.length"
+              [class.pri]="talk.modes().length === talk.offered().length"
+              [attr.aria-pressed]="talk.modes().length === talk.offered().length"
               (click)="talk.toggleAll()"
             >
               <i class="ti ti-arrows-shuffle" aria-hidden="true"></i>
@@ -244,7 +258,7 @@ export class CopilotPage {
   private readonly translate = inject(TranslateService);
   private readonly chat = viewChild.required<ElementRef<HTMLElement>>('chat');
 
-  protected readonly modes = TALK_MODES;
+  protected readonly styles: readonly TalkStyle[] = ['dialogue', 'monologue'];
   protected readonly questions = QUESTIONS;
   protected readonly listening = signal(false);
   protected readonly micFailed = signal(false);

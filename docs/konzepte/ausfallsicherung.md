@@ -13,7 +13,7 @@ Stand: 24.11.2026. Route und grosse Karte sind portiert, siehe
 | Gespeicherte Ziele | keine | neu gesucht, sonst gespeicherte OSM-Koordinate |
 | 3D-Kamera | fällt auf die eigene 3D-Welt zurück | gleich |
 | Offline | nur OSM und swisstopo gespeichert | gleich; Google nie speichern |
-| Stimme | Google, sonst Browserstimme | gleich |
+| Stimme | Google, sonst Browserstimme | wählbar Google, OpenAI (bis 6.1.2027, dann eingestellt) oder ElevenLabs, sonst Gerätestimme; nach 6 Sekunden ohne Antwort spricht das Gerät; nur Google-Sätze werden gespeichert; mit echten Keys ungetestet. iOS nimmt die beste installierte (Premium, Erweitert, Standard), auf dem iPad ungetestet |
 
 In den Einstellungen lassen sich gesperrte Dienste von Hand freigeben.
 Ein aufgebrauchtes Kontingent sperrt den Dienst bis zum nächsten Tag, jeder
