@@ -1,0 +1,90 @@
+{
+  "diagnostics": {
+    "title": "Diagnose",
+    "lamp": "Motorkontrollleuchte",
+    "lamp_state": {
+      "true": "Leuchtet",
+      "false": "Aus",
+      "unknown": "Unbekannt"
+    },
+    "read": "Auslesen",
+    "ask": "KI fragen",
+    "clear": "Löschen",
+    "clear_sure": "Wirklich löschen",
+    "clear_note": "Motor aus, Zündung an. Auch die Readiness-Werte werden zurückgesetzt. Nochmals tippen zum Löschen.",
+    "none": "Keine Fehler gespeichert.",
+    "read_at": "Ausgelesen um {{time}}.",
+    "demo": "(Demo-Daten)",
+    "readonly": "Es wird nur gelesen. Gelöscht wird nur im Stand und auf Knopfdruck.",
+    "understood": "Verstanden",
+    "code_unknown": "Herstellerspezifisch oder unbekannt.",
+    "state": {
+      "reading": "Lese Fehlerspeicher…",
+      "clearing": "Lösche…",
+      "failed": "Das Steuergerät antwortet nicht. Zündung an?",
+      "clear_failed": "Löschen fehlgeschlagen. Motor aus, Zündung an?",
+      "not_connected": "Zuerst OBD verbinden.",
+      "moving": "Löschen geht nur im Stand."
+    },
+    "code": {
+      "P0100": "Luftmassenmesser, Stromkreis",
+      "P0105": "Saugrohrdrucksensor, Stromkreis",
+      "P0110": "Ansauglufttemperatur-Sensor",
+      "P0115": "Kühlmitteltemperatur-Sensor",
+      "P0120": "Drosselklappensensor",
+      "P0130": "Lambdasonde vorne, Stromkreis",
+      "P0133": "Lambdasonde vorne reagiert träge",
+      "P0135": "Lambdasonde vorne, Heizung",
+      "P0141": "Lambdasonde hinten, Heizung",
+      "P0171": "Gemisch zu mager (Bank 1)",
+      "P0172": "Gemisch zu fett (Bank 1)",
+      "P0300": "Zündaussetzer, mehrere Zylinder",
+      "P0301": "Zündaussetzer Zylinder 1",
+      "P0302": "Zündaussetzer Zylinder 2",
+      "P0303": "Zündaussetzer Zylinder 3",
+      "P0304": "Zündaussetzer Zylinder 4",
+      "P0325": "Klopfsensor",
+      "P0335": "Kurbelwellensensor",
+      "P0340": "Nockenwellensensor",
+      "P0420": "Katalysator-Wirkungsgrad zu tief",
+      "P0443": "Tankentlüftungsventil",
+      "P0500": "Geschwindigkeitssensor",
+      "P0505": "Leerlaufregelung",
+      "P0560": "Bordspannung"
+    },
+    "warning": {
+      "coolant_hot": {
+        "title": "Kühlmitteltemperatur hoch",
+        "say": "Sichere Haltemöglichkeit suchen",
+        "text": "Sichere Haltemöglichkeit suchen und Motor im Leerlauf abkühlen lassen. Kühlerdeckel nicht heiss öffnen. Wird es nicht besser: Motor abstellen."
+      },
+      "coolant_warm": {
+        "title": "Kühlmittel wird warm",
+        "say": "Schonend weiterfahren",
+        "text": "Schonend weiterfahren, Heizung voll aufdrehen hilft beim Kühlen. Kühlwasserstand bald prüfen."
+      },
+      "charge_high": {
+        "title": "Ladespannung zu hoch",
+        "say": "Bald in die Werkstatt",
+        "text": "Der Laderegler könnte defekt sein. Bald in die Werkstatt, sonst nehmen Batterie und Elektronik Schaden."
+      },
+      "charge_low": {
+        "title": "Batterie wird nicht geladen",
+        "say": "Grosse Verbraucher ausschalten",
+        "text": "Grosse Verbraucher ausschalten (Heckscheibenheizung, Sitzheizung, Gebläse). Lichtmaschine und Keilriemen prüfen lassen."
+      },
+      "range": {
+        "title": "Reichweite knapp",
+        "say": "Nächste Tankstelle anfahren",
+        "text": "Nächste Tankstelle anfahren.",
+        "action": "Tankstellen"
+      },
+      "lamp": {
+        "title": "Motorkontrollleuchte an",
+        "say": "Weiterfahren ist meist möglich",
+        "text": "Weiterfahren meist möglich. Blinkt die Leuchte im Auto oder ruckelt der Motor: langsam fahren und bald anhalten.",
+        "action": "Fehler ansehen"
+      }
+    }
+  }
+}

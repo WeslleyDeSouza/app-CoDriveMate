@@ -1,0 +1,310 @@
+@use '../shared/ui/phone' as phone;
+
+:host {
+  display: grid;
+  grid-template-columns: minmax(320px, 35%) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) 76px;
+  gap: 10px;
+  position: relative;
+  overflow: hidden;
+  height: 100vh;
+  height: 100dvh;
+  /* keep clear of notches and system bars */
+  padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right))
+    max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+}
+
+.left {
+  grid-area: 1 / 1;
+  min-height: 0;
+}
+
+.stage {
+  grid-area: 1 / 2;
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: var(--r);
+  border: 1px solid var(--ln);
+  background: var(--p2);
+}
+
+/* The native map lies behind the web view. */
+:host-context(html.native-map) .stage {
+  background: transparent;
+}
+
+/* Short notices on the left of the map, so the side sheet does not cover them. */
+.over {
+  grid-area: 1 / 2;
+  align-self: start;
+  margin: 191px 81px 0 15px;
+  position: relative;
+  z-index: 4;
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+  pointer-events: none;
+
+  > * {
+    pointer-events: auto;
+  }
+}
+
+.sheet {
+  grid-area: 1 / 2;
+  justify-self: end;
+  margin: 13px;
+  position: relative;
+  min-height: 0;
+  width: min(560px, calc(100% - 26px));
+  z-index: 5;
+  background: var(--p);
+  border: 1px solid var(--ln);
+  border-radius: 22px;
+  box-shadow: var(--sh);
+  transform: translateX(calc(100% + 30px));
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+  /* The routed page is out of reach of these encapsulated styles, so the grid
+     row gives it a definite height; its body scrolls inside. */
+  display: grid;
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+  overflow: hidden;
+
+  &.open {
+    transform: none;
+  }
+
+  router-outlet {
+    display: none;
+  }
+}
+
+.dock {
+  grid-area: 2 / 1 / auto / -1;
+}
+
+@include phone.any {
+  :host {
+    position: fixed;
+    top: var(--visible-top, 0);
+    left: 0;
+    right: 0;
+    height: var(--visible, 100dvh);
+    gap: 8px;
+    padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right))
+      max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+  }
+
+  /* The sheet covers everything, its content keeps clear of the notch. */
+  .sheet {
+    grid-area: auto;
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    width: auto;
+    border: 0;
+    border-radius: 0;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
+      env(safe-area-inset-left);
+  }
+
+  /* Nothing is drawn below the sheet. */
+  :host(.sheet-open) .scene {
+    display: none;
+  }
+
+  /* YouTube wants nothing in front of its player: the sheet makes room for it. */
+  :host(.sheet-open):has(app-youtube-slot) {
+    app-youtube-slot {
+      position: fixed;
+      top: env(safe-area-inset-top);
+      left: 0;
+      right: 0;
+      height: 250px;
+      min-height: 0;
+      z-index: 7;
+      border-radius: 0;
+    }
+    .sheet {
+      top: calc(env(safe-area-inset-top) + 250px);
+      padding-top: 0;
+    }
+    .over {
+      position: absolute;
+      top: calc(env(safe-area-inset-top) + 258px);
+      left: 8px;
+      right: 8px;
+      margin: 0;
+    }
+  }
+
+  /* While typing, the stage or sheet gets all the room above the keyboard. */
+  :host(.keyboard) {
+    grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+    padding-bottom: 8px;
+
+    .left,
+    .dock,
+    .over {
+      display: none;
+    }
+    .stage {
+      grid-area: 1 / 1;
+    }
+    .sheet {
+      padding-bottom: 0;
+    }
+  }
+
+  .over {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    overflow-y: auto;
+    scrollbar-width: none;
+    /* a warning stays visible above the sheet */
+    z-index: 6;
+
+    > :empty {
+      display: none;
+    }
+    > * {
+      flex-shrink: 0;
+      max-width: 100%;
+      margin-top: 8px;
+    }
+    > app-vehicle-warning,
+    > app-conversation-bar {
+      width: 100%;
+    }
+
+    /* compact warning card */
+    app-vehicle-warning ::ng-deep {
+      section {
+        width: 100%;
+        padding: 10px 14px;
+      }
+      h3 {
+        font-size: 17px;
+      }
+      b {
+        font-size: 24px;
+        margin: 2px 0;
+      }
+      p {
+        font-size: 14px;
+      }
+      div {
+        margin-top: 8px;
+      }
+      button,
+      a {
+        min-height: var(--touch);
+        font-size: 15px;
+        text-align: center;
+      }
+    }
+  }
+
+  app-music-bar:empty {
+    display: none;
+  }
+}
+
+/* Cockpit on top, notices, map, dock */
+@include phone.portrait {
+  :host(:not(.keyboard)) {
+    /* no gap for missing notices: every notice brings its own */
+    row-gap: 0;
+    grid-template: auto auto minmax(0, 1fr) 72px / minmax(0, 1fr);
+
+    .over {
+      grid-area: 2 / 1;
+    }
+    .stage {
+      grid-area: 3 / 1;
+      margin-top: 8px;
+    }
+    .dock {
+      grid-area: 4 / 1;
+      margin-top: 8px;
+    }
+  }
+
+  .over {
+    margin: 0;
+    max-height: 45dvh;
+    align-self: stretch;
+  }
+
+  app-music-bar,
+  app-youtube-slot {
+    grid-column: 1 / -1;
+  }
+  app-youtube-slot {
+    min-height: 250px;
+  }
+
+  /* The map needs the room. */
+  :host:has(app-youtube-slot, app-vehicle-warning > section) .left ::ng-deep .tiles {
+    display: none;
+  }
+}
+
+/* Like the tablet, but the notices lie over the 3D view. */
+@include phone.landscape {
+  :host(:not(.keyboard)) {
+    grid-template: minmax(0, 1fr) 58px / minmax(230px, 36%) minmax(0, 1fr);
+  }
+
+  .left {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+  }
+  .scene {
+    min-height: 80px;
+  }
+  app-youtube-slot {
+    flex: none;
+    height: 250px;
+  }
+
+  .over {
+    grid-area: 1 / 1;
+    align-self: end;
+    margin: 0;
+    /* keeps the speed visible */
+    max-height: calc(100% - 132px);
+
+    app-vehicle-warning ::ng-deep p {
+      display: none;
+    }
+  }
+  :host:has(app-youtube-slot) .over {
+    grid-area: 1 / 2;
+    align-self: start;
+  }
+
+  /* In landscape the player stands beside the sheet. */
+  :host(.sheet-open):has(app-youtube-slot) {
+    app-youtube-slot {
+      left: env(safe-area-inset-left);
+      right: auto;
+      width: 42%;
+      height: auto;
+      bottom: 0;
+    }
+    .sheet {
+      top: 0;
+      left: calc(42% + env(safe-area-inset-left));
+      padding-left: 0;
+    }
+    .over {
+      top: 8px;
+      left: calc(42% + env(safe-area-inset-left) + 8px);
+    }
+  }
+}

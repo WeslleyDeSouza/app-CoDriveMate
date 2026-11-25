@@ -1,0 +1,28 @@
+{
+  "app": {
+    "common": {
+      "close": "Close",
+      "coming_soon": "This area is being ported from the prototype."
+    },
+    "dock": {
+      "label": "Areas",
+      "navigation": "Navigation",
+      "engine": "Engine",
+      "chart": "History",
+      "diagnostics": "Diagnostics",
+      "copilot": "AI copilot",
+      "fuel": "Filling stations",
+      "logbook": "Logbook",
+      "maintenance": "Maintenance",
+      "parking": "Parking",
+      "media": "Music",
+      "lighting": "Lighting",
+      "settings": "Settings",
+      "obd": "OBD",
+      "connecting": "Connecting…",
+      "demo": "Demo",
+      "due": "Maintenance due"
+    },
+    "background": "Navigation and logbook are running."
+  }
+}

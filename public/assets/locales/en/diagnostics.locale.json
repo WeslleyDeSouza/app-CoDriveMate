@@ -1,0 +1,90 @@
+{
+  "diagnostics": {
+    "title": "Diagnostics",
+    "lamp": "Engine warning lamp",
+    "lamp_state": {
+      "true": "On",
+      "false": "Off",
+      "unknown": "Unknown"
+    },
+    "read": "Read out",
+    "ask": "Ask AI",
+    "clear": "Clear",
+    "clear_sure": "Really clear",
+    "clear_note": "Engine off, ignition on. The readiness values are reset too. Tap again to clear.",
+    "none": "No faults stored.",
+    "read_at": "Read out at {{time}}.",
+    "demo": "(demo data)",
+    "readonly": "Only reading. Clearing happens only while standing and on your tap.",
+    "understood": "Understood",
+    "code_unknown": "Manufacturer specific or unknown.",
+    "state": {
+      "reading": "Reading fault memory…",
+      "clearing": "Clearing…",
+      "failed": "The control unit does not answer. Ignition on?",
+      "clear_failed": "Clearing failed. Engine off, ignition on?",
+      "not_connected": "Connect OBD first.",
+      "moving": "Clearing is possible only while standing."
+    },
+    "code": {
+      "P0100": "Mass air flow sensor circuit",
+      "P0105": "Manifold pressure sensor circuit",
+      "P0110": "Intake air temperature sensor",
+      "P0115": "Coolant temperature sensor",
+      "P0120": "Throttle position sensor",
+      "P0130": "Front oxygen sensor circuit",
+      "P0133": "Front oxygen sensor slow",
+      "P0135": "Front oxygen sensor heater",
+      "P0141": "Rear oxygen sensor heater",
+      "P0171": "Mixture too lean (bank 1)",
+      "P0172": "Mixture too rich (bank 1)",
+      "P0300": "Misfire, several cylinders",
+      "P0301": "Misfire cylinder 1",
+      "P0302": "Misfire cylinder 2",
+      "P0303": "Misfire cylinder 3",
+      "P0304": "Misfire cylinder 4",
+      "P0325": "Knock sensor",
+      "P0335": "Crankshaft sensor",
+      "P0340": "Camshaft sensor",
+      "P0420": "Catalyst efficiency too low",
+      "P0443": "Tank vent valve",
+      "P0500": "Speed sensor",
+      "P0505": "Idle control",
+      "P0560": "System voltage"
+    },
+    "warning": {
+      "coolant_hot": {
+        "title": "Coolant temperature high",
+        "say": "Find a safe place to stop",
+        "text": "Find a safe place to stop and let the engine cool down at idle. Do not open the radiator cap while hot. If it does not improve: switch the engine off."
+      },
+      "coolant_warm": {
+        "title": "Coolant is getting warm",
+        "say": "Drive on gently",
+        "text": "Drive on gently, turning the heating up helps cooling. Check the coolant level soon."
+      },
+      "charge_high": {
+        "title": "Charging voltage too high",
+        "say": "Go to a garage soon",
+        "text": "The charge regulator may be faulty. Go to a garage soon, or battery and electronics get damaged."
+      },
+      "charge_low": {
+        "title": "Battery is not charged",
+        "say": "Switch off large consumers",
+        "text": "Switch off large consumers (rear window heating, seat heating, fan). Have alternator and belt checked."
+      },
+      "range": {
+        "title": "Range short",
+        "say": "Go to the next filling station",
+        "text": "Go to the next filling station.",
+        "action": "Filling stations"
+      },
+      "lamp": {
+        "title": "Engine warning lamp on",
+        "say": "Driving on is usually possible",
+        "text": "Driving on is usually possible. If the lamp in the car blinks or the engine jerks: drive slowly and stop soon.",
+        "action": "Show faults"
+      }
+    }
+  }
+}

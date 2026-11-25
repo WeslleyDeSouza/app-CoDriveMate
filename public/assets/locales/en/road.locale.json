@@ -1,0 +1,44 @@
+{
+  "road": {
+    "say": {
+      "hazard": "{{hazard}} in {{distance}}",
+      "traffic": "Attention, {{kind}} in {{distance}}"
+    },
+    "hazard": {
+      "level_crossing": "Level crossing",
+      "school": "School nearby",
+      "kindergarten": "Kindergarten nearby",
+      "curve": "Dangerous bend",
+      "animal_crossing": "Animal crossing",
+      "falling_rocks": "Falling rocks",
+      "landslide": "Landslide",
+      "children": "Children",
+      "slippery": "Slippery road",
+      "ice": "Ice possible",
+      "fog": "Fog possible",
+      "flooding": "Flooding possible",
+      "queues_likely": "Queues likely",
+      "cyclists": "Cyclists",
+      "pedestrians": "Pedestrians",
+      "side_winds": "Side winds",
+      "steep_incline": "Steep incline",
+      "dangerous_junction": "Dangerous junction",
+      "accident_blackspot": "Accident blackspot",
+      "frost_heave": "Frost damage"
+    },
+    "traffic": {
+      "accident": "accident",
+      "fog": "fog",
+      "danger": "danger",
+      "rain": "heavy rain",
+      "ice": "ice",
+      "jam": "traffic jam",
+      "lane_closed": "lane closed",
+      "road_closed": "road closed",
+      "roadworks": "roadworks",
+      "wind": "storm",
+      "flooding": "flooding",
+      "breakdown": "breakdown"
+    }
+  }
+}

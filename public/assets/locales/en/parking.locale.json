@@ -1,0 +1,42 @@
+{
+  "parking": {
+    "title": "Parking",
+    "here": "Your car is here",
+    "car": "Parked car",
+    "since": "since {{time}} ({{date}})",
+    "away": "{{distance}} away",
+    "guide": "Guide to the car",
+    "show": "Show on map",
+    "meter": "Parking meter",
+    "no_meter": "No meter set",
+    "left": "{{time}} left (until {{until}})",
+    "expired": "Expired at {{until}}",
+    "off": "Off",
+    "note": "Note",
+    "note_hint": "e.g. level -2, space 214",
+    "park_again": "New: parked here",
+    "park_here": "Parked here",
+    "delete": "Delete",
+    "none": "No parking spot saved yet. After a drive with an OBD connection the app remembers the place itself.",
+    "no_position": "No position yet. Allow location.",
+    "hint": "Reminder 10 minutes before and at the end, spoken and as a notification.",
+    "hint_silent": "Notifications are not allowed. You are reminded only while the app is open.",
+    "remind": {
+      "soon": "Parking time ends in {{minutes}} minutes.",
+      "over": "Parking time has ended."
+    },
+    "phone": "Hand over to the phone",
+    "qr": "QR code with the location of the car",
+    "qr_note": "Scan with the phone camera: the way back opens in the map app. Set the meter on the phone if the tablet stays in the car.",
+    "find": "Find parking",
+    "find_destination": "Parking at the destination",
+    "find_near": "Parking nearby",
+    "car_park": "Car park",
+    "find_state": {
+      "searching": "Searching car parks…",
+      "empty": "No car park found.",
+      "failed": "Search not possible. Is there a connection?",
+      "no_position": "No position yet. Allow location."
+    }
+  }
+}

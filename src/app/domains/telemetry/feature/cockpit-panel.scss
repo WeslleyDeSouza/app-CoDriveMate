@@ -1,0 +1,268 @@
+@use '../../../shared/ui/phone' as phone;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+}
+
+.top {
+  padding: 14px 18px 12px;
+}
+
+.lhead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.vehicle {
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: var(--s);
+  font-weight: 600;
+}
+
+.gears {
+  display: flex;
+  gap: 4px;
+
+  span {
+    min-width: 24px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--s);
+    border-radius: 8px;
+    padding: 2px 4px;
+  }
+  .on {
+    background: var(--a);
+    color: #fff;
+  }
+}
+
+.spd {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sign {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 8px solid #d9242b;
+  background: #fff;
+  color: #111;
+  display: grid;
+  place-items: center;
+  font-size: 26px;
+  font-weight: 800;
+
+  &.over {
+    background: #ffd9da;
+  }
+}
+
+.badge {
+  font-size: 12px;
+  color: var(--s);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+
+  i {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--s);
+  }
+  &.obd i {
+    background: var(--ok);
+  }
+  &.demo i {
+    background: var(--a);
+  }
+  &.connecting i {
+    background: var(--wa);
+  }
+}
+
+.speed {
+  font-size: clamp(64px, 14vh, 132px);
+  font-weight: 200;
+  line-height: 0.9;
+  letter-spacing: -4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.seg {
+  display: grid;
+  grid-template-columns: repeat(36, 1fr);
+  gap: 3px;
+  height: 12px;
+  margin-top: 12px;
+
+  i {
+    border-radius: 2px;
+    background: var(--p3);
+    transition: background 0.15s;
+  }
+  i.r {
+    box-shadow: inset 0 -2px 0 rgba(255, 90, 95, 0.55);
+  }
+  i.l {
+    background: var(--a);
+  }
+  i.l.w {
+    background: var(--wa);
+  }
+  i.l.r {
+    background: var(--ba);
+  }
+}
+
+.rpmt {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--s);
+  margin-top: 7px;
+  font-variant-numeric: tabular-nums;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.st {
+  background: var(--p);
+  border: 1px solid var(--ln);
+  border-radius: 14px;
+  padding: 9px 12px;
+  min-width: 0;
+
+  &.warn {
+    border-color: var(--wa);
+    box-shadow: inset 0 0 0 1px var(--wa);
+  }
+  &.crit {
+    border-color: var(--ba);
+    background: color-mix(in srgb, var(--ba) 25%, var(--p));
+  }
+
+  small {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--s);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+
+    i {
+      font-size: 14px;
+    }
+  }
+  b {
+    font-size: 20px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  span {
+    font-size: 12px;
+    color: var(--s);
+    margin-left: 3px;
+  }
+}
+
+/* on the tablet two rows of the column */
+.tiles {
+  display: contents;
+}
+
+@include phone.any {
+  :host {
+    gap: 8px;
+  }
+  .top {
+    padding: 8px 12px;
+    flex-shrink: 0;
+  }
+  .lhead {
+    margin-bottom: 2px;
+  }
+  .gears {
+    gap: 1px;
+
+    span {
+      min-width: 21px;
+      padding: 2px;
+    }
+  }
+  /* only the dot; the dock shows the mode too */
+  .badge span {
+    display: none;
+  }
+  .speed {
+    font-size: 58px;
+    letter-spacing: -3px;
+  }
+  .sign {
+    width: 54px;
+    height: 54px;
+    border-width: 6px;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .seg {
+    gap: 1px;
+    height: 10px;
+    margin-top: 6px;
+  }
+  .rpmt {
+    margin-top: 3px;
+  }
+  .tiles {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+    overflow-x: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+  }
+  .stats {
+    display: contents;
+  }
+  .st {
+    flex: 1 0 auto;
+    min-width: 96px;
+    padding: 5px 10px;
+  }
+}
+
+/* speed and 3D view side by side, everything else below */
+@include phone.portrait {
+  :host {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .tiles {
+    grid-column: 1 / -1;
+  }
+}
+
+@include phone.landscape {
+  .spd > div:first-child {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "copilot": {
+    "title": "AI copilot",
+    "placeholder": "Ask your car…",
+    "send": "Send",
+    "microphone": "Speak",
+    "clear": "Clear chat",
+    "thinking": "Thinking…",
+    "open_settings": "Open settings",
+    "question": {
+      "engine": "How is the engine?",
+      "battery": "Is my battery ok?",
+      "saving": "How can I save fuel?",
+      "values": "Do you notice anything in the values?",
+      "codes": "Explain my fault codes and what I should do now."
+    },
+    "failure": {
+      "key": "A valid AI key is missing. Enter it in the settings under “AI copilot”.",
+      "quota": "The quota or credit is used up. Try again later.",
+      "refused": "This request was declined. Please rephrase it.",
+      "offline": "No connection to the copilot.",
+      "other": "The copilot could not answer."
+    },
+    "talk": {
+      "title": "Conversation",
+      "stop": "End conversation",
+      "mode": {
+        "chat": "Chat",
+        "facts": "Facts on the way",
+        "quiz": "Quiz",
+        "mixed": "All mixed"
+      },
+      "notice": {
+        "needs_key": "Chat and quiz need an AI key. Facts on the way work without.",
+        "key_rejected": "The AI key was rejected.",
+        "failed": "Not possible right now, I will try again.",
+        "no_microphone": "No microphone available or not allowed.",
+        "no_position": "No position yet. Allow location."
+      },
+      "quiet": "All right, I will be quiet.",
+      "where": "{{direction}}, {{distance}} away",
+      "direction": {
+        "near": "nearby",
+        "ahead": "ahead of you",
+        "right": "on your right",
+        "left": "on your left",
+        "behind": "behind you"
+      },
+      "question": "Quiz question: {{question}} {{options}}",
+      "right": "Correct!",
+      "wrong": "Sorry, the answer is {{key}}.",
+      "none": "No answer recognised. The answer is {{key}}."
+    }
+  }
+}

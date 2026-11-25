@@ -1,0 +1,154 @@
+{
+  "telemetry": {
+    "engine_title": "Motor",
+    "unit_rpm": "U/min",
+    "consumption": "Verbrauch",
+    "coolant": "Kühlmittel",
+    "battery": "Batterie",
+    "load": "Last",
+    "intake": "Ansaugluft",
+    "tank": "Tank",
+    "mode": {
+      "off": "Kein Signal",
+      "connecting": "Verbinde…",
+      "obd": "OBD",
+      "demo": "Demo"
+    },
+    "value": {
+      "speed": "Tempo",
+      "rpm": "Drehzahl",
+      "throttle": "Drosselklappe",
+      "load": "Motorlast",
+      "manifoldPressure": "Saugrohrdruck",
+      "massAirFlow": "Luftmasse",
+      "coolantTemp": "Kühlmittel",
+      "intakeTemp": "Ansaugluft",
+      "timingAdvance": "Zündwinkel",
+      "shortFuelTrim": "Gemisch kurz",
+      "longFuelTrim": "Gemisch lang",
+      "oxygenVoltage": "Lambdasonde",
+      "voltage": "Batterie",
+      "fuelLevel": "Tankfüllstand"
+    },
+    "obd": {
+      "setup_title": "OBD-Adapter einrichten",
+      "setup": "Adapter einrichten",
+      "none": "Noch kein Adapter eingerichtet.",
+      "connect": "Verbinden",
+      "disconnect": "Trennen",
+      "test": "Verbindung testen",
+      "change": "Anderer Adapter",
+      "forget": "Entfernen",
+      "auto": "Beim App-Start automatisch verbinden",
+      "search": "Adapter suchen",
+      "back": "Zurück",
+      "next": "Weiter",
+      "skip": "Überspringen",
+      "finish": "Fertig und verbinden",
+      "passed": "Alles in Ordnung, der Adapter liefert Daten.",
+      "kind": {
+        "ble": "Bluetooth LE",
+        "wifi": "WLAN",
+        "mfi": "Bluetooth (MFi)"
+      },
+      "kind_note": {
+        "ble": "Bluetooth 4.0 bis 5.3, zum Beispiel Vgate iCar Pro 2S",
+        "wifi": "Adapter mit eigenem WLAN, zum Beispiel ELM327 WiFi",
+        "mfi": "Von Apple zertifizierte Adapter, zum Beispiel OBDLink MX+"
+      },
+      "kind_unavailable": {
+        "ble": "Dieses Gerät oder dieser Browser unterstützt Bluetooth LE nicht.",
+        "wifi": "Nur in der App: Browser können keine Adapter über WLAN ansprechen.",
+        "mfi": "Nur in der App auf iPad und iPhone: MFi ist eine Technik von Apple."
+      },
+      "prepare": {
+        "plug": "Adapter in die OBD2-Buchse stecken, meist unter dem Lenkrad.",
+        "ignition": "Zündung einschalten.",
+        "bluetooth": "Bluetooth am Tablet einschalten.",
+        "pairing": "Den Adapter nicht in den Bluetooth-Einstellungen des Tablets koppeln. Andere OBD-Apps schliessen.",
+        "permission": "Beim ersten Suchen fragt das Gerät, ob CoDriveMate Bluetooth benutzen darf: erlauben.",
+        "wifi_join": "In den WLAN-Einstellungen des Tablets mit dem WLAN des Adapters verbinden, meist «WiFi_OBDII» oder ähnlich.",
+        "wifi_permission": "Beim ersten Verbinden fragt iOS nach dem Zugriff auf das lokale Netzwerk: erlauben. Wurde er abgelehnt, hilft «Einstellungen, Datenschutz, Lokales Netzwerk».",
+        "wifi_internet": "Das WLAN des Adapters hat kein Internet. Das Tablet trotzdem verbunden lassen.",
+        "mfi_pair": "Den Adapter in den Bluetooth-Einstellungen des iPads koppeln.",
+        "mfi_apps": "Andere OBD-Apps schliessen."
+      },
+      "wizard": {
+        "kind_title": "Welcher Adapter?",
+        "kind_text": "Wähle, wie dein Adapter verbindet.",
+        "prepare_title": "Vorbereiten",
+        "prepare_text": "Im Stand, bevor du losfährst:",
+        "choose_title": "Adapter wählen",
+        "choose_text": "Er heisst meist «Vgate», «IOS-Vlink», «OBDII» oder ähnlich.",
+        "test_title": "Verbindung testen",
+        "test_text": "Prüft Schritt für Schritt den Weg bis zum Motorsteuergerät. Das kann bis zu 30 Sekunden dauern.",
+        "done_title": "Fertig",
+        "done_text": "Der Adapter ist gespeichert. Du findest ihn in den Einstellungen.",
+        "choose_text_wifi": "Adresse des Adapters. Die Vorgabe passt für die meisten.",
+        "choose_text_mfi": "Adapter, die das iPad verbunden hat."
+      },
+      "step": {
+        "connect": "Verbindung zum Adapter",
+        "adapter": "Adapter antwortet",
+        "voltage": "Bordspannung",
+        "ecu": "Motorsteuergerät",
+        "values": "Messwerte"
+      },
+      "help": {
+        "connect": "Steckt der Adapter, ist er in der Nähe und nicht mit einer anderen App verbunden?",
+        "adapter": "Das Gerät antwortet nicht wie ein OBD-Adapter. Adapter kurz ausstecken und nochmals versuchen.",
+        "voltage": "Nicht messbar. Das ist kein Problem, wenn der Rest klappt.",
+        "ecu": "Keine Antwort vom Auto. Ist die Zündung eingeschaltet?",
+        "values": "Das Auto antwortet, liefert aber keine Werte. Motor starten und nochmals versuchen.",
+        "connect_wifi": "Ist das Tablet im WLAN des Adapters, stimmen Adresse und Port, und darf CoDriveMate auf das lokale Netzwerk zugreifen?",
+        "connect_mfi": "Ist der Adapter in den Bluetooth-Einstellungen verbunden und von keiner anderen App belegt?"
+      },
+      "error": {
+        "bluetooth": "Dieses Gerät oder dieser Browser unterstützt Bluetooth LE nicht.",
+        "unknown": "Der Adapter muss neu gewählt werden. Im Browser ist das nach jedem Neuladen nötig.",
+        "ecu": "Keine Antwort vom Motorsteuergerät. Ist die Zündung eingeschaltet?",
+        "other": "Verbindung fehlgeschlagen. «Verbindung testen» zeigt, woran es liegt.",
+        "permission": "Bluetooth ist für CoDriveMate nicht erlaubt. Bitte in den Geräteeinstellungen freigeben.",
+        "off": "Bluetooth ist ausgeschaltet. Bitte einschalten und nochmals versuchen."
+      },
+      "open_settings": "Geräteeinstellungen öffnen",
+      "wifi": {
+        "host": "Adresse",
+        "port": "Port",
+        "host_invalid": "Bitte einen Hostnamen oder eine IPv4-Adresse eingeben.",
+        "port_invalid": "Bitte einen Port von 1 bis 65535 eingeben.",
+        "use": "Adresse übernehmen"
+      },
+      "mfi": {
+        "none": "Kein passender Adapter verbunden. Zuerst in den Bluetooth-Einstellungen koppeln.",
+        "failed": "Die verbundenen Geräte lassen sich nicht abfragen.",
+        "refresh": "Neu suchen"
+      },
+      "scanning": "Suche läuft…",
+      "unnamed": "Ohne Namen",
+      "show_all": "Alle Geräte zeigen",
+      "scan_empty": "Nichts gefunden. Zündung einschalten und näher herangehen.",
+      "match": {
+        "likely": "Passt vermutlich",
+        "maybe": "Passt vielleicht",
+        "unknown": "Kein bekannter OBD-Adapter"
+      }
+    },
+    "trip": "Trip",
+    "average": "Schnitt",
+    "range": "Reichweite",
+    "chart": {
+      "title": "Verlauf",
+      "empty": "Noch keine Daten. OBD verbinden.",
+      "span": "Letzte zwei Minuten",
+      "series": {
+        "speed": "Tempo",
+        "rpm": "Drehzahl",
+        "coolantTemp": "Kühlmittel",
+        "consumption": "Verbrauch",
+        "throttle": "Drosselklappe",
+        "voltage": "Spannung"
+      }
+    }
+  }
+}

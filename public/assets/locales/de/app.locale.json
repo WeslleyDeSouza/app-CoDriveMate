@@ -1,0 +1,28 @@
+{
+  "app": {
+    "common": {
+      "close": "Schliessen",
+      "coming_soon": "Dieser Bereich wird gerade aus dem Prototyp übernommen."
+    },
+    "dock": {
+      "label": "Bereiche",
+      "navigation": "Navigation",
+      "engine": "Motor",
+      "chart": "Verlauf",
+      "diagnostics": "Diagnose",
+      "copilot": "KI-Copilot",
+      "fuel": "Tankstellen",
+      "logbook": "Fahrtenbuch",
+      "maintenance": "Wartung",
+      "parking": "Parkplatz",
+      "media": "Musik",
+      "lighting": "Licht",
+      "settings": "Einstellungen",
+      "obd": "OBD",
+      "connecting": "Verbinde…",
+      "demo": "Demo",
+      "due": "Wartung fällig"
+    },
+    "background": "Navigation und Fahrtenbuch laufen."
+  }
+}

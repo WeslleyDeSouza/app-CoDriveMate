@@ -1,0 +1,45 @@
+{
+  "lighting": {
+    "title": "Innenbeleuchtung",
+    "status": {
+      "off": "Kein Modul verbunden",
+      "connecting": "Verbinde…",
+      "connected": "Licht-Modul verbunden",
+      "failed": "Verbindung fehlgeschlagen"
+    },
+    "zones": "{{n}} Zonen",
+    "driving": "Fahrmodus (gedimmt)",
+    "connect": "Modul suchen",
+    "reconnect": "Verbinden",
+    "disconnect": "Trennen",
+    "scenes": "Szenen",
+    "scene": {
+      "warm": "Warmweiss",
+      "lounge": "Lounge",
+      "night": "Nacht",
+      "petrol": "Petrol",
+      "welcome": "Willkommen",
+      "party": "Party",
+      "off": "Aus"
+    },
+    "zone_title": "Zonen",
+    "zone": {
+      "front_floor": "Fussraum vorne",
+      "rear_floor": "Fussraum hinten",
+      "dashboard": "Armaturenbrett",
+      "boot": "Kofferraum"
+    },
+    "color": "Farbe",
+    "brightness": "Helligkeit",
+    "effect_title": "Effekt",
+    "effect": {
+      "still": "Ruhig",
+      "breathe": "Atmen",
+      "party": "Regenbogen",
+      "welcome": "Willkommen"
+    },
+    "drive": "Helligkeit beim Fahren",
+    "store": "Als Start-Zustand speichern",
+    "note": "Ohne Modul ist das eine Vorschau. Ab 5 km/h wird gedimmt. Während der Fahrt darf nichts Rotes, Blaues oder Blinkendes nach aussen sichtbar sein."
+  }
+}

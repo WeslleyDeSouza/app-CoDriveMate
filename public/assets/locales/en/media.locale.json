@@ -1,0 +1,75 @@
+{
+  "media": {
+    "title": "Music",
+    "apple_music": "Apple Music",
+    "music_note": "Controls the music app of this device: song, pause, next and your playlists.",
+    "connect": "Connect to the music app",
+    "denied": "No access. Please allow “Media & Apple Music” for CoDriveMate in the iPad settings.",
+    "only_ipad": "Apple Music can only be controlled in the app on iPad and iPhone.",
+    "no_playlists": "No playlists found.",
+    "youtube": "YouTube and YouTube Music",
+    "link": "Link to a video or playlist",
+    "name": "Name",
+    "add": "Add",
+    "remove": "Remove",
+    "invalid": "This link cannot be played. Personal mixes do not work, normal playlists and videos do.",
+    "youtube_note": "The player replaces the 3D view and keeps running next to the map. Watch only while parked. Playing sends data to Google (USA).",
+    "previous": "Previous",
+    "next": "Next",
+    "play": "Play",
+    "pause": "Pause",
+    "close_player": "Close player",
+    "player_failed": "The player could not be opened.",
+    "all_apps": "All music apps (ESP32 module)",
+    "remote_choose": "Connect module",
+    "remote": {
+      "none": "Controls YouTube Music, Spotify and any other app. Tap, choose the module and confirm “Pair” on the iPad.",
+      "connecting": "Connecting to the module…",
+      "pairing": "Connected. Waiting for the iPad: please confirm “Pair”.",
+      "on": "Ready. Title and buttons apply to the app that is playing.",
+      "failed": "Module not reachable. Is it switched on and Bluetooth allowed?"
+    },
+    "esp": {
+      "title": "Set up ESP32 module",
+      "guide": "Instructions",
+      "none": "No module connected yet. It shows and controls the music of any app on the iPad.",
+      "download": "Download firmware",
+      "waiting": "Waiting for music…",
+      "back": "Back",
+      "forward": "Next",
+      "finish": "Done",
+      "parts": {
+        "title": "What you need",
+        "h1": "An ESP32 board with Bluetooth LE, for example an ESP32 DevKit, ESP32-S3 or -C3. An ESP32-S2 does not work, it has no Bluetooth.",
+        "h2": "A USB data cable and a computer with the Arduino IDE.",
+        "h3": "A USB charger for the car."
+      },
+      "flash": {
+        "title": "Install the firmware",
+        "h1": "Download the firmware and open it in the Arduino IDE.",
+        "h2": "Install “esp32” by Espressif in the boards manager.",
+        "h3": "Install “NimBLE-Arduino” 2.5 or newer in the library manager.",
+        "h4": "Connect the board and select board and port.",
+        "h5": "Click “Upload”.",
+        "h6": "If the upload fails: hold the BOOT button until it starts."
+      },
+      "power": {
+        "title": "Connect in the car",
+        "h1": "Easiest: plug the board into the car charger by USB.",
+        "h2": "Never connect it to 12 volts directly. A fixed installation needs a converter to 5 volts and a fuse; ask a professional if in doubt.",
+        "h3": "Fix it so that it cannot fall into the footwell."
+      },
+      "connect": {
+        "title": "Connect to the iPad",
+        "h1": "Tap “Connect module” and choose “CoDriveMate Media”.",
+        "h2": "Confirm “Pair” on the iPad. This is only needed the first time.",
+        "h3": "If the iPad does not ask: remove the module in the iPad settings under Bluetooth (“Forget This Device”) and connect again."
+      },
+      "test": {
+        "title": "Try it",
+        "h1": "Start music in any app, for example YouTube Music or Spotify, and come back here.",
+        "h2": "Title and buttons should appear within a few seconds."
+      }
+    }
+  }
+}

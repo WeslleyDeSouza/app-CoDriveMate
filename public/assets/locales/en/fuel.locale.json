@@ -1,0 +1,33 @@
+{
+  "fuel": {
+    "title": "Tank and filling stations",
+    "station": "Filling station",
+    "stations": "Filling stations",
+    "tank": "In the tank",
+    "range": "Range",
+    "average": "Average",
+    "fill_cost": "Filling up, about",
+    "full": "Filled up",
+    "litres": "Litres in the tank",
+    "counted": "Without a tank sensor the app counts the consumption. Adjust it here after refuelling.",
+    "scope": {
+      "near": "Nearby",
+      "route": "On the route"
+    },
+    "state": {
+      "searching": "Searching filling stations…",
+      "empty": "No filling station found.",
+      "failed": "Search not possible. Is there a connection?",
+      "no_position": "No position yet. Allow location."
+    },
+    "open": "open",
+    "closed": "closed",
+    "show": "Show on map",
+    "source": "Data: © OpenStreetMap. Opening hours only where known; no prices.",
+    "low": "About {{range}} of range left",
+    "say": {
+      "low": "The tank lasts for about {{range}}.",
+      "low_near": "The tank lasts for about {{range}}. Nearest filling station: {{name}} in {{distance}}."
+    }
+  }
+}

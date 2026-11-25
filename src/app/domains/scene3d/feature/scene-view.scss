@@ -1,0 +1,138 @@
+@use '../../../shared/ui/phone' as phone;
+
+:host {
+  position: relative;
+  display: block;
+  flex: 1;
+  min-height: 120px;
+  border-radius: var(--r);
+  overflow: hidden;
+  background: radial-gradient(120% 90% at 50% 20%, var(--car1), var(--car2));
+  border: 1px solid var(--ln);
+}
+
+/* The native Mapbox map lies behind the web view. */
+:host-context(html.native-map):host(.map) {
+  background: transparent;
+}
+
+.canvas,
+.tap {
+  position: absolute;
+  inset: 0;
+}
+
+/* created by script, so out of reach of the encapsulated styles */
+.canvas ::ng-deep canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* The map below the car. Mapbox sets its own position. */
+.canvas ::ng-deep .backdrop.backdrop {
+  position: absolute;
+  inset: 0;
+}
+
+.tap {
+  border: 0;
+  background: none;
+  width: 100%;
+
+  &:focus-visible {
+    outline-offset: -4px;
+  }
+}
+
+.state {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--s);
+  font-size: 13px;
+}
+
+.ghost {
+  position: absolute;
+  top: 10px;
+  z-index: 2;
+  border: 0;
+  border-radius: 99px;
+  background: var(--glass);
+  backdrop-filter: blur(10px);
+  color: var(--t);
+  font-size: 12px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.world {
+  left: 10px;
+  min-height: var(--touch);
+  padding: 0 16px;
+}
+
+.cam {
+  right: 10px;
+  min-height: var(--touch);
+  padding: 0 16px;
+  pointer-events: none;
+}
+
+.street {
+  position: absolute;
+  left: 50%;
+  bottom: 26px;
+  transform: translateX(-50%);
+  z-index: 2;
+  pointer-events: none;
+  max-width: calc(100% - 24px);
+  font-size: 15px;
+  font-weight: 600;
+  background: var(--glass);
+  backdrop-filter: blur(10px);
+  padding: 6px 14px;
+  border-radius: 99px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.attribution {
+  position: absolute;
+  right: 10px;
+  bottom: 6px;
+  z-index: 2;
+  pointer-events: none;
+  font-size: 10px;
+  color: #fff;
+  text-shadow: 0 0 3px #000;
+}
+
+/* Small view: tapping it changes the camera, which needs no label. */
+@include phone.any {
+  .cam {
+    display: none;
+  }
+  .world {
+    top: 6px;
+    left: 6px;
+    width: var(--touch);
+    padding: 0;
+    justify-content: center;
+    font-size: 0;
+
+    i {
+      font-size: 20px;
+    }
+  }
+  .street {
+    font-size: 13px;
+    padding: 3px 10px;
+  }
+}

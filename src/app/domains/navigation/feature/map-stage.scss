@@ -1,0 +1,513 @@
+@use '../../../shared/ui/phone' as phone;
+
+:host {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.map {
+  position: absolute;
+  inset: 0;
+
+  /* created by script, so out of reach of the encapsulated styles */
+  ::ng-deep .map-host {
+    position: absolute;
+    inset: 0;
+  }
+}
+
+.maperr {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--s);
+  background: var(--p2);
+
+  > i {
+    font-size: 36px;
+  }
+  .btn {
+    background: var(--p3);
+    color: var(--t);
+  }
+}
+
+.gl {
+  background: var(--glass);
+  backdrop-filter: blur(18px) saturate(1.4);
+  box-shadow: var(--sh);
+  border: 1px solid var(--ln);
+}
+
+.navcard {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 3;
+  background: #1d2a44;
+  color: #fff;
+  border-radius: 20px;
+  width: min(360px, 62%);
+  overflow: hidden;
+  box-shadow: var(--sh);
+  transition:
+    width 0.25s,
+    background 0.25s;
+
+  &.near {
+    background: #2456c9;
+    width: min(430px, 72%);
+
+    .nv-main > i {
+      font-size: 64px;
+      color: #fff;
+    }
+    .nv-d {
+      font-size: 40px;
+    }
+    .nv-t {
+      font-size: 16px;
+      opacity: 1;
+      font-weight: 600;
+    }
+  }
+}
+
+.nv-main {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding: 14px 18px;
+
+  > i {
+    font-size: 44px;
+    color: #9cc0ff;
+  }
+}
+
+.nv-d {
+  font-size: 28px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.nv-t {
+  font-size: 15px;
+  opacity: 0.9;
+}
+
+.nv-prog {
+  height: 5px;
+  background: rgba(255, 255, 255, 0.12);
+
+  i {
+    display: block;
+    height: 100%;
+    background: #9cc0ff;
+    transition: width 0.2s linear;
+  }
+}
+
+.nv-then {
+  background: rgba(255, 255, 255, 0.07);
+  padding: 8px 18px;
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+.chip {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 3;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  border-radius: 99px;
+  padding: 6px 8px 6px 14px;
+  font-size: 13px;
+
+  b {
+    background: var(--p2);
+    padding: 4px 10px;
+    border-radius: 99px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.pill {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--s);
+
+  &.obd .dot {
+    background: var(--ok);
+  }
+  &.demo .dot {
+    background: var(--a);
+  }
+  &.connecting .dot {
+    background: var(--wa);
+  }
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--s);
+}
+
+.mbtns {
+  position: absolute;
+  right: 14px;
+  top: 66px;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  overflow: hidden;
+
+  button {
+    width: var(--touch);
+    height: var(--touch);
+    border: 0;
+    background: none;
+    font-size: 20px;
+    font-weight: 700;
+
+    & + button {
+      border-top: 1px solid var(--ln);
+    }
+    &.hl {
+      color: var(--a);
+    }
+    &.view {
+      height: 60px;
+
+      small {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+.notice {
+  position: absolute;
+  left: 50%;
+  bottom: 130px;
+  transform: translateX(-50%);
+  z-index: 4;
+  padding: 12px 18px;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  max-width: calc(100% - 28px);
+}
+
+.bcard {
+  position: absolute;
+  left: 14px;
+  bottom: 36px; /* keeps the attribution visible */
+  z-index: 3;
+  border-radius: 20px;
+  padding: 10px;
+  width: min(400px, calc(100% - 28px));
+}
+
+.trip {
+  width: min(500px, calc(100% - 28px));
+}
+
+.extras {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.extra {
+  min-height: var(--touch);
+  border: 0;
+  border-radius: 14px;
+  background: var(--p2);
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+
+  i {
+    font-size: 20px;
+  }
+}
+
+.lv0 {
+  color: var(--ok);
+}
+.lv1 {
+  color: var(--a2);
+}
+.lv2 {
+  color: var(--wa);
+}
+.lv3 {
+  color: var(--ba);
+}
+
+.wx-list {
+  list-style: none;
+  max-height: 34vh;
+  overflow: auto;
+  margin-bottom: 8px;
+
+  li {
+    display: grid;
+    grid-template-columns: 64px 52px 24px 1fr auto;
+    align-items: center;
+    gap: 8px;
+    min-height: 36px;
+    padding: 0 6px;
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.eta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  white-space: nowrap;
+  padding: 10px 2px 0;
+
+  b {
+    font-size: 23px;
+    display: block;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .dur {
+    color: var(--ok);
+  }
+  .prov {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--s);
+  }
+  small {
+    color: var(--s);
+    font-size: 12px;
+  }
+}
+
+.end {
+  margin-left: auto;
+  min-height: var(--touch);
+  background: var(--ba);
+  color: #fff;
+  border: 0;
+  border-radius: 99px;
+  padding: 0 24px;
+  font-weight: 700;
+}
+
+@include phone.any {
+  :host {
+    container-type: size;
+  }
+
+  .navcard,
+  .navcard.near {
+    top: 8px;
+    left: 8px;
+    width: auto;
+    right: 114px; /* next to the buttons */
+
+    .nv-main {
+      gap: 10px;
+      padding: 8px 12px;
+
+      > i {
+        font-size: 36px;
+      }
+    }
+    .nv-d {
+      font-size: 26px;
+    }
+    .nv-t {
+      font-size: 15px;
+      line-height: 1.2;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      overflow: hidden;
+    }
+  }
+  .nv-then {
+    padding: 4px 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .chip {
+    top: 8px;
+    left: 8px;
+    right: auto;
+  }
+  .navcard ~ .chip {
+    display: none;
+  }
+
+  .mbtns {
+    top: 8px;
+    right: 8px;
+    display: grid;
+    grid-template-columns: var(--touch) var(--touch);
+
+    button,
+    button.view {
+      height: var(--touch);
+
+      small {
+        display: none;
+      }
+    }
+    /* two fingers do that on a phone */
+    [data-section-test^='map-zoom'] {
+      display: none;
+    }
+  }
+  /* Lists and notices take the room of the buttons. */
+  :host:has(app-search-panel.open) .mbtns,
+  :host:has(.wx-list) .mbtns,
+  :host:has(.navcard ~ .notice) .mbtns,
+  :host:has(app-search-panel.open) .chip {
+    display: none;
+  }
+
+  .notice {
+    top: 56px;
+    bottom: auto;
+    left: 8px;
+    right: 114px;
+    transform: none;
+    max-width: none;
+    padding: 8px 14px;
+  }
+  .navcard ~ .notice {
+    top: auto;
+    bottom: 176px;
+    right: 8px;
+  }
+  :host:has(app-search-panel.open) .notice {
+    top: 8px;
+    right: 8px;
+  }
+
+  .bcard {
+    left: 8px;
+    right: 8px;
+    width: auto;
+    max-width: 500px;
+    max-height: calc(100% - 44px);
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+  }
+  .notice ~ .bcard:not(.trip) {
+    max-height: calc(100% - 120px);
+  }
+  .wx-list {
+    max-height: max(72px, calc(100cqh - 310px));
+    overscroll-behavior: contain;
+
+    li {
+      grid-template-columns: 56px 48px 24px 1fr auto;
+      gap: 6px;
+    }
+  }
+  .extras {
+    flex-wrap: nowrap;
+  }
+  .extra {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 0 10px;
+    font-size: 13px;
+    line-height: 1.2;
+    text-align: left;
+  }
+  .eta {
+    gap: 12px;
+    padding-top: 6px;
+
+    b {
+      font-size: 20px;
+    }
+    div:has(.prov) {
+      display: none;
+    }
+  }
+  .end {
+    padding: 0 18px;
+  }
+
+  /* Low stage: one line of trip data, the extras as icons next to it. */
+  @container (max-height: 330px) {
+    .nv-then {
+      display: none;
+    }
+    .trip {
+      flex-flow: row wrap;
+      align-items: center;
+      gap: 6px;
+    }
+    .wx-list {
+      flex-basis: 100%;
+      max-height: max(72px, calc(100cqh - 220px));
+      margin: 0;
+    }
+    .extras {
+      order: 1;
+      gap: 6px;
+    }
+    .extra {
+      font-size: 0;
+      gap: 0;
+      justify-content: center;
+      width: var(--touch);
+    }
+    .eta {
+      flex: 1;
+      padding: 0;
+      gap: 8px;
+
+      small {
+        display: none;
+      }
+      b {
+        font-size: 18px;
+      }
+    }
+    .end {
+      padding: 0 12px;
+    }
+    .navcard ~ .notice {
+      bottom: 110px;
+    }
+  }
+  @container (max-height: 270px) {
+    .mbtns [data-section-test='map-tilt'] {
+      display: none;
+    }
+  }
+}

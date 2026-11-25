@@ -1,0 +1,154 @@
+{
+  "telemetry": {
+    "engine_title": "Engine",
+    "unit_rpm": "rpm",
+    "consumption": "Consumption",
+    "coolant": "Coolant",
+    "battery": "Battery",
+    "load": "Load",
+    "intake": "Intake air",
+    "tank": "Tank",
+    "mode": {
+      "off": "No signal",
+      "connecting": "Connecting…",
+      "obd": "OBD",
+      "demo": "Demo"
+    },
+    "value": {
+      "speed": "Speed",
+      "rpm": "Engine speed",
+      "throttle": "Throttle",
+      "load": "Engine load",
+      "manifoldPressure": "Manifold pressure",
+      "massAirFlow": "Air mass",
+      "coolantTemp": "Coolant",
+      "intakeTemp": "Intake air",
+      "timingAdvance": "Timing advance",
+      "shortFuelTrim": "Fuel trim short",
+      "longFuelTrim": "Fuel trim long",
+      "oxygenVoltage": "Oxygen sensor",
+      "voltage": "Battery",
+      "fuelLevel": "Fuel level"
+    },
+    "obd": {
+      "setup_title": "Set up OBD adapter",
+      "setup": "Set up adapter",
+      "none": "No adapter set up yet.",
+      "connect": "Connect",
+      "disconnect": "Disconnect",
+      "test": "Test connection",
+      "change": "Other adapter",
+      "forget": "Remove",
+      "auto": "Connect automatically when the app starts",
+      "search": "Search for adapter",
+      "back": "Back",
+      "next": "Next",
+      "skip": "Skip",
+      "finish": "Finish and connect",
+      "passed": "All good, the adapter delivers data.",
+      "kind": {
+        "ble": "Bluetooth LE",
+        "wifi": "Wi-Fi",
+        "mfi": "Bluetooth (MFi)"
+      },
+      "kind_note": {
+        "ble": "Bluetooth 4.0 to 5.3, for example Vgate iCar Pro 2S",
+        "wifi": "Adapters with their own Wi-Fi, for example ELM327 WiFi",
+        "mfi": "Adapters certified by Apple, for example OBDLink MX+"
+      },
+      "kind_unavailable": {
+        "ble": "This device or browser does not support Bluetooth LE.",
+        "wifi": "Only in the app: browsers cannot reach adapters over Wi-Fi.",
+        "mfi": "Only in the app on iPad and iPhone: MFi is an Apple technology."
+      },
+      "prepare": {
+        "plug": "Plug the adapter into the OBD2 port, usually below the steering wheel.",
+        "ignition": "Switch on the ignition.",
+        "bluetooth": "Switch on Bluetooth on the tablet.",
+        "pairing": "Do not pair the adapter in the Bluetooth settings of the tablet. Close other OBD apps.",
+        "permission": "On the first search the device asks whether CoDriveMate may use Bluetooth: allow it.",
+        "wifi_join": "In the Wi-Fi settings of the tablet, join the Wi-Fi of the adapter, usually “WiFi_OBDII” or similar.",
+        "wifi_permission": "On the first connection iOS asks for access to the local network: allow it. If it was refused, see “Settings, Privacy, Local Network”.",
+        "wifi_internet": "The Wi-Fi of the adapter has no internet. Keep the tablet connected anyway.",
+        "mfi_pair": "Pair the adapter in the Bluetooth settings of the iPad.",
+        "mfi_apps": "Close other OBD apps."
+      },
+      "wizard": {
+        "kind_title": "Which adapter?",
+        "kind_text": "Choose how your adapter connects.",
+        "prepare_title": "Prepare",
+        "prepare_text": "While parked, before you drive:",
+        "choose_title": "Choose adapter",
+        "choose_text": "It is usually called “Vgate”, “IOS-Vlink”, “OBDII” or similar.",
+        "test_title": "Test connection",
+        "test_text": "Checks the way to the engine control unit step by step. This can take up to 30 seconds.",
+        "done_title": "Done",
+        "done_text": "The adapter is saved. You find it in the settings.",
+        "choose_text_wifi": "Address of the adapter. The default fits most of them.",
+        "choose_text_mfi": "Adapters the iPad has connected."
+      },
+      "step": {
+        "connect": "Connection to the adapter",
+        "adapter": "Adapter answers",
+        "voltage": "Battery voltage",
+        "ecu": "Engine control unit",
+        "values": "Readings"
+      },
+      "help": {
+        "connect": "Is the adapter plugged in, nearby and not connected to another app?",
+        "adapter": "The device does not answer like an OBD adapter. Unplug it briefly and try again.",
+        "voltage": "Cannot be measured. No problem if the rest works.",
+        "ecu": "No answer from the car. Is the ignition on?",
+        "values": "The car answers but delivers no values. Start the engine and try again.",
+        "connect_wifi": "Is the tablet in the Wi-Fi of the adapter, are address and port right, and may CoDriveMate access the local network?",
+        "connect_mfi": "Is the adapter connected in the Bluetooth settings and not used by another app?"
+      },
+      "error": {
+        "bluetooth": "This device or browser does not support Bluetooth LE.",
+        "unknown": "The adapter must be chosen again. In the browser this is needed after every reload.",
+        "ecu": "No answer from the engine control unit. Is the ignition on?",
+        "other": "Connection failed. “Test connection” shows why.",
+        "permission": "Bluetooth is not allowed for CoDriveMate. Please allow it in the device settings.",
+        "off": "Bluetooth is switched off. Please switch it on and try again."
+      },
+      "open_settings": "Open device settings",
+      "wifi": {
+        "host": "Address",
+        "port": "Port",
+        "host_invalid": "Please enter a host name or an IPv4 address.",
+        "port_invalid": "Please enter a port from 1 to 65535.",
+        "use": "Use this address"
+      },
+      "mfi": {
+        "none": "No matching adapter connected. Pair it in the Bluetooth settings first.",
+        "failed": "The connected devices cannot be listed.",
+        "refresh": "Search again"
+      },
+      "scanning": "Searching…",
+      "unnamed": "Unnamed",
+      "show_all": "Show all devices",
+      "scan_empty": "Nothing found. Switch on the ignition and move closer.",
+      "match": {
+        "likely": "Probably fits",
+        "maybe": "May fit",
+        "unknown": "Not a known OBD adapter"
+      }
+    },
+    "trip": "Trip",
+    "average": "Average",
+    "range": "Range",
+    "chart": {
+      "title": "Chart",
+      "empty": "No data yet. Connect OBD.",
+      "span": "Last two minutes",
+      "series": {
+        "speed": "Speed",
+        "rpm": "RPM",
+        "coolantTemp": "Coolant",
+        "consumption": "Consumption",
+        "throttle": "Throttle",
+        "voltage": "Voltage"
+      }
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "maintenance": {
+    "title": "Maintenance",
+    "odometer": "Odometer reading",
+    "odometer_missing": "Please enter the odometer reading first.",
+    "counted": "The odometer counts along while driving with an OBD connection.",
+    "done": "Done today",
+    "name": "Name",
+    "every": "Every …",
+    "every_months": "Every … months",
+    "last_km": "Last done at",
+    "last_date": "Last done on",
+    "km_left": "in {{distance}}",
+    "km_over": "{{distance}} overdue",
+    "due_by": "due on {{date}}",
+    "due_since": "due since {{date}}",
+    "new": "Own job",
+    "add": "Add",
+    "delete": "Delete",
+    "delete_sure": "Tap again to delete",
+    "dates": "Dates",
+    "vignette_year": "Vignette (year)",
+    "vignette_valid": "valid until 31 Jan {{next}}",
+    "vignette_expired": "expired on 31 Jan {{next}}, new vignette needed",
+    "notice": "Maintenance due or due soon:",
+    "open": "Show",
+    "item": {
+      "service": "Service",
+      "oil": "Oil change",
+      "brake": "Brake fluid",
+      "plugs": "Spark plugs",
+      "belt": "Timing belt",
+      "inspection": "Vehicle inspection (MFK)",
+      "vignette": "Vignette"
+    },
+    "level": {
+      "unknown": "Not recorded yet",
+      "ok": "All good",
+      "soon": "Due soon",
+      "overdue": "Overdue"
+    }
+  }
+}

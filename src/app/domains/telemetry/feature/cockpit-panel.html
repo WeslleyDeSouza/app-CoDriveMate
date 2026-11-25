@@ -1,0 +1,88 @@
+<div class="panel top">
+  <div class="lhead">
+    <span class="gears" data-section-test="cockpit-gear" [attr.data-gear]="gear()">
+      <span [class.on]="gear() === 0">N</span>
+      @for (item of gears(); track item.number) {
+        <span [class.on]="gear() === item.number">{{ item.name }}</span>
+      }
+    </span>
+    <div class="badge" data-section-test="cockpit-mode" [class]="mode()">
+      <i aria-hidden="true"></i>
+      <span>
+        {{ 'telemetry.mode.' + mode() | translate }}
+        @if (mode() === 'obd' && rateHz(); as hz) {
+          · {{ hz.toFixed(1) }} Hz
+        }
+      </span>
+    </div>
+  </div>
+  <div class="spd">
+    <div>
+      <div class="speed" data-section-test="cockpit-speed" aria-live="off">{{ speed().value }}</div>
+      <span class="vehicle">{{ speed().unit }}</span>
+    </div>
+    @if (limit(); as value) {
+      <div class="sign" data-section-test="cockpit-limit" [class.over]="tooFast()">{{ value }}</div>
+    }
+  </div>
+  <div class="seg" data-section-test="cockpit-revbar" aria-hidden="true">
+    @for (segment of segments(); track $index) {
+      <i [class.l]="segment.lit" [class.w]="segment.warn" [class.r]="segment.red"></i>
+    }
+  </div>
+  <div class="rpmt" data-section-test="cockpit-rpm">
+    <span>{{ values().rpm }} {{ 'telemetry.unit_rpm' | translate }}</span>
+  </div>
+</div>
+
+<ng-content />
+
+<div class="tiles">
+  <div class="stats">
+    <div class="st" data-section-test="cockpit-trip">
+      <small
+        ><i class="ti ti-route" aria-hidden="true"></i>{{ 'telemetry.trip' | translate }}</small
+      >
+      <b>{{ trip().text }}</b><span>{{ trip().unit }}</span>
+    </div>
+    <div class="st" data-section-test="cockpit-average">
+      <small
+        ><i class="ti ti-clock-hour-4" aria-hidden="true"></i
+        >{{ 'telemetry.average' | translate }}</small
+      >
+      <b>{{ average().text }}</b><span>{{ average().unit }}</span>
+    </div>
+    <div class="st" data-section-test="cockpit-consumption">
+      <small
+        ><i class="ti ti-droplet" aria-hidden="true"></i
+        >{{ 'telemetry.consumption' | translate }}</small
+      >
+      <b>{{ consumption().value }}</b><span>{{ consumption().unit }}</span>
+    </div>
+  </div>
+  <div class="stats">
+    <div class="st" data-section-test="cockpit-coolant" [class]="extras().levels['coolant'] ?? ''">
+      <small
+        ><i class="ti ti-temperature" aria-hidden="true"></i
+        >{{ 'telemetry.coolant' | translate }}</small
+      >
+      <b>{{ temperature(values().coolantTemp).text }}</b><span>{{
+        temperature(values().coolantTemp).unit
+      }}</span>
+    </div>
+    <div class="st" data-section-test="cockpit-battery" [class]="extras().levels['battery'] ?? ''">
+      <small
+        ><i class="ti ti-battery-automotive" aria-hidden="true"></i
+        >{{ 'telemetry.battery' | translate }}</small
+      >
+      <b>{{ fixed(values().voltage, 1) }}</b><span>{{ 'V' }}</span>
+    </div>
+    <div class="st" data-section-test="cockpit-range" [class]="extras().levels['range'] ?? ''">
+      <small
+        ><i class="ti ti-gas-station" aria-hidden="true"></i
+        >{{ 'telemetry.range' | translate }}</small
+      >
+      <b>{{ range().text }}</b><span>{{ range().unit }}</span>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,620 @@
+<app-sheet-page section="settings" [title]="'settings.title' | translate">
+  <!-- Fahrzeug und Tank -->
+  <details class="grp" open data-section-test="settings-group-car">
+    <summary data-section-test="settings-toggle-car">
+      <i class="ti ti-car" aria-hidden="true"></i>
+      <span>
+        <b>{{ 'settings.group_car' | translate }}</b>
+        <small>
+          {{ draft().vehicle.name }} ·
+          {{ 'settings.fuel_' + draft().vehicle.fuelType | translate }} ·
+          {{ draft().vehicle.displacementL }} l
+        </small>
+      </span>
+      <i class="ti ti-chevron-down chev" aria-hidden="true"></i>
+    </summary>
+    <div class="gb">
+      <div class="two">
+        <label class="f">
+          {{ 'settings.vehicle_name' | translate }}
+          <input
+            data-section-test="settings-vehicle-name"
+            type="text"
+            [value]="draft().vehicle.name"
+            [placeholder]="'settings.vehicle_name_hint' | translate"
+            (change)="patch({ vehicle: { name: text($event) } })"
+          />
+        </label>
+        <label class="f">
+          {{ 'settings.fuel_type' | translate }}
+          <select
+            data-section-test="settings-fuel-type"
+            [value]="draft().vehicle.fuelType"
+            (change)="patch({ vehicle: { fuelType: $any(text($event)) } })"
+          >
+            <option value="petrol">{{ 'settings.fuel_petrol' | translate }}</option>
+            <option value="diesel">{{ 'settings.fuel_diesel' | translate }}</option>
+          </select>
+        </label>
+      </div>
+      <span class="f">{{ 'settings.color' | translate }}</span>
+      <div class="swatches" role="radiogroup" [attr.aria-label]="'settings.color' | translate">
+        @for (color of swatches; track color) {
+          <button
+            type="button"
+            role="radio"
+            [attr.data-section-test]="'settings-color-' + color.slice(1)"
+            [style.background]="color"
+            [class.on]="color === draft().vehicle.color"
+            [attr.aria-checked]="color === draft().vehicle.color"
+            [attr.aria-label]="color"
+            (click)="patch({ vehicle: { color: color } })"
+          ></button>
+        }
+      </div>
+      <div class="two">
+        <label class="f">
+          {{ 'settings.displacement' | translate }}
+          <input
+            data-section-test="settings-displacement"
+            type="number"
+            inputmode="decimal"
+            step="0.1"
+            [value]="draft().vehicle.displacementL"
+            (change)="
+              patch({ vehicle: { displacementL: num($event, draft().vehicle.displacementL) } })
+            "
+          />
+        </label>
+        <label class="f">
+          {{ 'settings.fuel_price' | translate }}
+          <input
+            data-section-test="settings-fuel-price"
+            type="number"
+            inputmode="decimal"
+            step="0.01"
+            [value]="draft().fuelPrice"
+            (change)="patch({ fuelPrice: num($event, draft().fuelPrice) })"
+          />
+        </label>
+      </div>
+      <label class="f">
+        {{ 'settings.tank' | translate }}
+        <input
+          data-section-test="settings-tank"
+          type="number"
+          inputmode="decimal"
+          [value]="draft().vehicle.tankL ?? ''"
+          (change)="patch({ vehicle: { tankL: num($event, null) } })"
+        />
+      </label>
+    </div>
+  </details>
+
+  <!-- OBD-Adapter -->
+  <details class="grp" data-section-test="settings-group-obd">
+    <summary data-section-test="settings-toggle-obd">
+      <i class="ti ti-plug-connected" aria-hidden="true"></i>
+      <span>
+        <b>{{ 'settings.group_obd' | translate }}</b>
+        <small>{{ 'settings.obd_summary' | translate }}</small>
+      </span>
+      <i class="ti ti-chevron-down chev" aria-hidden="true"></i>
+    </summary>
+    <div class="gb"><app-obd-settings /></div>
+  </details>
+
+  <!-- ESP32-Modul -->
+  <details class="grp" data-section-test="settings-group-esp">
+    <summary data-section-test="settings-toggle-esp">
+      <i class="ti ti-cpu" aria-hidden="true"></i>
+      <span>
+        <b>{{ 'settings.group_esp' | translate }}</b>
+        <small>{{ 'settings.esp_summary' | translate }}</small>
+      </span>
+      <i class="ti ti-chevron-down chev" aria-hidden="true"></i>
+    </summary>
+    <div class="gb"><app-esp-settings /></div>
+  </details>
+
+  <!-- Einheiten -->
+  <details class="grp" data-section-test="settings-group-units">
+    <summary data-section-test="settings-toggle-units">
+      <i class="ti ti-ruler-2" aria-hidden="true"></i>
+      <span>
+        <b>{{ 'settings.group_units' | translate }}</b>
+        <small>
+          {{ 'settings.unit.' + draft().units.distance | translate }} ·
+          {{ 'settings.unit.' + draft().units.temperature | translate }}
+        </small>
+      </span>
+      <i class="ti ti-chevron-down chev" aria-hidden="true"></i>
+    </summary>
+    <div class="gb">
+      @for (unit of unitOptions; track unit.name) {
+        <label class="f">
+          {{ 'settings.units.' + unit.name | translate }}
+          <select
+            [attr.data-section-test]="'settings-units-' + unit.name"
+            (change)="setUnit(unit.name, $event)"
+          >
+            @for (option of unit.options; track option) {
+              <option [value]="option" [selected]="option === draft().units[unit.name]">
+                {{ 'settings.unit.' + option | translate }}
+              </option>
+            }
+          </select>
+        </label>
+      }
+    </div>
+  </details>
+
+  <!-- Anzeige und 3D -->
+  <details class="grp" data-section-test="settings-group-view">
+    <summary data-section-test="settings-toggle-view">
+      <i class="ti ti-device-tablet" aria-hidden="true"></i>
+      <span>
+        <b>{{ 'settings.group_view' | translate }}</b>
+        <small>{{ 'settings.theme_' + draft().theme | translate }}</small>
+      </span>
+      <i class="ti ti-chevron-down chev" aria-hidden="true"></i>
+    </summary>
+    <div class="gb">
+      <div class="two">
+        <label class="f">
+          {{ 'settings.language' | translate }}
+          <select
+            data-section-test="settings-language"
+            [value]="language()"
+            (change)="setLanguage($event)"
+          >
+            @for (lang of languages; track lang.name) {
+              <option [value]="lang.name" [selected]="lang.name === language()">
+                {{ lang.label }}
+              </option>
+            }
+          </select>
+        </label>
+        <label class="f">
+          {{ 'settings.theme' | translate }}
+          <select
+            data-section-test="settings-theme"
+            [value]="draft().theme"
+            (change)="patch({ theme: $any(text($event)) })"
+          >
+            <option value="auto">{{ 'settings.theme_auto' | translate }}</option>
+            <option value="light">{{ 'settings.theme_light' | translate }}</option>
+            <option value="dark">{{ 'settings.theme_dark' | translate }}</option>
+          </select>
+        </label>
+      </div>
+      <label class="f">
+        {{ 'settings.eco_tips' | translate }}
+        <select
+          data-section-test="settings-eco-tips"
+          [value]="draft().ecoTips ? '1' : '0'"
+          (change)="patch({ ecoTips: on($event) })"
+        >
+          <option value="1">{{ 'settings.on' | translate }}</option>
+          <option value="0">{{ 'settings.off' | translate }}</option>
+        </select>
+      </label>
+      <label class="f">
+        <span>
+          {{ 'settings.hazard_hints' | translate }}
+          <em>{{ 'settings.hazard_hints_note' | translate }}</em>
+        </span>
+        <select
+          data-section-test="settings-hazard-hints"
+          [value]="draft().hazardHints ? '1' : '0'"
+          (change)="patch({ hazardHints: on($event) })"
+        >
+          <option value="1">{{ 'settings.on' | translate }}</option>
+          <option value="0">{{ 'settings.off' | translate }}</option>
+        </select>
+      </label>
+      <label class="f">
+        <span>
+          {{ 'settings.background' | translate }}
+          <em>{{ 'settings.background_note' | translate }}</em>
+        </span>
+        <select
+          data-section-test="settings-background"
+          [value]="draft().background ? '1' : '0'"
+          (change)="patch({ background: on($event) })"
+        >
+          <option value="1">{{ 'settings.on' | translate }}</option>
+          <option value="0">{{ 'settings.off' | translate }}</option>
+        </select>
+      </label>
+      <label class="f">
+        {{ 'settings.auto_park' | translate }}
+        <select
+          data-section-test="settings-auto-park"
+          [value]="draft().autoPark ? '1' : '0'"
+          (change)="patch({ autoPark: on($event) })"
+        >
+          <option value="1">{{ 'settings.yes' | translate }}</option>
+          <option value="0">{{ 'settings.no' | translate }}</option>
+        </select>
+      </label>
+      <label class="f">
+        {{ 'settings.scene3d' | translate }}
+        <select
+          data-section-test="settings-scene3d"
+          [value]="draft().map.scene3d ? '1' : '0'"
+          (change)="patch({ map: { scene3d: on($event) } })"
+        >
+          <option value="1">{{ 'settings.on' | translate }}</option>
+          <option value="0">{{ 'settings.scene3d_off' | translate }}</option>
+        </select>
+      </label>
+      <label class="f">
+        {{ 'settings.scene_world' | translate }}
+        <select
+          data-section-test="settings-scene-world"
+          [value]="draft().map.sceneWorld"
+          (change)="patch({ map: { sceneWorld: $any(text($event)) } })"
+        >
+          <option value="real">{{ 'settings.world_real' | translate }}</option>
+          <option value="plain">{{ 'settings.world_plain' | translate }}</option>
+          <option value="mapbox">{{ 'settings.world_mapbox' | translate }}</option>
+          <option value="google">{{ 'settings.world_google' | translate }}</option>
+        </select>
+      </label>
+      <label class="f">
+        {{ 'settings.scene_quality' | translate }}
+        <select
+          data-section-test="settings-scene-quality"
+          [value]="draft().map.scene.quality"
+          (change)="patch({ map: { scene: { quality: $any(text($event)) } } })"
+        >
+          <option value="low">{{ 'settings.quality_low' | translate }}</option>
+          <option value="normal">{{ 'settings.quality_normal' | translate }}</option>
+          <option value="high">{{ 'settings.quality_high' | translate }}</option>
+        </select>
+      </label>
+      @for (part of sceneParts; track part) {
+        <label class="f">
+          <span>
+            {{ 'settings.scene.' + part | translate }}
+            <em>{{ 'settings.scene_note.' + part | translate }}</em>
+          </span>
+          <select
+            [attr.data-section-test]="'settings-scene-' + part"
+            [value]="draft().map.scene[part] ? '1' : '0'"
+            (change)="setScenePart(part, $event)"
+          >
+            <option value="1">{{ 'settings.on' | translate }}</option>
+            <option value="0">{{ 'settings.off' | translate }}</option>
+          </select>
+        </label>
+      }
+      <p class="hint">{{ 'settings.scene_privacy' | translate }}</p>
+    </div>
+  </details>
+
+  <!-- Ton und Ansagen -->
+  <details class="grp" data-section-test="settings-group-sound">
+    <summary data-section-test="settings-toggle-sound">
+      <i class="ti ti-volume" aria-hidden="true"></i>
+      <span>
+        <b>{{ 'settings.group_sound' | translate }}</b>
+        <small>
+          {{ 'settings.nav_voice' | translate }}:
+          {{ (draft().voice.navigation ? 'settings.on' : 'settings.off') | translate }}
+        </small>
+      </span>
+      <i class="ti ti-chevron-down chev" aria-hidden="true"></i>
+    </summary>
+    <div class="gb">
+      <label class="f">
+        {{ 'settings.nav_voice' | translate }}
+        <select
+          data-section-test="settings-nav-voice"
+          [value]="draft().voice.navigation ? '1' : '0'"
+          (change)="patch({ voice: { navigation: on($event) } })"
+        >
+          <option value="1">{{ 'settings.on' | translate }}</option>
+          <option value="0">{{ 'settings.off' | translate }}</option>
+        </select>
+      </label>
+      <div class="two">
+        <label class="f">
+          {{ 'settings.voice_provider' | translate }}
+          <select
+            data-section-test="settings-voice-provider"
+            [value]="draft().voice.provider"
+            (change)="patch({ voice: { provider: $any(text($event)) } })"
+          >
+            <option value="auto">{{ 'settings.voice_auto' | translate }}</option>
+            <option value="browser">{{ 'settings.voice_browser' | translate }}</option>
+          </select>
+        </label>
+        <label class="f">
+          {{ 'settings.voice_rate' | translate }}
+          <select
+            data-section-test="settings-voice-rate"
+            [value]="draft().voice.rate"
+            (change)="patch({ voice: { rate: num($event, draft().voice.rate) } })"
+          >
+            <option value="0.95">{{ 'settings.rate_calm' | translate }}</option>
+            <option value="1.05">{{ 'settings.rate_normal' | translate }}</option>
+            <option value="1.15">{{ 'settings.rate_brisk' | translate }}</option>
+          </select>
+        </label>
+      </div>
+      @if (draft().voice.provider === 'auto') {
+        <label class="f">
+          <span>
+            {{ 'settings.cloud_voice' | translate }}
+            <em>{{ 'settings.cloud_voice_note' | translate }}</em>
+          </span>
+          <select
+            data-section-test="settings-cloud-voice"
+            (change)="patch({ voice: { cloudVoice: text($event) } })"
+          >
+            @for (name of cloudVoices; track name) {
+              <option [value]="name" [selected]="name === draft().voice.cloudVoice">
+                {{ 'settings.cloud_voices.' + name | translate }}
+              </option>
+            }
+          </select>
+        </label>
+        @if (voiceProblem(); as problem) {
+          <p class="hint" role="status" data-section-test="settings-voice-problem">
+            {{ 'settings.voice_problem.' + problem | translate }}
+          </p>
+        }
+      }
+      <button class="btn" type="button" data-section-test="settings-voice-try" (click)="tryVoice()">
+        <i class="ti ti-volume" aria-hidden="true"></i>{{ 'settings.voice_try' | translate }}
+      </button>
+      <label class="f">
+        {{ 'settings.read_answers' | translate }}
+        <select
+          data-section-test="settings-read-answers"
+          [value]="draft().voice.readAnswers ? '1' : '0'"
+          (change)="patch({ voice: { readAnswers: on($event) } })"
+        >
+          <option value="1">{{ 'settings.yes' | translate }}</option>
+          <option value="0">{{ 'settings.no' | translate }}</option>
+        </select>
+      </label>
+    </div>
+  </details>
+
+  <!-- Karten, Routen und Verkehr -->
+  <details class="grp" data-section-test="settings-group-maps">
+    <summary data-section-test="settings-toggle-maps">
+      <i class="ti ti-map-2" aria-hidden="true"></i>
+      <span>
+        <b>{{ 'settings.group_maps' | translate }}</b>
+        <small>{{ 'settings.prov_' + draft().map.routingProvider | translate }}</small>
+      </span>
+      <i class="ti ti-chevron-down chev" aria-hidden="true"></i>
+    </summary>
+    <div class="gb">
+      <label class="f">
+        {{ 'settings.routing_provider' | translate }}
+        <select
+          data-section-test="settings-routing-provider"
+          [value]="draft().map.routingProvider"
+          (change)="patch({ map: { routingProvider: $any(text($event)) } })"
+        >
+          <option value="auto">{{ 'settings.prov_auto' | translate }}</option>
+          <option value="google">{{ 'settings.prov_google' | translate }}</option>
+          <option value="mapbox">{{ 'settings.prov_mapbox' | translate }}</option>
+          <option value="osm">{{ 'settings.prov_osm' | translate }}</option>
+        </select>
+      </label>
+      <label class="f">
+        {{ 'settings.base_map' | translate }}
+        <select
+          data-section-test="settings-base-map"
+          [value]="draft().map.baseMap"
+          (change)="patch({ map: { baseMap: $any(text($event)) } })"
+        >
+          <option value="auto">{{ 'settings.base_auto' | translate }}</option>
+          <option value="ofm">{{ 'settings.base_ofm' | translate }}</option>
+          <option value="mapbox">{{ 'settings.base_mapbox' | translate }}</option>
+          <option value="mapboxnav">{{ 'settings.base_mapboxnav' | translate }}</option>
+          <option value="google">{{ 'settings.base_google' | translate }}</option>
+        </select>
+      </label>
+      @for (name of ['google', 'mapbox', 'tomtom']; track name) {
+        <ng-container *ngTemplateOutlet="keyField; context: { name: name, hint: keyHints[name] }" />
+      }
+      <label class="f">
+        <span>
+          {{ 'settings.swiss_traffic' | translate }}
+          <em>{{ 'settings.swiss_traffic_note' | translate }}</em>
+        </span>
+        <select
+          data-section-test="settings-swiss-traffic"
+          [value]="draft().map.swissTrafficReports ? '1' : '0'"
+          (change)="patch({ map: { swissTrafficReports: on($event) } })"
+        >
+          <option value="0">{{ 'settings.off' | translate }}</option>
+          <option value="1">{{ 'settings.on' | translate }}</option>
+        </select>
+      </label>
+      @if (draft().map.swissTrafficReports) {
+        <label class="f">
+          <span>
+            {{ 'settings.swiss_traffic_url' | translate }}
+            <em>{{ 'settings.swiss_traffic_url_note' | translate }}</em>
+          </span>
+          <input
+            data-section-test="settings-swiss-traffic-url"
+            type="url"
+            placeholder="https://"
+            [value]="draft().map.swissTrafficUrl"
+            (change)="patch({ map: { swissTrafficUrl: text($event) } })"
+          />
+        </label>
+      }
+    </div>
+  </details>
+
+  <!-- KI-Copilot -->
+  <details class="grp" data-section-test="settings-group-ai">
+    <summary data-section-test="settings-toggle-ai">
+      <i class="ti ti-sparkles" aria-hidden="true"></i>
+      <span>
+        <b>{{ 'settings.group_ai' | translate }}</b>
+        <small>{{ draft().ai.model }}</small>
+      </span>
+      <i class="ti ti-chevron-down chev" aria-hidden="true"></i>
+    </summary>
+    <div class="gb">
+      @for (name of ['anthropic', 'openai']; track name) {
+        <ng-container *ngTemplateOutlet="keyField; context: { name: name, hint: keyHints[name] }" />
+      }
+      <label class="f">
+        {{ 'settings.ai_model' | translate }}
+        <select
+          data-section-test="settings-ai-model"
+          [value]="draft().ai.model"
+          (change)="patch({ ai: { model: text($event) } })"
+        >
+          <option value="claude-haiku-5-5">{{ 'settings.model_haiku' | translate }}</option>
+          <option value="claude-sonnet-5-5">Claude Sonnet 5.5</option>
+          <option value="claude-opus-5-5">Claude Opus 5.5</option>
+          <option value="gpt-6-luna">{{ 'settings.model_luna' | translate }}</option>
+          <option value="gpt-6.1-terra">ChatGPT (GPT-6.1 Terra)</option>
+          <option value="gpt-6.2-sol">ChatGPT (GPT-6.2 Sol)</option>
+        </select>
+      </label>
+      <label class="f">
+        <span>
+          {{ 'settings.proxy_url' | translate }}
+          <em>{{ 'settings.proxy_url_note' | translate }}</em>
+        </span>
+        <input
+          data-section-test="settings-proxy-url"
+          type="url"
+          placeholder="https://"
+          [value]="draft().proxyUrl"
+          (change)="patch({ proxyUrl: text($event) })"
+        />
+      </label>
+      <p class="hint" data-section-test="settings-ai-privacy">
+        {{ 'settings.ai_privacy' | translate }}
+      </p>
+    </div>
+  </details>
+
+  <!-- Datensicherung -->
+  <details class="grp" data-section-test="settings-group-backup">
+    <summary data-section-test="settings-toggle-backup">
+      <i class="ti ti-database-export" aria-hidden="true"></i>
+      <span>
+        <b>{{ 'settings.group_backup' | translate }}</b>
+        <small>{{ 'settings.backup_summary' | translate }}</small>
+      </span>
+      <i class="ti ti-chevron-down chev" aria-hidden="true"></i>
+    </summary>
+    <div class="gb">
+      <div class="row">
+        <button
+          class="btn"
+          type="button"
+          data-section-test="settings-reset-pauses"
+          (click)="resetPauses()"
+        >
+          <i class="ti ti-refresh" aria-hidden="true"></i>
+          {{ (pausesReset() ? 'settings.pauses_reset' : 'settings.reset_pauses') | translate }}
+        </button>
+        <a class="btn" routerLink="/selftest" data-section-test="settings-selftest">
+          <i class="ti ti-checklist" aria-hidden="true"></i>{{ 'settings.selftest' | translate }}
+        </a>
+      </div>
+      <p class="hint">{{ 'settings.reset_pauses_note' | translate }}</p>
+
+      <p class="hint">{{ 'settings.backup_note' | translate }}</p>
+      <div class="row">
+        <button
+          class="btn"
+          type="button"
+          data-section-test="settings-backup-export"
+          (click)="exportBackup()"
+        >
+          <i class="ti ti-download" aria-hidden="true"></i
+          >{{ 'settings.backup_export' | translate }}
+        </button>
+        <button
+          class="btn"
+          type="button"
+          data-section-test="settings-backup-import"
+          (click)="file.click()"
+        >
+          <i class="ti ti-upload" aria-hidden="true"></i>{{ 'settings.backup_import' | translate }}
+        </button>
+        <input
+          #file
+          data-section-test="settings-backup-file"
+          type="file"
+          accept="application/json,.json"
+          hidden
+          (change)="importBackup(file)"
+        />
+      </div>
+      @if (backupError()) {
+        <p class="hint lv-overdue" role="alert" data-section-test="settings-backup-error">
+          {{ 'settings.backup_invalid' | translate }}
+        </p>
+      }
+    </div>
+  </details>
+
+  <div class="savebar">
+    <button
+      class="btn pri"
+      type="button"
+      data-section-test="settings-save"
+      [disabled]="!dirty()"
+      (click)="save()"
+    >
+      <i class="ti" [class]="saved() ? 'ti-check' : 'ti-device-floppy'" aria-hidden="true"></i>
+      {{ (saved() ? 'settings.saved' : 'settings.save') | translate }}
+    </button>
+  </div>
+  <p class="brand">
+    <b>CoDriveMate</b><span>{{ 'settings.brand_line' | translate }}</span>
+  </p>
+  <p class="hint">{{ 'settings.keys_note' | translate }}</p>
+</app-sheet-page>
+
+<ng-template #keyField let-name="name" let-hint="hint">
+  <label class="f">
+    <span>
+      {{ 'settings.key_' + name | translate }}
+      <em>{{ 'settings.key_' + name + '_note' | translate }}</em>
+    </span>
+    <span class="key">
+      <input
+        [type]="visibleKeys().has(name) ? 'text' : 'password'"
+        [attr.data-section-test]="'settings-key-' + name"
+        autocomplete="off"
+        [placeholder]="hint"
+        [value]="keyValue(name)"
+        (change)="setKey(name, $event)"
+      />
+      <button
+        type="button"
+        class="eye"
+        [attr.data-section-test]="'settings-key-show-' + name"
+        [attr.aria-label]="'settings.show_key' | translate"
+        [attr.aria-pressed]="visibleKeys().has(name)"
+        (click)="toggleKey(name)"
+      >
+        <i
+          class="ti"
+          [class]="visibleKeys().has(name) ? 'ti-eye-off' : 'ti-eye'"
+          aria-hidden="true"
+        ></i>
+      </button>
+    </span>
+  </label>
+</ng-template>

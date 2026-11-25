@@ -1,0 +1,162 @@
+/* Collapsible groups, as in the prototype */
+.grp {
+  background: var(--p2);
+  border-radius: 14px;
+  margin-bottom: 10px;
+  overflow: hidden;
+
+  summary {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 14px;
+    min-height: var(--touch);
+    cursor: pointer;
+    user-select: none;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+    > i:first-child {
+      font-size: 20px;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      background: var(--p);
+      color: var(--a);
+    }
+    span {
+      flex: 1;
+      min-width: 0;
+    }
+    b {
+      display: block;
+      font-size: 15px;
+      font-weight: 600;
+    }
+    small {
+      display: block;
+      font-size: 12px;
+      color: var(--s);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  .chev {
+    color: var(--s);
+    transition: transform 0.2s;
+  }
+  &[open] .chev {
+    transform: rotate(180deg);
+  }
+
+  .gb {
+    padding: 2px 14px 14px;
+    display: grid;
+    gap: 10px;
+  }
+
+  .f input,
+  .f select {
+    background: var(--p);
+  }
+  .f em {
+    font-style: normal;
+    font-size: 11px;
+    opacity: 0.8;
+    margin-left: 4px;
+  }
+  .btn:not(.pri) {
+    background: var(--p);
+  }
+}
+
+.two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  align-items: end;
+}
+
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+
+  button {
+    width: var(--touch);
+    height: var(--touch);
+    border-radius: 50%;
+    border: 2px solid var(--ln);
+
+    &.on {
+      outline: 3px solid var(--a);
+      outline-offset: 2px;
+    }
+  }
+}
+
+.key {
+  position: relative;
+  display: block;
+
+  input {
+    padding-right: 52px;
+  }
+}
+
+.eye {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  border: 0;
+  background: none;
+  color: var(--s);
+  width: var(--touch);
+  font-size: 18px;
+}
+
+.hint {
+  font-size: 13px;
+  color: var(--s);
+  line-height: 1.5;
+}
+
+.savebar {
+  position: sticky;
+  bottom: -20px;
+  background: linear-gradient(transparent, var(--p) 35%);
+  padding: 16px 0 12px;
+  margin-top: 4px;
+
+  .btn {
+    width: 100%;
+    justify-content: center;
+    padding: 13px;
+
+    &:disabled {
+      opacity: 0.55;
+      cursor: default;
+    }
+  }
+}
+
+.brand {
+  text-align: center;
+  margin: 6px 0 10px;
+
+  b {
+    display: block;
+    font-size: 16px;
+  }
+  span {
+    font-size: 12px;
+    color: var(--s);
+  }
+}

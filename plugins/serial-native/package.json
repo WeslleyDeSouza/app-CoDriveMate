@@ -1,0 +1,28 @@
+{
+  "name": "@codrivemate/serial-native",
+  "version": "0.1.0",
+  "description": "Byte channels to OBD adapters: TCP (WiFi) and ExternalAccessory (MFi)",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/",
+    "ios/Sources",
+    "android/src/main/",
+    "android/build.gradle",
+    "Package.swift"
+  ],
+  "peerDependencies": {
+    "@capacitor/core": ">=8.0.0"
+  },
+  "capacitor": {
+    "ios": {
+      "src": "ios"
+    },
+    "android": {
+      "src": "android"
+    }
+  }
+}

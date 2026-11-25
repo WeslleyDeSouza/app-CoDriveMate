@@ -1,0 +1,158 @@
+@use '../../../shared/ui/phone' as phone;
+
+:host {
+  display: block;
+  max-height: 60vh;
+  overflow: auto;
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  background: var(--p2);
+  border-radius: 14px;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+
+  &:has(input:focus-visible) {
+    box-shadow: inset 0 0 0 2px var(--a);
+  }
+  > i {
+    padding-left: 14px;
+    color: var(--s);
+  }
+  input {
+    flex: 1;
+    min-width: 0;
+    min-height: var(--touch);
+    border: 0;
+    background: none;
+    padding: 0 8px 0 12px;
+    font-size: 16px;
+    outline: none;
+
+    &::-webkit-search-cancel-button {
+      display: none;
+    }
+  }
+  button {
+    width: var(--touch);
+    height: var(--touch);
+    border: 0;
+    border-radius: 14px;
+    background: none;
+    color: var(--a);
+    font-size: 20px;
+
+    &.on {
+      background: var(--a);
+      color: #fff;
+    }
+  }
+}
+
+.assign {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px 8px;
+  font-weight: 600;
+}
+
+.icon {
+  width: var(--touch);
+  height: var(--touch);
+  border: 0;
+  background: none;
+  color: var(--s);
+  font-size: 18px;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 0 4px;
+}
+
+.chip {
+  display: flex;
+  background: var(--p2);
+  border-radius: 14px;
+
+  button:not(.icon) {
+    min-height: var(--touch);
+    border: 0;
+    background: none;
+    padding: 0 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+  }
+  i {
+    color: var(--a);
+    font-size: 20px;
+  }
+}
+
+.saved {
+  display: flex;
+}
+
+.hint {
+  padding: 10px 8px 4px;
+  font-size: 14px;
+  color: var(--s);
+}
+
+.result {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  min-height: 56px;
+  text-align: left;
+  border: 0;
+  background: none;
+  padding: 8px;
+  border-radius: 12px;
+
+  i {
+    color: var(--a);
+    font-size: 20px;
+  }
+  span {
+    min-width: 0;
+    flex: 1;
+  }
+  b {
+    font-weight: 600;
+  }
+  small {
+    display: block;
+    color: var(--s);
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  em {
+    font-style: normal;
+    color: var(--s);
+    font-size: 13px;
+    white-space: nowrap;
+  }
+}
+
+/* the card around it gives the height */
+@include phone.any {
+  :host {
+    max-height: none;
+    min-height: 0;
+    overscroll-behavior: contain;
+  }
+}

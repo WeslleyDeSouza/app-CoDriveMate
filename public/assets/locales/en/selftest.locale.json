@@ -1,0 +1,19 @@
+{
+  "selftest": {
+    "title": "Device test",
+    "note": "Checks device, plugins, services and keys on this device. The report contains no keys and no location.",
+    "run": "Check all",
+    "run_one": "Check",
+    "share": "Share report",
+    "copied": "Shared",
+    "sentence": "This is a test of the speech output.",
+    "notification": "Test notification",
+    "group": {
+      "device": "Device",
+      "input": "Sensors and speech",
+      "native": "App plugins",
+      "service": "Services without key",
+      "key": "Services with key"
+    }
+  }
+}

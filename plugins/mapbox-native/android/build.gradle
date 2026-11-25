@@ -1,0 +1,48 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
+buildscript {
+    ext.kotlin_version = project.hasProperty("kotlin_version") ? rootProject.ext.kotlin_version : '2.2.20'
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.13.0'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+apply plugin: 'com.android.library'
+if (project.extensions.findByName('kotlin') == null) {
+    apply plugin: 'kotlin-android'
+}
+
+android {
+    namespace = "app.codrivemate.mapboxnative"
+    compileSdk = project.hasProperty('compileSdkVersion') ? rootProject.ext.compileSdkVersion : 36
+    defaultConfig {
+        minSdkVersion project.hasProperty('minSdkVersion') ? rootProject.ext.minSdkVersion : 24
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_21
+    }
+}
+
+repositories {
+    google()
+    mavenCentral()
+    maven { url = uri('https://api.mapbox.com/downloads/v2/releases/maven') }
+}
+
+dependencies {
+    implementation project(':capacitor-android')
+    // ndk27: required for devices with 16 KB memory pages
+    implementation 'com.mapbox.maps:android-ndk27:11.35.2'
+}

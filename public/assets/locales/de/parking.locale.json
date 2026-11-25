@@ -1,0 +1,42 @@
+{
+  "parking": {
+    "title": "Parkplatz",
+    "here": "Dein Auto steht hier",
+    "car": "Parkiertes Auto",
+    "since": "seit {{time}} ({{date}})",
+    "away": "{{distance}} entfernt",
+    "guide": "Zum Auto führen",
+    "show": "Auf Karte zeigen",
+    "meter": "Parkuhr",
+    "no_meter": "Keine Parkuhr gestellt",
+    "left": "Noch {{time}} (bis {{until}})",
+    "expired": "Abgelaufen um {{until}}",
+    "off": "Aus",
+    "note": "Notiz",
+    "note_hint": "z. B. Ebene -2, Platz 214",
+    "park_again": "Neu: hier parkiert",
+    "park_here": "Hier parkiert",
+    "delete": "Löschen",
+    "none": "Noch kein Parkplatz gespeichert. Nach einer Fahrt mit OBD-Verbindung merkt sich die App den Ort selbst.",
+    "no_position": "Noch keine Position. Standort erlauben.",
+    "hint": "Erinnerung 10 Minuten vorher und bei Ablauf, mit Ansage und Mitteilung.",
+    "hint_silent": "Mitteilungen sind nicht erlaubt. Erinnert wird nur, solange die App offen ist.",
+    "remind": {
+      "soon": "Parkzeit läuft in {{minutes}} Minuten ab.",
+      "over": "Parkzeit ist abgelaufen."
+    },
+    "phone": "Aufs Handy übergeben",
+    "qr": "QR-Code mit dem Standort des Autos",
+    "qr_note": "Mit der Handykamera scannen: Der Weg zurück öffnet sich in der Karten-App. Stelle die Parkuhr am Handy, wenn das Tablet im Auto bleibt.",
+    "find": "Parkplatz suchen",
+    "find_destination": "Parkplätze am Ziel",
+    "find_near": "Parkplätze in der Nähe",
+    "car_park": "Parkplatz",
+    "find_state": {
+      "searching": "Suche Parkplätze…",
+      "empty": "Kein Parkplatz gefunden.",
+      "failed": "Suche nicht möglich. Besteht eine Verbindung?",
+      "no_position": "Noch keine Position. Standort erlauben."
+    }
+  }
+}

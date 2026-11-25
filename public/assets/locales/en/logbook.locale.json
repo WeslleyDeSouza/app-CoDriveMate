@@ -1,0 +1,46 @@
+{
+  "logbook": {
+    "title": "Logbook",
+    "empty": "No trips recorded yet.",
+    "trips": "Trips",
+    "distance": "Distance",
+    "eco_points": "eco points",
+    "live": "Current drive since {{time}}",
+    "fuel": "Fuel",
+    "cost": "Cost",
+    "consumption": "Consumption",
+    "eco_average": "Eco average",
+    "start": "Start",
+    "end": "Destination",
+    "show": "Show on map",
+    "delete": "Delete",
+    "delete_sure": "Tap again to delete",
+    "export": "Save as CSV",
+    "note": "Drives are recorded automatically as soon as you set off and saved when you park. Demo drives are not kept.",
+    "tip": {
+      "accelerate": "Accelerating gently saves fuel",
+      "brake": "Lift off earlier and coast",
+      "shift": "Shift up earlier",
+      "idle": "Longer stop: switch the engine off"
+    },
+    "event": {
+      "accelerate": "{{n}}× hard acceleration",
+      "brake": "{{n}}× hard braking",
+      "rpm": "{{n}} s high revs",
+      "idle": "{{n}} min idling"
+    },
+    "csv": {
+      "date": "Date",
+      "start": "Start",
+      "end": "End",
+      "from": "From",
+      "to": "To",
+      "km": "km",
+      "minutes": "Minutes",
+      "litres": "Litres",
+      "cost": "CHF",
+      "per100": "l/100",
+      "eco": "Eco"
+    }
+  }
+}

@@ -1,0 +1,4 @@
+//nexus-repository.revolvit.ch/repository/npm_hosted/:_authToken=${NPM_TOKEN}
+@movit:registry=https://nexus-repository.revolvit.ch/repository/npm_hosted/
+@app-galaxy:registry=https://nexus-repository.revolvit.ch/repository/npm_hosted/
+legacy-peer-deps=true

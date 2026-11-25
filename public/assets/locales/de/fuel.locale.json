@@ -1,0 +1,33 @@
+{
+  "fuel": {
+    "title": "Tank und Tankstellen",
+    "station": "Tankstelle",
+    "stations": "Tankstellen",
+    "tank": "Im Tank",
+    "range": "Reichweite",
+    "average": "Durchschnitt",
+    "fill_cost": "Volltanken, etwa",
+    "full": "Vollgetankt",
+    "litres": "Liter im Tank",
+    "counted": "Ohne Tanksensor zählt die App den Verbrauch mit. Nach dem Tanken hier anpassen.",
+    "scope": {
+      "near": "In der Nähe",
+      "route": "Auf der Route"
+    },
+    "state": {
+      "searching": "Suche Tankstellen…",
+      "empty": "Keine Tankstelle gefunden.",
+      "failed": "Suche nicht möglich. Besteht eine Verbindung?",
+      "no_position": "Noch keine Position. Standort erlauben."
+    },
+    "open": "offen",
+    "closed": "geschlossen",
+    "show": "Auf Karte zeigen",
+    "source": "Daten: © OpenStreetMap. Öffnungszeiten nur, wo sie bekannt sind; keine Preise.",
+    "low": "Noch etwa {{range}} Reichweite",
+    "say": {
+      "low": "Der Tank reicht noch etwa {{range}}.",
+      "low_near": "Der Tank reicht noch etwa {{range}}. Nächste Tankstelle: {{name}} in {{distance}}."
+    }
+  }
+}

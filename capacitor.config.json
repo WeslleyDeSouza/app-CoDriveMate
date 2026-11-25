@@ -1,0 +1,25 @@
+{
+  "appId": "app.codrivemate.ch",
+  "appName": "CoDriveMate",
+  "webDir": "dist/app/browser",
+  "server": {
+    "androidScheme": "https",
+    "iosScheme": "https"
+  },
+  "android": {
+    "useLegacyBridge": true
+  },
+  "ios": {
+    "contentInset": "never"
+  },
+  "plugins": {
+    "BluetoothLe": {
+      "displayStrings": {
+        "scanning": "Suche Geräte…",
+        "cancel": "Abbrechen",
+        "availableDevices": "Verfügbare Geräte",
+        "noDeviceFound": "Kein Gerät gefunden"
+      }
+    }
+  }
+}

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">CoDriveMate</string>
+    <string name="title_activity_main">CoDriveMate</string>
+    <string name="package_name">app.codrivemate.ch</string>
+    <string name="custom_url_scheme">app.codrivemate.ch</string>
+</resources>

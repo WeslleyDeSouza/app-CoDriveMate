@@ -1,0 +1,21 @@
+{
+  "scene3d": {
+    "change_camera": "Change camera",
+    "world_real": "Aerial",
+    "world_plain": "Plain",
+    "camera": {
+      "auto": "Auto",
+      "chase": "Rear",
+      "side": "Side",
+      "orbit": "Showroom"
+    },
+    "state": {
+      "loading": "Loading 3D model…",
+      "off": "3D view is switched off",
+      "failed": "3D view not available on this device"
+    },
+    "change_world": "Change surroundings",
+    "world_mapbox": "Mapbox",
+    "world_google": "Google"
+  }
+}

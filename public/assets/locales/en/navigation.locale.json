@@ -1,0 +1,111 @@
+{
+  "navigation": {
+    "where_to": "Where to?",
+    "search": "Search",
+    "then": "Then:",
+    "arrival": "Arrival",
+    "route_via": "Route via",
+    "stop": "End",
+    "retry": "Try again",
+    "map_failed": "The map could not be loaded",
+    "on_street": " onto {{street}}",
+    "button": {
+      "voice": "Voice announcements",
+      "traffic": "Traffic",
+      "tilt": "2D or 3D",
+      "zoom_in": "Zoom in",
+      "zoom_out": "Zoom out",
+      "overview": "Show the whole route"
+    },
+    "search_state": {
+      "idle": "",
+      "searching": "Searching…",
+      "empty": "Nothing found.",
+      "failed": "Search failed. Is there a connection?",
+      "routing": "Calculating route…",
+      "unknown": "This place cannot be found without a connection."
+    },
+    "notice": {
+      "no_permission": "Location not allowed. Please allow it in the device settings.",
+      "no_position": "No position yet. Allow location.",
+      "no_route": "No route found.",
+      "provider_switched": "Service not available, route by OpenStreetMap.",
+      "map_fallback": "Map not available, another one is shown.",
+      "offline_route": "No connection. Route from stored maps, without traffic."
+    },
+    "say": {
+      "start": "Route to {{place}} calculated. {{duration}}.",
+      "delay": "Including {{minutes}} minutes of traffic.",
+      "arrived": "You have arrived.",
+      "arriving": "You are about to arrive.",
+      "arriving_in": "In {{distance}} you will arrive.",
+      "in_distance": "In {{distance}} {{instruction}}",
+      "metres": "{{n}} metres",
+      "rerouting": "Recalculating the route.",
+      "faster": "Traffic ahead. I found a route that is {{minutes}} minutes faster.",
+      "traffic_ahead": "Traffic on the route, about {{minutes}} minutes of delay.",
+      "weather": "Caution, {{weather}} along the route in {{distance}}.",
+      "ended": "Navigation ended."
+    },
+    "do": {
+      "depart": "Set off",
+      "arrive": "Destination",
+      "merge": "Merge",
+      "on_ramp": "Take the ramp",
+      "off_ramp": "Take the exit",
+      "roundabout": "Leave the roundabout",
+      "roundabout_exit": "At the roundabout take exit {{exit}}",
+      "keep_left": "Keep left",
+      "keep_right": "Keep right",
+      "keep_straight": "Continue straight",
+      "straight": "Go straight",
+      "left": "Turn left",
+      "right": "Turn right",
+      "slight_left": "Turn slightly left",
+      "slight_right": "Turn slightly right",
+      "sharp_left": "Turn sharp left",
+      "sharp_right": "Turn sharp right",
+      "uturn": "Make a U-turn"
+    },
+    "start": "Start",
+    "traffic": "traffic",
+    "offline": {
+      "idle": "Save route offline",
+      "saving": "Saving…",
+      "done": "Saved offline",
+      "incomplete": "Incomplete, try again"
+    },
+    "weather": {
+      "storm": "thunderstorm",
+      "snow": "snow",
+      "ice": "ice possible",
+      "rain": "rain",
+      "fog": "fog",
+      "frost": "frost, ice possible",
+      "dry": "dry"
+    },
+    "from": "from {{distance}}",
+    "speak": "Speak destination",
+    "remove": "Remove",
+    "change": "Change",
+    "my_car": "My car",
+    "favourite": {
+      "home": "Home",
+      "work": "Work"
+    },
+    "assign": {
+      "home": "Where is your home?",
+      "work": "Where do you work?"
+    },
+    "view": {
+      "free": "Free",
+      "heading": "Drive",
+      "north": "North"
+    },
+    "view_label": {
+      "free": "Map is free. Tap: follow behind the arrow",
+      "heading": "Follows in driving direction. Tap: north up",
+      "north": "Follows with north up. Tap: free map"
+    }
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "lighting": {
+    "title": "Interior lighting",
+    "status": {
+      "off": "No module connected",
+      "connecting": "Connecting…",
+      "connected": "Light module connected",
+      "failed": "Connection failed"
+    },
+    "zones": "{{n}} zones",
+    "driving": "driving mode (dimmed)",
+    "connect": "Find module",
+    "reconnect": "Connect",
+    "disconnect": "Disconnect",
+    "scenes": "Scenes",
+    "scene": {
+      "warm": "Warm white",
+      "lounge": "Lounge",
+      "night": "Night",
+      "petrol": "Petrol",
+      "welcome": "Welcome",
+      "party": "Party",
+      "off": "Off"
+    },
+    "zone_title": "Zones",
+    "zone": {
+      "front_floor": "Front footwell",
+      "rear_floor": "Rear footwell",
+      "dashboard": "Dashboard",
+      "boot": "Boot"
+    },
+    "color": "Colour",
+    "brightness": "Brightness",
+    "effect_title": "Effect",
+    "effect": {
+      "still": "Still",
+      "breathe": "Breathe",
+      "party": "Rainbow",
+      "welcome": "Welcome"
+    },
+    "drive": "Brightness while driving",
+    "store": "Save as start state",
+    "note": "Without a module this is a preview. Dimmed from 5 km/h. While driving nothing red, blue or blinking may be visible from outside."
+  }
+}

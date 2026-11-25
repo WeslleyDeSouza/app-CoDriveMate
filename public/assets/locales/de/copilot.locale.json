@@ -1,0 +1,55 @@
+{
+  "copilot": {
+    "title": "KI-Copilot",
+    "placeholder": "Frag dein Auto…",
+    "send": "Senden",
+    "microphone": "Sprechen",
+    "clear": "Verlauf löschen",
+    "thinking": "Denkt nach…",
+    "open_settings": "Einstellungen öffnen",
+    "question": {
+      "engine": "Wie geht es dem Motor?",
+      "battery": "Ist meine Batterie in Ordnung?",
+      "saving": "Wie fahre ich sparsamer?",
+      "values": "Fällt dir an den Werten etwas auf?",
+      "codes": "Erkläre meine Fehlercodes und was ich jetzt tun soll."
+    },
+    "failure": {
+      "key": "Es fehlt ein gültiger KI-Key. Trage ihn in den Einstellungen unter «KI-Copilot» ein.",
+      "quota": "Das Kontingent oder Guthaben ist aufgebraucht. Versuche es später.",
+      "refused": "Diese Anfrage wurde abgelehnt. Bitte anders formulieren.",
+      "offline": "Keine Verbindung zum Copiloten.",
+      "other": "Der Copilot konnte nicht antworten."
+    },
+    "talk": {
+      "title": "Unterhaltung",
+      "stop": "Unterhaltung beenden",
+      "mode": {
+        "chat": "Plaudern",
+        "facts": "Fakten zur Route",
+        "quiz": "Quiz",
+        "mixed": "Alles gemischt"
+      },
+      "notice": {
+        "needs_key": "Plaudern und Quiz brauchen einen KI-Key. Fakten zur Route gehen auch ohne.",
+        "key_rejected": "Der KI-Key wurde abgelehnt.",
+        "failed": "Gerade nicht möglich, ich versuche es wieder.",
+        "no_microphone": "Kein Mikrofon verfügbar oder nicht erlaubt.",
+        "no_position": "Noch keine Position. Standort erlauben."
+      },
+      "quiet": "Alles klar, ich bin still.",
+      "where": "{{direction}}, {{distance}} entfernt",
+      "direction": {
+        "near": "in der Nähe",
+        "ahead": "vor dir",
+        "right": "rechts von dir",
+        "left": "links von dir",
+        "behind": "hinter dir"
+      },
+      "question": "Quizfrage: {{question}} {{options}}",
+      "right": "Richtig!",
+      "wrong": "Leider falsch, richtig ist {{key}}.",
+      "none": "Keine Antwort erkannt. Richtig ist {{key}}."
+    }
+  }
+}

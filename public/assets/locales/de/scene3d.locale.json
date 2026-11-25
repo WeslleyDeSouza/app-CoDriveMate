@@ -1,0 +1,21 @@
+{
+  "scene3d": {
+    "change_camera": "Kamera wechseln",
+    "world_real": "Luftbild",
+    "world_plain": "Schlicht",
+    "camera": {
+      "auto": "Auto",
+      "chase": "Heck",
+      "side": "Seite",
+      "orbit": "Showroom"
+    },
+    "state": {
+      "loading": "3D-Modell wird geladen…",
+      "off": "3D-Ansicht ist ausgeschaltet",
+      "failed": "3D-Ansicht auf diesem Gerät nicht verfügbar"
+    },
+    "change_world": "Umgebung wechseln",
+    "world_mapbox": "Mapbox",
+    "world_google": "Google"
+  }
+}

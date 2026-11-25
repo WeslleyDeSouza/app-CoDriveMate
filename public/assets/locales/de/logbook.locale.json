@@ -1,0 +1,46 @@
+{
+  "logbook": {
+    "title": "Fahrtenbuch",
+    "empty": "Noch keine Fahrten aufgezeichnet.",
+    "trips": "Fahrten",
+    "distance": "Strecke",
+    "eco_points": "Eco-Punkte",
+    "live": "Aktuelle Fahrt seit {{time}}",
+    "fuel": "Treibstoff",
+    "cost": "Kosten",
+    "consumption": "Verbrauch",
+    "eco_average": "Eco-Schnitt",
+    "start": "Start",
+    "end": "Ziel",
+    "show": "Auf Karte zeigen",
+    "delete": "Löschen",
+    "delete_sure": "Nochmals tippen zum Löschen",
+    "export": "Als CSV speichern",
+    "note": "Fahrten werden automatisch aufgezeichnet, sobald du losfährst, und beim Abstellen gespeichert. Demo-Fahrten werden nicht gespeichert.",
+    "tip": {
+      "accelerate": "Sanfter beschleunigen spart Treibstoff",
+      "brake": "Früher vom Gas gehen und ausrollen lassen",
+      "shift": "Früher hochschalten",
+      "idle": "Längerer Halt: Motor abstellen"
+    },
+    "event": {
+      "accelerate": "{{n}}× stark beschleunigt",
+      "brake": "{{n}}× stark gebremst",
+      "rpm": "{{n}} s hohe Drehzahl",
+      "idle": "{{n}} min Leerlauf"
+    },
+    "csv": {
+      "date": "Datum",
+      "start": "Start",
+      "end": "Ende",
+      "from": "Von",
+      "to": "Nach",
+      "km": "km",
+      "minutes": "Minuten",
+      "litres": "Liter",
+      "cost": "CHF",
+      "per100": "l/100",
+      "eco": "Eco"
+    }
+  }
+}

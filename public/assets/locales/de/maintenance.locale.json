@@ -1,0 +1,43 @@
+{
+  "maintenance": {
+    "title": "Wartung",
+    "odometer": "Kilometerstand",
+    "odometer_missing": "Bitte zuerst den Kilometerstand eintragen.",
+    "counted": "Beim Fahren mit OBD-Verbindung wird der Kilometerstand mitgezählt.",
+    "done": "Heute erledigt",
+    "name": "Name",
+    "every": "Alle …",
+    "every_months": "Alle … Monate",
+    "last_km": "Zuletzt bei",
+    "last_date": "Zuletzt am",
+    "km_left": "in {{distance}}",
+    "km_over": "{{distance}} überfällig",
+    "due_by": "fällig am {{date}}",
+    "due_since": "fällig seit {{date}}",
+    "new": "Eigene Arbeit",
+    "add": "Hinzufügen",
+    "delete": "Löschen",
+    "delete_sure": "Nochmals tippen zum Löschen",
+    "dates": "Termine",
+    "vignette_year": "Vignette (Jahr)",
+    "vignette_valid": "gültig bis 31.01.{{next}}",
+    "vignette_expired": "abgelaufen am 31.01.{{next}}, neue Vignette nötig",
+    "notice": "Wartung fällig oder bald fällig:",
+    "open": "Anzeigen",
+    "item": {
+      "service": "Service",
+      "oil": "Ölwechsel",
+      "brake": "Bremsflüssigkeit",
+      "plugs": "Zündkerzen",
+      "belt": "Zahnriemen",
+      "inspection": "MFK",
+      "vignette": "Vignette"
+    },
+    "level": {
+      "unknown": "Noch nicht erfasst",
+      "ok": "In Ordnung",
+      "soon": "Bald fällig",
+      "overdue": "Überfällig"
+    }
+  }
+}

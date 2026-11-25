@@ -1,0 +1,256 @@
+@use 'app/shared/ui/phone';
+
+/*
+ * Design tokens and base styles, taken from the prototype (_index.html).
+ * Dark is the default; `body.light` switches to the light theme.
+ * Components use these custom properties instead of their own colours.
+ */
+:root {
+  color-scheme: dark;
+  scrollbar-width: thin;
+  scrollbar-color: var(--ln) transparent;
+  --bg: #07080a;
+  --p: #111317; /* panel */
+  --p2: #1a1d23; /* raised surface */
+  --p3: #232730;
+  --ln: #2a2e37; /* lines, borders */
+  --t: #f2f4f7; /* text */
+  --s: #8b919c; /* secondary text */
+  --a: #4c8dff; /* accent */
+  --a2: #7aa9ff;
+  --ok: #2fc17a;
+  --wa: #f2a93b; /* warning */
+  --ba: #ff5a5f; /* bad */
+  --glass: rgba(17, 19, 23, 0.72);
+  --sh: 0 10px 40px rgba(0, 0, 0, 0.45);
+  --car1: #1b1f27;
+  --car2: #0b0c10;
+  --r: 18px;
+  /* smallest size of anything that is tapped while driving */
+  --touch: 48px;
+}
+
+body.light {
+  color-scheme: light;
+  --bg: #e9ecf1;
+  --p: #ffffff;
+  --p2: #f1f3f6;
+  --p3: #e6e9ee;
+  --ln: #e1e4ea;
+  --t: #0f1115;
+  --s: #6b717c;
+  --a: #2f6fea;
+  --a2: #2f6fea;
+  --glass: rgba(255, 255, 255, 0.78);
+  --sh: 0 10px 34px rgba(20, 30, 50, 0.14);
+  --car1: #f4f6f9;
+  --car2: #dfe3ea;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+html {
+  background: var(--bg);
+}
+
+html.native-map,
+html.native-map body {
+  background: transparent;
+}
+
+html,
+body {
+  height: 100%;
+  color: var(--t);
+  font-family:
+    'Inter',
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+body {
+  /* The page itself never scrolls or bounces, only areas inside it. */
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: var(--bg);
+  transition: background 0.4s;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+/* no double-tap zoom */
+html,
+a,
+button,
+input,
+select {
+  touch-action: manipulation;
+}
+
+/* iOS zooms in on smaller fields */
+@include phone.any {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+button {
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 3px solid var(--a);
+  outline-offset: 2px;
+}
+
+/* Shared building blocks */
+.panel {
+  background: var(--p);
+  border-radius: var(--r);
+  border: 1px solid var(--ln);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+/* value card */
+.m {
+  background: var(--p2);
+  border-radius: 16px;
+  padding: 12px 14px;
+
+  small {
+    color: var(--s);
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  b {
+    display: block;
+    font-size: 22px;
+    font-weight: 600;
+    margin-top: 4px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  span {
+    font-size: 12px;
+    color: var(--s);
+    margin-left: 3px;
+    font-weight: 400;
+  }
+}
+
+.btn {
+  border: 0;
+  background: var(--p2);
+  min-height: var(--touch);
+  padding: 10px 16px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+
+  &.pri {
+    background: var(--a);
+    color: #fff;
+  }
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+/* form field: label above control */
+.f {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--s);
+
+  input,
+  select {
+    min-height: var(--touch);
+    padding: 0 12px;
+    border-radius: 12px;
+    border: 1px solid var(--ln);
+    background: var(--p2);
+    color: var(--t);
+    font-size: 15px;
+    width: 100%;
+  }
+}
+
+.sec-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--s);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 18px 0 8px;
+}
+
+.empty {
+  color: var(--s);
+  text-align: center;
+  padding: 40px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+
+  i {
+    font-size: 40px;
+  }
+}
+
+.lv-ok {
+  color: var(--ok);
+}
+.lv-soon {
+  color: var(--wa);
+}
+.lv-overdue {
+  color: var(--ba);
+}
+.lv-unknown {
+  color: var(--s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

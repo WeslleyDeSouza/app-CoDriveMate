@@ -1,0 +1,44 @@
+{
+  "road": {
+    "say": {
+      "hazard": "{{hazard}} in {{distance}}",
+      "traffic": "Achtung, {{kind}} in {{distance}}"
+    },
+    "hazard": {
+      "level_crossing": "Bahnübergang",
+      "school": "Schule in der Nähe",
+      "kindergarten": "Kindergarten in der Nähe",
+      "curve": "Gefährliche Kurve",
+      "animal_crossing": "Wildwechsel",
+      "falling_rocks": "Steinschlag",
+      "landslide": "Rutschgefahr",
+      "children": "Kinder",
+      "slippery": "Schleudergefahr",
+      "ice": "Glatteis möglich",
+      "fog": "Nebel möglich",
+      "flooding": "Überflutung möglich",
+      "queues_likely": "Staugefahr",
+      "cyclists": "Velofahrer",
+      "pedestrians": "Fussgänger",
+      "side_winds": "Seitenwind",
+      "steep_incline": "Starkes Gefälle",
+      "dangerous_junction": "Gefährliche Kreuzung",
+      "accident_blackspot": "Unfallschwerpunkt",
+      "frost_heave": "Frostschäden"
+    },
+    "traffic": {
+      "accident": "Unfall",
+      "fog": "Nebel",
+      "danger": "Gefahr",
+      "rain": "Starkregen",
+      "ice": "Glätte",
+      "jam": "Stau",
+      "lane_closed": "Spur gesperrt",
+      "road_closed": "Strasse gesperrt",
+      "roadworks": "Baustelle",
+      "wind": "Sturm",
+      "flooding": "Überflutung",
+      "breakdown": "Panne"
+    }
+  }
+}

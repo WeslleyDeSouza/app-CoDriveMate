@@ -1,0 +1,127 @@
+@use '../shared/ui/phone' as phone;
+
+:host {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  min-width: 0;
+}
+
+.apps {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  min-width: 0;
+  overflow-x: auto;
+  padding: 6px;
+  scrollbar-width: none;
+}
+
+.ap {
+  width: 52px;
+  height: 52px;
+  border-radius: 15px;
+  color: #fff;
+  font-size: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  text-decoration: none;
+  transition: transform 0.15s;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+
+  &:active {
+    transform: scale(0.92);
+  }
+  &.on {
+    outline: 3px solid var(--a);
+    outline-offset: 3px;
+  }
+}
+
+.dr {
+  display: flex;
+  gap: 4px;
+}
+
+.db {
+  border: 0;
+  background: none;
+  color: var(--s);
+  min-width: 60px;
+  height: 58px;
+  padding: 0 6px;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 11px;
+  font-weight: 600;
+
+  i {
+    font-size: 22px;
+  }
+  &.on {
+    background: var(--p2);
+    color: var(--t);
+  }
+}
+
+@include phone.any {
+  :host {
+    gap: 4px;
+    padding: 0 6px;
+  }
+  .apps {
+    justify-content: flex-start;
+    gap: 8px;
+    padding: 4px;
+    overscroll-behavior: contain;
+
+    /* centred, but still scrollable to the first one */
+    > :first-child {
+      margin-left: auto;
+    }
+    > :last-child {
+      margin-right: auto;
+    }
+  }
+  .ap {
+    width: var(--touch);
+    height: var(--touch);
+
+    &.on {
+      outline-width: 2px;
+      outline-offset: 1px;
+    }
+  }
+  .db {
+    min-width: var(--touch);
+    height: 52px;
+    padding: 0 2px;
+  }
+}
+
+.ap {
+  position: relative;
+}
+
+.badge {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--p);
+  background: var(--wa);
+
+  &.overdue {
+    background: var(--ba);
+  }
+}

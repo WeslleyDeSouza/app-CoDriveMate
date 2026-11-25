@@ -1,0 +1,165 @@
+@if (assigning(); as kind) {
+  <div class="assign" data-section-test="map-assign">
+    <span>{{ 'navigation.assign.' + kind | translate }}</span>
+    @if (saved()[kind]) {
+      <button
+        type="button"
+        class="icon"
+        data-section-test="map-assign-remove"
+        [attr.aria-label]="'navigation.remove' | translate"
+        (click)="forgetFavourite()"
+      >
+        <i class="ti ti-trash" aria-hidden="true"></i>
+      </button>
+    }
+  </div>
+}
+<form class="search" role="search" (submit)="$event.preventDefault(); submit(query.value)">
+  <i class="ti ti-search" aria-hidden="true"></i>
+  <input
+    #query
+    type="search"
+    enterkeyhint="search"
+    autocomplete="off"
+    data-section-test="map-search"
+    [placeholder]="'navigation.where_to' | translate"
+    [attr.aria-label]="'navigation.where_to' | translate"
+    (focus)="open.set(true)"
+    (input)="typed(query.value)"
+  />
+  <button
+    type="button"
+    data-section-test="map-search-speak"
+    [class.on]="listening()"
+    [attr.aria-pressed]="listening()"
+    [attr.aria-label]="'navigation.speak' | translate"
+    (click)="speak()"
+  >
+    <i class="ti ti-microphone" aria-hidden="true"></i>
+  </button>
+  @if (open()) {
+    <button
+      type="button"
+      data-section-test="map-search-close"
+      [attr.aria-label]="'app.common.close' | translate"
+      (click)="close()"
+    >
+      <i class="ti ti-x" aria-hidden="true"></i>
+    </button>
+  }
+  <button
+    type="submit"
+    data-section-test="map-search-submit"
+    [attr.aria-label]="'navigation.search' | translate"
+  >
+    <i class="ti ti-arrow-right" aria-hidden="true"></i>
+  </button>
+</form>
+
+@if (showSaved()) {
+  <div class="chips">
+    @for (kind of favourites; track kind) {
+      <span class="chip">
+        <button
+          type="button"
+          [attr.data-section-test]="'map-favourite-' + kind"
+          [disabled]="navigation.busy() || locating()"
+          (click)="favourite(kind)"
+        >
+          <i
+            class="ti"
+            [class]="kind === 'home' ? 'ti-home' : 'ti-briefcase'"
+            aria-hidden="true"
+          ></i>
+          {{ 'navigation.favourite.' + kind | translate }}
+        </button>
+        @if (saved()[kind]) {
+          <button
+            type="button"
+            class="icon"
+            [attr.data-section-test]="'map-favourite-edit-' + kind"
+            [attr.aria-label]="'navigation.change' | translate"
+            (click)="assign(kind)"
+          >
+            <i class="ti ti-pencil" aria-hidden="true"></i>
+          </button>
+        }
+      </span>
+    }
+    @for (pin of pins(); track pin.id) {
+      <span class="chip">
+        <button
+          type="button"
+          [attr.data-section-test]="'map-pin-' + pin.id"
+          [disabled]="navigation.busy()"
+          (click)="goPin(pin)"
+        >
+          <i class="ti ti-parking" aria-hidden="true"></i>{{ 'navigation.my_car' | translate }}
+        </button>
+      </span>
+    }
+  </div>
+  @for (place of recent(); track $index) {
+    <div class="saved">
+      <button
+        class="result"
+        type="button"
+        [attr.data-section-test]="'map-recent-' + $index"
+        [disabled]="navigation.busy() || locating()"
+        (click)="goSaved(place)"
+      >
+        <i class="ti ti-history" aria-hidden="true"></i>
+        <span>
+          <b>{{ place.name }}</b><small>{{ place.detail }}</small>
+        </span>
+      </button>
+      <button
+        type="button"
+        class="icon"
+        [attr.data-section-test]="'map-recent-remove-' + $index"
+        [attr.aria-label]="'navigation.remove' | translate"
+        (click)="forget(place)"
+      >
+        <i class="ti ti-x" aria-hidden="true"></i>
+      </button>
+    </div>
+  }
+}
+
+@if (state() !== 'idle' || navigation.busy() || locating()) {
+  <p class="hint" data-section-test="map-search-state" role="status">
+    {{
+      'navigation.search_state.' +
+        (navigation.busy() ? 'routing' : locating() ? 'searching' : state()) | translate
+    }}
+  </p>
+}
+@for (place of matches(); track $index) {
+  <button
+    class="result"
+    type="button"
+    [attr.data-section-test]="'map-match-' + $index"
+    [disabled]="navigation.busy() || locating()"
+    (click)="goSaved(place)"
+  >
+    <i class="ti ti-history" aria-hidden="true"></i>
+    <span>
+      <b>{{ place.name }}</b><small>{{ place.detail }}</small>
+    </span>
+  </button>
+}
+@for (place of results(); track $index) {
+  <button
+    class="result"
+    type="button"
+    [attr.data-section-test]="'map-result-' + $index"
+    [disabled]="navigation.busy()"
+    (click)="choose(place)"
+  >
+    <i class="ti ti-map-pin" aria-hidden="true"></i>
+    <span>
+      <b>{{ place.name }}</b><small>{{ place.detail }}</small>
+    </span>
+    <em>{{ distance(place) }}</em>
+  </button>
+}

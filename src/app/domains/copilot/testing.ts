@@ -1,0 +1,71 @@
+import { Provider } from '@angular/core';
+import { SpeechInput } from '@core/device';
+import { Landmark, LandmarkSource, TalkRepository } from './domain/conversation';
+import { ChatModel, ChatRequest } from './domain/copilot';
+
+export class FakeChatModel extends ChatModel {
+  readonly requests: ChatRequest[] = [];
+  answers: (string | Error)[] = [];
+
+  async ask(request: ChatRequest): Promise<string> {
+    this.requests.push(request);
+    const answer = this.answers.shift() ?? 'ok';
+    if (answer instanceof Error) throw answer;
+    return answer;
+  }
+}
+
+export class FakeSpeechInput extends SpeechInput {
+  heard: (string | Error)[] = [];
+  listened = 0;
+  aborted = 0;
+
+  async listen(): Promise<string> {
+    this.listened++;
+    const heard = this.heard.shift() ?? '';
+    if (heard instanceof Error) throw heard;
+    return heard;
+  }
+  abort(): void {
+    this.aborted++;
+  }
+}
+
+export class FakeLandmarks extends LandmarkSource {
+  places: Landmark[] = [];
+  text = 'Ein Turm. Er ist hoch.';
+
+  async near(): Promise<Landmark[]> {
+    return this.places;
+  }
+  async extract(): Promise<string> {
+    return this.text;
+  }
+}
+
+export class FakeTalkRepository extends TalkRepository {
+  seen: readonly number[] = [];
+
+  async loadSeen(): Promise<readonly number[]> {
+    return this.seen;
+  }
+  async saveSeen(ids: readonly number[]): Promise<void> {
+    this.seen = ids;
+  }
+}
+
+export function copilotTesting() {
+  const fakes = {
+    model: new FakeChatModel(),
+    input: new FakeSpeechInput(),
+    landmarks: new FakeLandmarks(),
+    talk: new FakeTalkRepository(),
+  };
+  const providers: Provider[] = [
+    { provide: ChatModel, useValue: fakes.model },
+    { provide: SpeechInput, useValue: fakes.input },
+    { provide: LandmarkSource, useValue: fakes.landmarks },
+    { provide: TalkRepository, useValue: fakes.talk },
+  ];
+  return { ...fakes, providers };
+}

@@ -1,0 +1,19 @@
+{
+  "selftest": {
+    "title": "Gerätetest",
+    "note": "Prüft Gerät, Plugins, Dienste und Keys auf diesem Gerät. Der Bericht enthält keine Keys und keinen Standort.",
+    "run": "Alles prüfen",
+    "run_one": "Prüfen",
+    "share": "Bericht teilen",
+    "copied": "Geteilt",
+    "sentence": "Dies ist ein Test der Sprachausgabe.",
+    "notification": "Testmitteilung",
+    "group": {
+      "device": "Gerät",
+      "input": "Sensoren und Sprache",
+      "native": "App-Plugins",
+      "service": "Dienste ohne Key",
+      "key": "Dienste mit Key"
+    }
+  }
+}

@@ -1,0 +1,192 @@
+<div #map class="map" data-section-test="map-canvas"></div>
+
+@if (mapState() === 'failed') {
+  <div class="maperr" data-section-test="map-error" role="alert">
+    <i class="ti ti-map-off" aria-hidden="true"></i>
+    <span>{{ 'navigation.map_failed' | translate }}</span>
+    <button class="btn" type="button" data-section-test="map-retry" (click)="retry()">
+      <i class="ti ti-refresh" aria-hidden="true"></i>{{ 'navigation.retry' | translate }}
+    </button>
+  </div>
+}
+
+@if (guidance(); as g) {
+  <div class="navcard" data-section-test="map-guidance" [class.near]="g.near">
+    <div class="nv-main">
+      <i class="ti" [class]="'ti-' + g.icon" aria-hidden="true"></i>
+      <div>
+        <div class="nv-d" data-section-test="map-guidance-distance">{{ g.distance }}</div>
+        <div class="nv-t" data-section-test="map-guidance-text">{{ g.text }}</div>
+      </div>
+    </div>
+    @if (g.near) {
+      <div class="nv-prog"><i [style.width.%]="g.nearPercent"></i></div>
+    }
+    @if (g.then) {
+      <div class="nv-then">{{ 'navigation.then' | translate }} {{ g.then }}</div>
+    }
+  </div>
+}
+
+<div class="chip gl">
+  <span class="pill" [class]="mode()">
+    <span class="dot"></span>{{ 'telemetry.mode.' + mode() | translate }}
+  </span>
+  <b data-section-test="map-clock">{{ clock() }}</b>
+</div>
+
+<div class="mbtns gl">
+  <button
+    type="button"
+    data-section-test="map-voice"
+    [class.hl]="voiceOn()"
+    [attr.aria-pressed]="voiceOn()"
+    [attr.aria-label]="'navigation.button.voice' | translate"
+    (click)="toggleVoice()"
+  >
+    <i class="ti" [class]="voiceOn() ? 'ti-volume' : 'ti-volume-off'" aria-hidden="true"></i>
+  </button>
+  @if (hasTraffic()) {
+    <button
+      type="button"
+      data-section-test="map-traffic"
+      [class.hl]="trafficOn()"
+      [attr.aria-pressed]="trafficOn()"
+      [attr.aria-label]="'navigation.button.traffic' | translate"
+      (click)="toggleTraffic()"
+    >
+      <i class="ti ti-traffic-lights" aria-hidden="true"></i>
+    </button>
+  }
+  <button
+    class="view"
+    type="button"
+    data-section-test="map-view"
+    [class.hl]="view() !== 'free'"
+    [attr.data-view]="view()"
+    [attr.aria-label]="'navigation.view_label.' + view() | translate"
+    (click)="changeView()"
+  >
+    <i class="ti" [class]="viewIcon[view()]" aria-hidden="true"></i>
+    <small>{{ 'navigation.view.' + view() | translate }}</small>
+  </button>
+  @if (navigation.route()) {
+    <button
+      type="button"
+      data-section-test="map-overview"
+      [attr.aria-label]="'navigation.button.overview' | translate"
+      (click)="overview()"
+    >
+      <i class="ti ti-route" aria-hidden="true"></i>
+    </button>
+  }
+  <button
+    type="button"
+    data-section-test="map-tilt"
+    [attr.aria-pressed]="preferences().tilted"
+    [attr.aria-label]="'navigation.button.tilt' | translate"
+    (click)="toggleTilt()"
+  >
+    {{ preferences().tilted ? '2D' : '3D' }}
+  </button>
+  <button
+    type="button"
+    data-section-test="map-zoom-in"
+    [attr.aria-label]="'navigation.button.zoom_in' | translate"
+    (click)="zoom(1)"
+  >
+    <i class="ti ti-plus" aria-hidden="true"></i>
+  </button>
+  <button
+    type="button"
+    data-section-test="map-zoom-out"
+    [attr.aria-label]="'navigation.button.zoom_out' | translate"
+    (click)="zoom(-1)"
+  >
+    <i class="ti ti-minus" aria-hidden="true"></i>
+  </button>
+</div>
+
+@if (navigation.notice(); as notice) {
+  <div class="notice gl" data-section-test="map-notice" role="status">{{ notice | translate }}</div>
+}
+
+@if (eta(); as e) {
+  <div class="bcard gl trip" data-section-test="map-eta">
+    @if (weatherOpen() && weather().length) {
+      <ul class="wx-list" data-section-test="map-weather-list">
+        @for (point of weather(); track $index) {
+          <li>
+            <b>{{ point.place || ('navigation.start' | translate) }}</b>
+            <span>{{ point.time }}</span>
+            <i class="ti" [class]="'ti-' + point.icon + ' lv' + point.level" aria-hidden="true"></i>
+            <span class="wx-kind">{{ 'navigation.weather.' + point.kind | translate }}</span>
+            <span>{{ point.temperature }}° {{ point.rain }}</span>
+          </li>
+        }
+      </ul>
+    }
+    <div class="extras">
+      @if (weatherSummary(); as w) {
+        <button
+          class="extra"
+          type="button"
+          data-section-test="map-weather"
+          [attr.aria-expanded]="weatherOpen()"
+          (click)="weatherOpen.set(!weatherOpen())"
+        >
+          <i class="ti" [class]="'ti-' + w.icon + ' lv' + w.level" aria-hidden="true"></i>
+          {{ 'navigation.weather.' + w.kind | translate }}
+          @if (w.from) {
+            {{ 'navigation.from' | translate: { distance: w.from } }}
+          }
+          · {{ w.lowest }}°
+        </button>
+      }
+      @if (navigation.route()?.provider !== 'google') {
+        <button
+          class="extra"
+          type="button"
+          data-section-test="map-offline"
+          [disabled]="extras.offline().kind === 'saving' || extras.offline().kind === 'done'"
+          (click)="extras.saveOffline()"
+        >
+          <i
+            class="ti"
+            [class]="extras.offline().kind === 'done' ? 'ti-check' : 'ti-download'"
+            aria-hidden="true"
+          ></i>
+          {{ 'navigation.offline.' + extras.offline().kind | translate }}
+          @if (offlinePercent() !== null) {
+            {{ offlinePercent() }} %
+          }
+        </button>
+      }
+    </div>
+    <div class="eta">
+      <div>
+        <b data-section-test="map-eta-arrival">{{ e.arrival }}</b>
+        <small>{{ 'navigation.arrival' | translate }}</small>
+      </div>
+      <div>
+        <b class="dur">{{ e.duration }}</b><small data-section-test="map-eta-distance"
+          >{{ e.distance }}
+          @if (e.delayMinutes) {
+            <span class="lv2" data-section-test="map-eta-delay"
+              >+{{ e.delayMinutes }} min {{ 'navigation.traffic' | translate }}</span
+            >
+          }
+        </small>
+      </div>
+      <div>
+        <b class="prov" data-section-test="map-eta-provider">{{ e.provider }}</b>
+        <small>{{ 'navigation.route_via' | translate }}</small>
+      </div>
+      <button class="end" type="button" data-section-test="map-stop" (click)="navigation.end()">
+        {{ 'navigation.stop' | translate }}
+      </button>
+    </div>
+  </div>
+} @else {
+  <div class="bcard gl"><app-search-panel /></div>
+}
