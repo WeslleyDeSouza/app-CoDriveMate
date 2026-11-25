@@ -141,7 +141,9 @@ export class NativeSurface implements MapSurface {
     observer.observe(this.container);
     this.cleanup.push(() => observer.disconnect());
     this.listen(window, 'resize', resize);
-    this.listen(window, 'scroll', resize);
+    // The panel around a map may scroll too; its events do not bubble.
+    document.addEventListener('scroll', resize, true);
+    this.cleanup.push(() => document.removeEventListener('scroll', resize, true));
 
     if (!interactive) return;
     this.container.style.touchAction = 'none';
