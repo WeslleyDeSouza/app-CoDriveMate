@@ -149,6 +149,8 @@
         "throttle": "Throttle",
         "voltage": "Voltage"
       }
-    }
+    },
+    "gauge": "Speedometer",
+    "gauge_gear": "Gear"
   }
 }

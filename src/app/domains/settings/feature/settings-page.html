@@ -242,10 +242,12 @@
         {{ 'settings.scene3d' | translate }}
         <select
           data-section-test="settings-scene3d"
-          [value]="draft().map.scene3d ? '1' : '0'"
-          (change)="patch({ map: { scene3d: on($event) } })"
+          [value]="leftView()"
+          (change)="setLeftView(text($event))"
         >
-          <option value="1">{{ 'settings.on' | translate }}</option>
+          <option value="1">{{ 'settings.scene3d_on' | translate }}</option>
+          <option value="gauge">{{ 'settings.scene3d_gauge' | translate }}</option>
+          <option value="both">{{ 'settings.scene3d_both' | translate }}</option>
           <option value="0">{{ 'settings.scene3d_off' | translate }}</option>
         </select>
       </label>
@@ -425,6 +427,22 @@
       <button class="btn" type="button" data-section-test="settings-voice-try" (click)="tryVoice()">
         <i class="ti ti-volume" aria-hidden="true"></i>{{ 'settings.voice_try' | translate }}
       </button>
+      @for (name of spoken; track name) {
+        <label class="f">
+          <span>
+            {{ 'settings.spoken.' + name | translate }}
+            <em>{{ 'settings.spoken_note.' + name | translate }}</em>
+          </span>
+          <select
+            [attr.data-section-test]="'settings-spoken-' + name"
+            [value]="draft().voice[name] ? '1' : '0'"
+            (change)="setSpoken(name, $event)"
+          >
+            <option value="1">{{ 'settings.on' | translate }}</option>
+            <option value="0">{{ 'settings.off' | translate }}</option>
+          </select>
+        </label>
+      }
       <label class="f">
         {{ 'settings.read_answers' | translate }}
         <select

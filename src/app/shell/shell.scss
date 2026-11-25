@@ -349,3 +349,32 @@
     }
   }
 }
+
+.views {
+  display: contents;
+}
+/* The 3D view and the speedometer together need a large screen. */
+.views.both app-speed-gauge {
+  display: none;
+}
+@media (min-width: 1100px) and (min-height: 700px) {
+  .views.both {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    gap: 10px;
+
+    > * {
+      flex: 1;
+      min-width: 0;
+    }
+    app-speed-gauge {
+      display: flex;
+    }
+  }
+}
+@media (min-width: 1100px) and (min-height: 1000px) {
+  .views.both {
+    flex-direction: column;
+  }
+}

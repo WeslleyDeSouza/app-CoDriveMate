@@ -73,6 +73,10 @@ describe('Shell', () => {
     fixture.detectChanges();
     expect(root.querySelector('app-scene-view')).toBeNull();
     expect(root.classList).toContain('no-scene');
+    settings.update((s) => ({ ...s, map: { ...s.map, gauge: true } }));
+    fixture.detectChanges();
+    expect(root.querySelector('app-speed-gauge')).not.toBeNull();
+    expect(root.classList).not.toContain('no-scene');
     settings.set(DEFAULT_SETTINGS);
   });
 

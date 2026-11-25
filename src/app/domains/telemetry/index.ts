@@ -7,4 +7,5 @@ export type { FuelType, VehicleProfile } from './domain/vehicle-profile';
 export { ObdSettings } from './feature/obd-settings';
 export type { CockpitExtras } from './feature/cockpit-panel';
 export { CockpitPanel } from './feature/cockpit-panel';
+export { SpeedGauge } from './feature/speed-gauge';
 export { provideTelemetry } from './telemetry.providers';

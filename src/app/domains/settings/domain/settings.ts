@@ -30,6 +30,12 @@ export interface AppSettings {
   voice: {
     navigation: boolean;
     readAnswers: boolean;
+    /** vehicle warnings and an almost empty tank are spoken; they are always shown */
+    warnings: boolean;
+    /** hazards, traffic, weather and parking reminders are spoken */
+    infos: boolean;
+    /** the conversation modes may speak */
+    conversation: boolean;
     /** 'auto' = Google voice; every cloud voice falls back to the device voice */
     provider: VoiceProvider;
     /** speaking rate, 1 = normal */
@@ -45,6 +51,8 @@ export interface AppSettings {
     baseMap: BaseMap;
     sceneWorld: SceneWorld;
     scene3d: boolean;
+    /** round speedometer, instead of the 3D view or with it on large screens */
+    gauge: boolean;
     /** what the 3D view shows; every part can be switched off */
     scene: {
       quality: SceneQuality;
@@ -107,6 +115,9 @@ export const DEFAULT_SETTINGS: AppSettings = {
   voice: {
     navigation: true,
     readAnswers: true,
+    warnings: true,
+    infos: true,
+    conversation: true,
     provider: 'auto',
     rate: 1.05,
     cloudVoice: 'Aoede',
@@ -118,6 +129,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     baseMap: 'auto',
     sceneWorld: 'real',
     scene3d: true,
+    gauge: false,
     scene: {
       quality: 'normal',
       sharpAerial: true,

@@ -149,6 +149,8 @@
         "throttle": "Drosselklappe",
         "voltage": "Spannung"
       }
-    }
+    },
+    "gauge": "Tacho",
+    "gauge_gear": "Gang"
   }
 }

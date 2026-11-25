@@ -305,6 +305,15 @@ describe('copilot', () => {
       expect(go).not.toHaveBeenCalled();
     });
 
+    it('falls silent when it is switched off in the settings', async () => {
+      await start('facts');
+      settings.update((s) => ({ ...s, voice: { ...s.voice, conversation: false } }));
+      TestBed.tick();
+      expect(store.active()).toBe(false);
+      store.toggle('facts');
+      expect(store.active()).toBe(false);
+    });
+
     it('ends with one tap on the bar', async () => {
       await start('facts');
       const fixture = TestBed.createComponent(ConversationBar);

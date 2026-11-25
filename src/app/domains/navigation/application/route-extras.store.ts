@@ -144,7 +144,7 @@ export class RouteExtrasStore {
 
   private warn(point: WeatherPoint): void {
     const voice = this.settings().voice;
-    if (!voice.navigation) return;
+    if (!voice.infos) return;
     const text = this.translate.translate('navigation.say.weather', {
       weather: this.translate.translate('navigation.weather.' + point.kind) ?? '',
       distance: formatDistanceIn(point.alongM, this.units()),

@@ -156,8 +156,8 @@ export class RoadStore {
   }
 
   private say(key: string, params: Record<string, unknown>): void {
-    const { navigation, rate } = this.settings().voice;
-    if (navigation) void this.speech.speak(this.t(key, params), this.translate.lang, rate, 'nav');
+    const { infos, rate } = this.settings().voice;
+    if (infos) void this.speech.speak(this.t(key, params), this.translate.lang, rate, 'nav');
   }
 
   private t(key: string, params?: Record<string, unknown>): string {

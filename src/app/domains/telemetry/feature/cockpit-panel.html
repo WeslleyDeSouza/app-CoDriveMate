@@ -18,11 +18,26 @@
   </div>
   <div class="spd">
     <div>
-      <div class="speed" data-section-test="cockpit-speed" aria-live="off">{{ speed().value }}</div>
+      <div
+        class="speed"
+        data-section-test="cockpit-speed"
+        aria-live="off"
+        [class.warn]="speeding() === 'warn'"
+        [class.crit]="speeding() === 'crit'"
+      >
+        {{ speed().value }}
+      </div>
       <span class="vehicle">{{ speed().unit }}</span>
+      @if (over(); as value) {
+        <span class="toofast" [class]="speeding()" data-section-test="cockpit-over">
+          <i class="ti ti-alert-triangle" aria-hidden="true"></i>+{{ value }}
+        </span>
+      }
     </div>
     @if (limit(); as value) {
-      <div class="sign" data-section-test="cockpit-limit" [class.over]="tooFast()">{{ value }}</div>
+      <div class="sign" data-section-test="cockpit-limit" [class.over]="speeding()">
+        {{ value }}
+      </div>
     }
   </div>
   <div class="seg" data-section-test="cockpit-revbar" aria-hidden="true">

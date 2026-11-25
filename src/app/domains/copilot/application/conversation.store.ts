@@ -109,6 +109,8 @@ export class ConversationStore {
   readonly quiz = this._quiz.asReadonly();
   readonly score = this._score.asReadonly();
   readonly notice = this._notice.asReadonly();
+  /** Switched on in the settings. */
+  readonly allowed = computed(() => this.settings().voice.conversation);
   readonly style = computed<TalkStyle>(() => this.settings().ai.talkStyle);
   /** A quiz needs answers, so it does not exist in a monologue. */
   readonly offered = computed(() =>
@@ -136,6 +138,9 @@ export class ConversationStore {
     effect(() => {
       if (this.output.busy() && untracked(this._listening)) this.input.abort();
     });
+    effect(() => {
+      if (!this.allowed()) untracked(() => this.stop());
+    });
   }
 
   /** Adds a mode, or takes it away again. */
@@ -160,6 +165,7 @@ export class ConversationStore {
   }
 
   private use(wanted: readonly TalkMode[]): void {
+    if (!this.allowed()) return;
     const modes = this.usable(wanted);
     const current = this._current();
     const notice = modes.length < wanted.length ? 'needs_key' : null;

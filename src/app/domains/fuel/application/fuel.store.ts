@@ -226,7 +226,8 @@ export class FuelStore {
           distance: formatDistanceIn(nearest.distanceM, this.units()),
         })
       : this.t('fuel.say.low', { range });
-    void this.speech.speak(text, this.translate.lang, this.settings().voice.rate, 'nav');
+    const { rate, warnings } = this.settings().voice;
+    if (warnings) void this.speech.speak(text, this.translate.lang, rate, 'nav');
   }
 
   private save(): Promise<void> {

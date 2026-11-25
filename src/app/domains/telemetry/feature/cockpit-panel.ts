@@ -9,6 +9,7 @@ import {
   temperatureIn,
 } from '@shared/kernel/units';
 import { TelemetryStore } from '../application/telemetry.store';
+import { speeding } from '../domain/speeding';
 
 /** What other domains add to the panel. */
 export interface CockpitExtras {
@@ -84,9 +85,14 @@ export class CockpitPanel {
     const kmh = this.extras().limitKmh;
     return kmh === null ? null : Math.round(speedIn(kmh, this.units()).value);
   });
-  protected readonly tooFast = computed(() => {
-    const limit = this.extras().limitKmh;
-    return limit !== null && this.values().speed > limit + 3;
+  protected readonly speeding = computed(() =>
+    speeding(this.values().speed, this.extras().limitKmh),
+  );
+
+  /** Shown speed above the shown limit, null if not too fast. */
+  protected readonly over = computed(() => {
+    const limit = this.limit();
+    return limit !== null && this.speeding() ? this.speed().value - limit : null;
   });
 
   private distance(km: number | null, digits: number): { text: string; unit: string } {

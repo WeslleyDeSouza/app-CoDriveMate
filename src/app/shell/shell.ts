@@ -22,7 +22,7 @@ import { ParkingAlert, ParkingStore } from '@domains/parking';
 import { HazardHint, RoadStore } from '@domains/road';
 import { SceneStore, SceneView } from '@domains/scene3d';
 import { SettingsStore } from '@domains/settings';
-import { CockpitExtras, CockpitPanel, TelemetryStore } from '@domains/telemetry';
+import { CockpitExtras, CockpitPanel, SpeedGauge, TelemetryStore } from '@domains/telemetry';
 import { Dock } from './dock';
 
 /** A visible area smaller by this much means: the on-screen keyboard is open. */
@@ -48,6 +48,7 @@ const KEYBOARD_MIN_PX = 120;
     MusicBar,
     ParkingAlert,
     SceneView,
+    SpeedGauge,
     VehicleWarningCard,
     YoutubeSlot,
   ],
@@ -55,14 +56,21 @@ const KEYBOARD_MIN_PX = 120;
   host: {
     '[class.sheet-open]': 'sheetOpen()',
     '[class.keyboard]': 'keyboard()',
-    '[class.no-scene]': '!scene.enabled() && !media.youtube()',
+    '[class.no-scene]': '!scene.enabled() && !gauge() && !media.youtube()',
   },
   template: `
     <app-cockpit-panel class="left" [extras]="extras()">
       @if (media.youtube(); as item) {
         <app-youtube-slot [item]="item" />
-      } @else if (scene.enabled()) {
-        <app-scene-view class="scene" />
+      } @else {
+        <div class="views" [class.both]="scene.enabled() && gauge()">
+          @if (scene.enabled()) {
+            <app-scene-view class="scene" />
+          }
+          @if (gauge()) {
+            <app-speed-gauge class="scene" [limitKmh]="road.limitKmh()" />
+          }
+        </div>
       }
       <app-music-bar />
     </app-cockpit-panel>
@@ -101,7 +109,9 @@ export class Shell {
   protected readonly keyboard = signal(false);
   private readonly fuel = inject(FuelStore);
   private readonly logbook = inject(LogbookStore);
-  private readonly road = inject(RoadStore);
+  protected readonly road = inject(RoadStore);
+  private readonly settings = inject(SettingsStore).settings;
+  protected readonly gauge = computed(() => this.settings().map.gauge);
   private readonly warnings = inject(WarningStore);
   /** What the cockpit shows from other domains. */
   protected readonly extras = computed<CockpitExtras>(() => ({
@@ -124,12 +134,11 @@ export class Shell {
     const mode = inject(TelemetryStore).mode;
     const route = inject(NavigationStore).route;
     const positions = inject(PositionStore);
-    const settings = inject(SettingsStore).settings;
     const translate = inject(TranslateService);
     effect(() => {
       const driving = mode() === 'obd' || mode() === 'connecting' || route() !== null;
       const message = translate.translate('app.background') ?? 'CoDriveMate';
-      positions.setBackground(driving && settings().background ? message : null);
+      positions.setBackground(driving && this.settings().background ? message : null);
     });
     // The screen stays on while data flows or a route is active.
     effect(() => void wakeLock.set(mode() !== 'off' || route() !== null));

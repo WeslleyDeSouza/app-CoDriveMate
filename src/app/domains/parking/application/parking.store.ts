@@ -168,7 +168,8 @@ export class ParkingStore {
     if (!spot || !due) return;
     void this.store({ ...spot, reminded: [...spot.reminded, due] });
     this._alert.set(due);
-    const { rate } = this.settings().voice;
+    const { rate, infos } = this.settings().voice;
+    if (!infos) return;
     const text = this.reminderText(due, this.minutesLeft() ?? 0);
     void this.speech.speak(text, this.translate.lang, rate, 'nav');
   }

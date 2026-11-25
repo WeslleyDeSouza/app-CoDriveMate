@@ -137,6 +137,24 @@ export class SettingsPage {
     'roadDetails',
   ];
 
+  /** What may be spoken besides the navigation. */
+  protected readonly spoken = ['warnings', 'infos', 'conversation'] as const;
+
+  protected setSpoken(name: (typeof this.spoken)[number], event: Event): void {
+    this.patch({ voice: { [name]: this.on(event) } });
+  }
+
+  protected readonly leftView = computed(() => {
+    const { scene3d, gauge } = this.draft().map;
+    if (scene3d) return gauge ? 'both' : '1';
+    return gauge ? 'gauge' : '0';
+  });
+
+  protected setLeftView(view: string): void {
+    const scene3d = view === '1' || view === 'both';
+    this.patch({ map: { scene3d, gauge: view === 'gauge' || view === 'both' } });
+  }
+
   protected setScenePart(part: string, event: Event): void {
     this.patch({ map: { scene: { [part]: this.on(event) } } });
   }

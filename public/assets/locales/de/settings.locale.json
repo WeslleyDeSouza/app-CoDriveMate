@@ -31,7 +31,7 @@
     "hazard_hints": "Hinweise auf Gefahrenstellen",
     "hazard_hints_note": "Bahnübergänge, Schulen, Gefahrenzeichen aus OpenStreetMap. Keine Radarwarnung (in der Schweiz verboten)",
     "auto_park": "Parkplatz nach der Fahrt automatisch merken",
-    "scene3d": "3D-Ansicht mit Auto (links)",
+    "scene3d": "Anzeige links",
     "scene3d_off": "Ausgeblendet (spart Akku)",
     "nav_voice": "Navi-Ansagen",
     "voice_provider": "Stimme",
@@ -170,6 +170,19 @@
     "eleven_voice": "ElevenLabs-Stimme",
     "eleven_choose": "Stimme wählen",
     "eleven_load": "Stimmen neu laden",
-    "eleven_failed": "Die Stimmen konnten nicht geladen werden. Stimmt der Key und darf er Stimmen lesen?"
+    "eleven_failed": "Die Stimmen konnten nicht geladen werden. Stimmt der Key und darf er Stimmen lesen?",
+    "scene3d_on": "3D-Ansicht mit Auto",
+    "scene3d_gauge": "Tacho",
+    "spoken": {
+      "warnings": "Warnungen vorlesen",
+      "infos": "Infos vorlesen",
+      "conversation": "Unterhaltungsmodus"
+    },
+    "spoken_note": {
+      "warnings": "Fahrzeug und Tank; angezeigt werden sie immer",
+      "infos": "Gefahrenstellen, Verkehr, Wetter, Parkzeit",
+      "conversation": "Plaudern, Begleiter, Fakten, Quiz"
+    },
+    "scene3d_both": "3D-Ansicht und Tacho (grosser Bildschirm)"
   }
 }

@@ -73,7 +73,7 @@ export class WarningStore {
     const text = [key + '.title', key + '.say']
       .map((k) => this.translate.translate(k) ?? k)
       .join('. ');
-    const { rate } = this.settings().voice;
-    void this.speech.speak(text, this.translate.lang, rate, 'nav');
+    const { rate, warnings } = this.settings().voice;
+    if (warnings) void this.speech.speak(text, this.translate.lang, rate, 'nav');
   }
 }

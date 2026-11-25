@@ -31,7 +31,7 @@
     "hazard_hints": "Hazard hints",
     "hazard_hints_note": "Level crossings, schools, danger signs from OpenStreetMap. No speed camera warnings (illegal in Switzerland)",
     "auto_park": "Remember the parking spot after each trip",
-    "scene3d": "3D view with car (left)",
+    "scene3d": "Display on the left",
     "scene3d_off": "Hidden (saves battery)",
     "nav_voice": "Navigation announcements",
     "voice_provider": "Voice",
@@ -170,6 +170,19 @@
     "eleven_voice": "ElevenLabs voice",
     "eleven_choose": "Choose a voice",
     "eleven_load": "Reload voices",
-    "eleven_failed": "The voices could not be loaded. Is the key right and may it read voices?"
+    "eleven_failed": "The voices could not be loaded. Is the key right and may it read voices?",
+    "scene3d_on": "3D view with car",
+    "scene3d_gauge": "Speedometer",
+    "spoken": {
+      "warnings": "Read warnings aloud",
+      "infos": "Read infos aloud",
+      "conversation": "Conversation mode"
+    },
+    "spoken_note": {
+      "warnings": "vehicle and tank; they are always shown",
+      "infos": "hazards, traffic, weather, parking time",
+      "conversation": "chat, companion, facts, quiz"
+    },
+    "scene3d_both": "3D view and speedometer (large screen)"
   }
 }

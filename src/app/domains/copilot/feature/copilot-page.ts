@@ -32,45 +32,51 @@ const LISTEN_MS = 10_000;
             ><i class="ti ti-messages" aria-hidden="true"></i
             >{{ 'copilot.talk.title' | translate }}</span
           >
-          <div class="row">
-            @for (style of styles; track style) {
+          @if (talk.allowed()) {
+            <div class="row">
+              @for (style of styles; track style) {
+                <button
+                  class="btn"
+                  type="button"
+                  [attr.data-section-test]="'copilot-style-' + style"
+                  [class.pri]="talk.style() === style"
+                  [attr.aria-pressed]="talk.style() === style"
+                  (click)="talk.setStyle(style)"
+                >
+                  {{ 'copilot.talk.style.' + style | translate }}
+                </button>
+              }
+            </div>
+            <div class="row">
+              @for (mode of talk.offered(); track mode) {
+                <button
+                  class="btn"
+                  type="button"
+                  [attr.data-section-test]="'copilot-talk-' + mode"
+                  [class.pri]="talk.modes().includes(mode)"
+                  [attr.aria-pressed]="talk.modes().includes(mode)"
+                  (click)="talk.toggle(mode)"
+                >
+                  {{ 'copilot.talk.mode.' + mode | translate }}
+                </button>
+              }
               <button
                 class="btn"
                 type="button"
-                [attr.data-section-test]="'copilot-style-' + style"
-                [class.pri]="talk.style() === style"
-                [attr.aria-pressed]="talk.style() === style"
-                (click)="talk.setStyle(style)"
+                data-section-test="copilot-talk-all"
+                [class.pri]="talk.modes().length === talk.offered().length"
+                [attr.aria-pressed]="talk.modes().length === talk.offered().length"
+                (click)="talk.toggleAll()"
               >
-                {{ 'copilot.talk.style.' + style | translate }}
+                <i class="ti ti-arrows-shuffle" aria-hidden="true"></i>
+                {{ 'copilot.talk.mode.mixed' | translate }}
               </button>
-            }
-          </div>
-          <div class="row">
-            @for (mode of talk.offered(); track mode) {
-              <button
-                class="btn"
-                type="button"
-                [attr.data-section-test]="'copilot-talk-' + mode"
-                [class.pri]="talk.modes().includes(mode)"
-                [attr.aria-pressed]="talk.modes().includes(mode)"
-                (click)="talk.toggle(mode)"
-              >
-                {{ 'copilot.talk.mode.' + mode | translate }}
-              </button>
-            }
-            <button
-              class="btn"
-              type="button"
-              data-section-test="copilot-talk-all"
-              [class.pri]="talk.modes().length === talk.offered().length"
-              [attr.aria-pressed]="talk.modes().length === talk.offered().length"
-              (click)="talk.toggleAll()"
-            >
-              <i class="ti ti-arrows-shuffle" aria-hidden="true"></i>
-              {{ 'copilot.talk.mode.mixed' | translate }}
-            </button>
-          </div>
+            </div>
+          } @else {
+            <p class="note" data-section-test="copilot-talk-off">
+              {{ 'copilot.talk.off' | translate }}
+            </p>
+          }
           @if (talk.notice(); as notice) {
             <p class="note" role="status" data-section-test="copilot-talk-notice">
               {{ 'copilot.talk.notice.' + notice | translate }}

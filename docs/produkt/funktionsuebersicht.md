@@ -33,7 +33,8 @@ Stand: 24.11.2026. Nichts davon ist im echten Auto oder am echten Adapter getest
 | KI-Copilot | gebaut: Fragen mit Fahrzeugdaten, Sprache; mit echtem Key ungetestet |
 | Unterhaltung | Begleiter, Plaudern, Fakten, Quiz; Dialog oder Monolog; im Auto ungetestet |
 | Kleine Bildschirme (Breite < 860 oder Höhe < 400) | Bereiche und «Wohin» als schwebende Knöpfe; auf dem Gerät ungetestet |
-| 3D-Ansicht | ganz ausblendbar |
+| Anzeige links | 3D-Ansicht, runder Tacho (Tempo, Drehzahl, Gang, Limit), beides (ab 1100 × 700) oder ausgeblendet; Idee für später: Widgets selbst anordnen; im Auto ungetestet |
+| Vorlesen | Navigation, Warnungen, Infos und Unterhaltung einzeln schaltbar |
 | Zu schnell | Tempo gelb ab 4, rot ab 10 km/h über dem Limit (OpenStreetMap), mit Differenz; im Auto ungetestet |
 | Unterhaltungsmodus | gebaut: Plaudern, Fakten zur Route (ohne Key), Quiz; Fahrzeugwarnungen unterbrechen noch nicht, weil nicht portiert |
 | Tank und Tankstellen | gebaut: Füllstand (Sensor oder gezählt), Reichweite, Kosten, Tankstellen in der Nähe und auf der Route, Warnung unter 80 km; Zählung im Auto ungetestet, keine Preise |

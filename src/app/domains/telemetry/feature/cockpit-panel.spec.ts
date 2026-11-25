@@ -97,6 +97,8 @@ describe('CockpitPanel', () => {
     expect(hook(root, 'cockpit-range').classList).toContain('warn');
     expect(text('limit')).toBe('50');
     expect(hook(root, 'cockpit-limit').classList).toContain('over');
+    expect(text('over')).toMatch(/^\+\d+$/);
+    expect(hook(root, 'cockpit-over').className).toMatch(/warn|crit/);
   });
 
   it('lights the rev bar up to the current rpm', async () => {

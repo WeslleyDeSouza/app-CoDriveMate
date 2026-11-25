@@ -279,6 +279,26 @@ describe('SettingsPage', () => {
     expect(options.map(({ value }) => value)).toContain('Zephyr');
   });
 
+  it('switches spoken warnings, infos and conversation', async () => {
+    await setup();
+    for (const name of ['warnings', 'infos', 'conversation']) {
+      await change('settings-spoken-' + name, '0');
+    }
+    const { voice } = await save();
+    expect(voice).toMatchObject({ warnings: false, infos: false, conversation: false });
+    expect(voice.navigation).toBe(true);
+  });
+
+  it('shows the speedometer instead of the 3D view', async () => {
+    await setup();
+    await change('settings-scene3d', 'gauge');
+    expect((await save()).map).toMatchObject({ scene3d: false, gauge: true });
+    await change('settings-scene3d', 'both');
+    expect((await save()).map).toMatchObject({ scene3d: true, gauge: true });
+    await change('settings-scene3d', '0');
+    expect((await save()).map).toMatchObject({ scene3d: false, gauge: false });
+  });
+
   describe('ElevenLabs', () => {
     it('loads the voices with the key, those of the language first', async () => {
       accountVoices.mockResolvedValue([
