@@ -322,6 +322,22 @@
 :host(.no-scene) .left ::ng-deep .stats {
   flex: 1;
 }
+@media (min-width: 860px) and (min-height: 600px) {
+  :host(.no-scene) .left ::ng-deep .st {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-content: center;
+    align-items: baseline;
+    row-gap: 8px;
+
+    small {
+      grid-column: 1 / -1;
+    }
+    b {
+      font-size: 34px;
+    }
+  }
+}
 
 @include phone.portrait {
   :host(.no-scene) .left ::ng-deep > .top {
@@ -370,6 +386,11 @@
     }
     app-speed-gauge {
       display: flex;
+
+      /* too narrow for the row of gears; the panel above has it */
+      ::ng-deep .gears {
+        display: none;
+      }
     }
   }
 }

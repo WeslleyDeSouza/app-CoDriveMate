@@ -1,0 +1,154 @@
+@use '../../../shared/ui/phone' as phone;
+
+:host {
+  flex: 1;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px;
+  overflow: hidden;
+  background: radial-gradient(110% 90% at 50% 40%, var(--car1), var(--car2));
+}
+
+svg {
+  --glow: var(--a);
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  overflow: visible;
+
+  &.warn {
+    --glow: var(--wa);
+  }
+  &.crit {
+    --glow: var(--ba);
+  }
+}
+
+path {
+  fill: none;
+  stroke-linecap: round;
+}
+
+.track {
+  stroke: var(--p3);
+  stroke-width: 7;
+}
+.lit {
+  stroke: var(--glow);
+  stroke-width: 7;
+  filter: drop-shadow(0 0 5px var(--glow));
+}
+
+.tick {
+  stroke: var(--s);
+  stroke-width: 1;
+
+  &.major {
+    stroke: var(--t);
+    stroke-width: 2;
+  }
+}
+
+text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  fill: var(--t);
+  font-variant-numeric: tabular-nums;
+}
+.num {
+  font-size: 10px;
+  font-weight: 600;
+}
+.cap {
+  font-size: 7px;
+  fill: var(--s);
+  letter-spacing: 0.5px;
+}
+.gear {
+  font-size: 24px;
+  font-weight: 700;
+}
+.digits {
+  font-size: 27px;
+  font-weight: 700;
+}
+.warn .digits,
+.crit .digits {
+  fill: var(--glow);
+}
+
+.limit {
+  fill: #fff;
+  stroke: #d9242b;
+  stroke-width: 3;
+}
+
+.rpm {
+  stroke: var(--p3);
+  stroke-width: 4;
+
+  &.red {
+    stroke: var(--ba);
+    opacity: 0.45;
+  }
+  &.on {
+    stroke: var(--ok);
+  }
+  &.high {
+    stroke: var(--ba);
+  }
+}
+
+.needle {
+  transform-origin: 0 0;
+  transition: transform 0.25s linear;
+
+  path {
+    fill: var(--glow);
+    filter: drop-shadow(0 0 4px var(--glow));
+  }
+}
+.hub {
+  fill: var(--p);
+  stroke: var(--ln);
+  stroke-width: 2;
+}
+
+.gears {
+  display: flex;
+  gap: 6px;
+
+  span {
+    min-width: 30px;
+    padding: 3px 6px;
+    border-radius: 9px;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--s);
+  }
+  .on {
+    background: var(--a);
+    color: #fff;
+  }
+}
+
+/* the panel next to it shows the gears already */
+@include phone.any {
+  .gears {
+    display: none;
+  }
+  :host {
+    padding: 4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .needle {
+    transition: none;
+  }
+}
