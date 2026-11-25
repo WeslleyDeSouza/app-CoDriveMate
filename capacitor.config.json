@@ -13,6 +13,9 @@
     "contentInset": "never"
   },
   "plugins": {
+    "Keyboard": {
+      "resize": "none"
+    },
     "BluetoothLe": {
       "displayStrings": {
         "scanning": "Suche Geräte…",

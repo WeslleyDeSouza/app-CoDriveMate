@@ -12,7 +12,7 @@
 }
 
 /* The native Mapbox map lies behind the web view. */
-:host-context(html.native-map):host(.map) {
+:host-context(html.native-map).map {
   background: transparent;
 }
 

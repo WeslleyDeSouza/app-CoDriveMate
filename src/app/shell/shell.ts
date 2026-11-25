@@ -7,10 +7,11 @@ import {
   effect,
   inject,
   signal,
+  untracked,
 } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { TranslateService } from '@core/i18n';
-import { WakeLock } from '@core/device';
+import { OnScreenKeyboard, WakeLock } from '@core/device';
 import { ConversationBar } from '@domains/copilot';
 import { VehicleWarningCard, WarningStore } from '@domains/diagnostics';
 import { FuelAlert, FuelStore } from '@domains/fuel';
@@ -144,25 +145,36 @@ export class Shell {
     effect(() => void wakeLock.set(mode() !== 'off' || route() !== null));
   }
 
-  /** iOS lays the keyboard over the page; the shell shrinks to what stays visible. */
+  /** The keyboard lies over the page; the shell shrinks to what stays visible. */
   private watchKeyboard(): void {
     const viewport = window.visualViewport;
-    if (!viewport) return;
+    const height = inject(OnScreenKeyboard).heightPx;
     const { style } = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
-    const update = () => {
-      const open = viewport.scale < 1.01 && window.innerHeight - viewport.height > KEYBOARD_MIN_PX;
+    const apply = (covered: number, visible: number, top: number) => {
+      const open = covered > KEYBOARD_MIN_PX;
       const opened = open && !this.keyboard();
       this.keyboard.set(open);
-      style.setProperty('--visible', open ? viewport.height + 'px' : '100dvh');
-      style.setProperty('--visible-top', open ? viewport.offsetTop + 'px' : '0px');
-      // iOS pushes the whole page up for the field; the shell has made room for it already.
-      if (open && (window.scrollY || viewport.offsetTop)) window.scrollTo(0, 0);
+      style.setProperty('--visible', open ? visible + 'px' : '100dvh');
+      style.setProperty('--visible-top', open ? top + 'px' : '0px');
+      // Safari pushes the whole page up for the field; the shell has made room for it already.
+      if (open && (window.scrollY || top)) window.scrollTo(0, 0);
       if (opened) {
         setTimeout(() => {
           const field = document.activeElement;
           if (field?.closest('.sheet')) field.scrollIntoView({ block: 'nearest' });
         }, 100);
       }
+    };
+    effect(() => {
+      const covered = height();
+      if (covered === null) return;
+      untracked(() => apply(covered, window.innerHeight - covered, 0));
+    });
+    if (!viewport) return;
+    const update = () => {
+      if (height() !== null) return;
+      const covered = viewport.scale < 1.01 ? window.innerHeight - viewport.height : 0;
+      apply(covered, viewport.height, viewport.offsetTop);
     };
     viewport.addEventListener('resize', update);
     viewport.addEventListener('scroll', update);

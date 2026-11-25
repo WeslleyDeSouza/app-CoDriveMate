@@ -3,6 +3,7 @@ import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { provideI18nTesting } from '@core/i18n/testing';
+import { OnScreenKeyboard } from '@core/device';
 import { findHook, hook } from '@shared/testing';
 import { DEFAULT_SETTINGS, SettingsStore } from '@domains/settings';
 import { copilotTesting } from '@domains/copilot/testing';
@@ -24,6 +25,7 @@ describe('Shell', () => {
   let root: HTMLElement;
   let router: Router;
   const settings = signal(DEFAULT_SETTINGS);
+  const keyboardPx = signal<number | null>(null);
 
   beforeEach(async () => {
     TestBed.configureTestingModule({
@@ -43,6 +45,7 @@ describe('Shell', () => {
         ...roadTesting().providers,
         ...logbookTesting().providers,
         ...copilotTesting().providers,
+        { provide: OnScreenKeyboard, useValue: { heightPx: keyboardPx } },
         { provide: SettingsStore, useValue: { settings } },
       ],
     });
@@ -78,6 +81,18 @@ describe('Shell', () => {
     expect(root.querySelector('app-speed-gauge')).not.toBeNull();
     expect(root.classList).not.toContain('no-scene');
     settings.set(DEFAULT_SETTINGS);
+  });
+
+  it('makes room for the keyboard and takes it back', () => {
+    keyboardPx.set(300);
+    fixture.detectChanges();
+    expect(root.classList).toContain('keyboard');
+    expect(root.style.getPropertyValue('--visible')).toBe(window.innerHeight - 300 + 'px');
+    expect(root.style.getPropertyValue('--visible-top')).toBe('0px');
+    keyboardPx.set(0);
+    fixture.detectChanges();
+    expect(root.classList).not.toContain('keyboard');
+    expect(root.style.getPropertyValue('--visible')).toBe('100dvh');
   });
 
   it('keeps the side sheet closed and inert on the start route', () => {

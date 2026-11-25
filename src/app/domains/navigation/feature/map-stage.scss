@@ -541,3 +541,11 @@
     max-height: calc(100% - 44px);
   }
 }
+/* Little room above the keyboard; the attribution stays visible on the right. */
+@include phone.landscape {
+  :host-context(.keyboard) .bcard {
+    bottom: 8px;
+    max-width: min(500px, 58%);
+    max-height: calc(100% - 16px);
+  }
+}

@@ -1,10 +1,12 @@
 import { Injectable, Provider } from '@angular/core';
 import { KeepAwake } from '@capacitor-community/keep-awake';
+import { DeviceKeyboard, OnScreenKeyboard } from './keyboard';
 import { DeviceSpeechInput, SpeechInput } from './listening';
 import { DeviceReminders, Reminders } from './reminders';
 import { DeviceSpeechOutput, SpeechOutput } from './speech';
 
 export { ListeningUnavailableError, SpeechInput } from './listening';
+export { OnScreenKeyboard } from './keyboard';
 export { Reminders } from './reminders';
 export type { Reminder } from './reminders';
 export { CloudVoice } from './cloud-voice';
@@ -34,6 +36,7 @@ export function provideDevice(): Provider[] {
     { provide: SpeechOutput, useClass: DeviceSpeechOutput },
     { provide: SpeechInput, useClass: DeviceSpeechInput },
     { provide: Reminders, useClass: DeviceReminders },
+    { provide: OnScreenKeyboard, useClass: DeviceKeyboard },
     { provide: WakeLock, useClass: CapacitorWakeLock },
   ];
 }
