@@ -1,5 +1,9 @@
 # CoDriveMate
 
+- Bundle ID (Identifier): app.codrivemate.ch (choose Explicit)
+- Description / name in the Apple portal: CoDriveMate
+- App name: CoDriveMate
+
 Smartes Cockpit für ältere Autos: Angular, Capacitor, eigene Oberfläche.
 
 ```bash

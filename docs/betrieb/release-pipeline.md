@@ -15,7 +15,6 @@ ist aus dem Repository entfernt. Die Pipeline ist noch nie gelaufen.
    aus Appflow enthält Geheimnisse im Klartext und wird danach gelöscht.
 3. **Environment** anlegen und beim Build auswählen:
    - Secret `NPM_TOKEN`: Token der privaten Registry
-   - Variable `NPM_CONFIG_USERCONFIG` = `/tmp/capawesome/repo/.npmrc.example`
    - Variablen `NODE_VERSION` = `24`, `JAVA_VERSION` = `21`
 4. **Apple:** App-ID `app.codrivemate.ch`, App in App Store Connect,
    Distributionszertifikat (`.p12`) und Provisioning Profile unter «Signing
@@ -27,10 +26,11 @@ ist aus dem Repository entfernt. Die Pipeline ist noch nie gelaufen.
 ## Build
 
 Stack `macos-golden-gate` (Standard, Xcode 27.2) oder `macos-tahoe` (Xcode 26.5);
-Capacitor 8 und Apple verlangen Xcode ab 26. Die Schritte brauchen keine
+Capacitor 8 und Apple verlangen Xcode ab 26. Die Schritte stehen in
 `capawesome.config.json`:
 
-1. `npm ci`; die Registry kommt über `NPM_CONFIG_USERCONFIG`
+1. `npm ci --userconfig=.npmrc.example --legacy-peer-deps`: Registry aus der Vorlage.
+   `@app-galaxy/translate-ui` verlangt offiziell Angular 20, daher `legacy-peer-deps`
 2. `npm run capawesome:build` (Capawesome nimmt dieses Skript vor `build`): Web-Build
    plus Version und Build-Nummer
 3. Capawesome: `cap sync`, Bauen, Signieren

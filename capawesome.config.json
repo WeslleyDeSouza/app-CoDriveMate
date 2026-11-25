@@ -1,0 +1,11 @@
+{
+  "cloud": {
+    "apps": [
+      {
+        "appId": "cf34f151-8750-46c8-afe2-eba8d2b07e91",
+        "dependencyInstallCommand": "npm ci --userconfig=.npmrc.example --legacy-peer-deps",
+        "webBuildCommand": "npm run capawesome:build"
+      }
+    ]
+  }
+}
