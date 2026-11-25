@@ -43,8 +43,9 @@ dort sollte das Token ersetzt und entfernt werden.)
 
 Das iOS-Projekt nutzt CocoaPods, weil das bisher so angelegt ist; CocoaPods ist auf den Stacks
 installiert. Zu Swift Package Manager wurde in der Capawesome-Doku nichts gefunden. Die eigenen Plugins haben beides (Podspec und
-`Package.swift`). Laut Mapbox endet dessen CocoaPods-Unterstützung im Dezember 2026:
-Version 11.35 bleibt vorerst nutzbar, danach ist der Wechsel auf SPM nötig
+`Package.swift`). Mapbox veröffentlicht neue Versionen nicht mehr
+über CocoaPods; die letzte dort ist 11.34.1 (29.10.2026, im Podspec fest eingetragen).
+Für neuere Versionen ist der Wechsel auf SPM nötig
 (`npx cap add ios --packagemanager SPM`, `Info.plist` sichern).
 
 ## Version und Build-Nummer

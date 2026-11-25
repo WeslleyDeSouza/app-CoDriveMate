@@ -4,7 +4,7 @@ Stand: 24.11.2026.
 
 | Umgebung | Mit Mapbox-Token | Ohne Token oder bei Ausfall |
 |---|---|---|
-| iOS, Android | Mapbox Maps SDK 11.35 (`plugins/mapbox-native`) | MapLibre mit OpenFreeMap |
+| iOS, Android | Mapbox Maps SDK (`plugins/mapbox-native`; iOS 11.34.1 über CocoaPods, Android 11.35.2) | MapLibre mit OpenFreeMap |
 | Browser | Mapbox GL JS 3 | MapLibre mit OpenFreeMap |
 | Route, Suche | Mapbox Directions (Live-Verkehr), Geocoding | OSRM, Nominatim |
 

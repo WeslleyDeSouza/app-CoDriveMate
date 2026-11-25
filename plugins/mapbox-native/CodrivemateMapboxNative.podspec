@@ -15,5 +15,6 @@ Pod::Spec.new do |s|
   s.swift_version = '5.9'
   s.static_framework = true
   s.dependency 'Capacitor'
-  s.dependency 'MapboxMaps', '~> 11.35'
+  # Last version Mapbox published to CocoaPods; newer ones are SPM only.
+  s.dependency 'MapboxMaps', '11.34.1'
 end
