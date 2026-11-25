@@ -1,5 +1,6 @@
+import { OfflineArea } from '../domain/offline-areas';
 import { Injectable, inject } from '@angular/core';
-import { KeyValueStore, LegacyMigration } from '@core/storage';
+import { CacheStore, KeyValueStore, LegacyMigration } from '@core/storage';
 import { NO_PLACES, SavedPlaces } from '../domain/saved-places';
 import { DEFAULT_MAP_PREFERENCES, MapPreferences, NavigationRepository } from '../domain/ports';
 
@@ -11,9 +12,12 @@ interface OldPreferences {
   bearingLock?: number | null;
 }
 
+const AREA_BUCKET = 'offline-areas';
+
 @Injectable()
 export class IdbNavigationRepository extends NavigationRepository {
   private readonly kv = inject(KeyValueStore);
+  private readonly cache = inject(CacheStore);
 
   async loadPreferences(): Promise<MapPreferences> {
     const stored = await this.kv.get<Partial<MapPreferences> & OldPreferences>(PREFERENCES_KEY);
@@ -25,6 +29,14 @@ export class IdbNavigationRepository extends NavigationRepository {
 
   savePreferences(preferences: MapPreferences): Promise<void> {
     return this.kv.set(PREFERENCES_KEY, preferences);
+  }
+
+  async loadOfflineAreas(): Promise<readonly OfflineArea[]> {
+    return (await this.cache.get<OfflineArea[]>(AREA_BUCKET, 'all')) ?? [];
+  }
+
+  saveOfflineAreas(areas: readonly OfflineArea[]): Promise<void> {
+    return this.cache.put(AREA_BUCKET, 'all', areas);
   }
 
   async loadExhausted(): Promise<Record<string, string>> {

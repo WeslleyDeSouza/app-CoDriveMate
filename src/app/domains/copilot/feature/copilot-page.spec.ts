@@ -190,6 +190,21 @@ describe('copilot', () => {
       expect(ai.input.listened).toBe(0);
     });
 
+    it('takes along what it remembers and whether the driver joined in', async () => {
+      await start('chat');
+      ai.memory.stored = {
+        facts: [{ id: 1, text: 'Mag Jazz', words: [], at: 1, usedAt: 0 }],
+        topics: {},
+      };
+      ai.model.answers = ['Hallo!', 'Schön.', '{"facts":[]}'];
+      ai.input.heard = ['Ja!', 'Stopp'];
+      await wait();
+      expect(ai.model.requests[0].messages[0].content).toContain('Mag Jazz');
+      expect(ai.model.requests[0].system).not.toContain('Mag Jazz');
+      expect(Object.values(ai.memory.stored.topics)).toEqual([{ answered: 1, ignored: 0 }]);
+      expect(ai.model.requests.at(-1)?.messages[0].content).toContain('Driver: Ja!');
+    });
+
     it('tries again soon after it was interrupted', async () => {
       await start('chat');
       nav.speech.completes = false;

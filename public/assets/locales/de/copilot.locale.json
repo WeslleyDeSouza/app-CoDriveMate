@@ -21,6 +21,15 @@
       "offline": "Keine Verbindung zum Copiloten.",
       "other": "Der Copilot konnte nicht antworten."
     },
+    "memory": {
+      "title": "Was ich über dich weiss",
+      "note": "Im Dialog merkt sich die Unterhaltung höchstens ein paar Vorlieben. Alles bleibt auf diesem Gerät und in deiner Datensicherung; pro Gespräch gehen höchstens fünf passende Notizen an den KI-Anbieter, beim Lernen die Antworten des Gesprächs und die Liste.",
+      "on": "Lernen ist ein",
+      "off": "Lernen ist aus",
+      "empty": "Noch nichts gemerkt.",
+      "forget": "Vergessen",
+      "clear": "Alles vergessen"
+    },
     "talk": {
       "title": "Unterhaltung",
       "stop": "Unterhaltung beenden",

@@ -40,6 +40,11 @@ die Einstellung «Google» wirkt wie «Automatisch».
 Das SDK erlaubt höchstens 750 Tile Packs; eine neue Route ersetzt die letzte.
 LineString als Gebiet nennt die Doku, zeigt aber kein Beispiel dazu.
 
+Liegt eine Route ganz in vollständig gespeicherten Gebieten (auch der Rückweg), erscheint der
+Knopf nicht. Verglichen werden Kacheln z14 (`domain/offline-areas.ts`) und der Kachelspeicher;
+eine andere Karte oder andere 3D-Optionen zählen nicht, nach 90 Tagen erscheint er wieder.
+Auf der Mapbox-Karte zählt nur die letzte Route.
+
 ### OSM-Karte ohne Netz
 
 `core/map` (`OpenFreeMap`) ist der einzige Weg zu OpenFreeMap: für die Karte

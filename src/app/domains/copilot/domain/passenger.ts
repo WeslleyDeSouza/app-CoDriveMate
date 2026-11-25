@@ -20,11 +20,17 @@ export const TOPICS = {
 } as const;
 export type Topic = keyof typeof TOPICS;
 
-export function pickTopic(recent: readonly Topic[], random: () => number): Topic {
+/** By chance; topics of more weight come up more often. */
+export function pickTopic(
+  recent: readonly Topic[],
+  random: () => number,
+  weight: (topic: Topic) => number = () => 1,
+): Topic {
   const all = Object.keys(TOPICS) as Topic[];
   const open = all.filter((topic) => !recent.includes(topic));
   const choice = open.length ? open : all;
-  return choice[Math.min(choice.length - 1, Math.floor(random() * choice.length))];
+  let left = random() * choice.reduce((sum, topic) => sum + weight(topic), 0);
+  return choice.find((topic) => (left -= weight(topic)) < 0) ?? choice[choice.length - 1];
 }
 
 /** How a chat is opened. */

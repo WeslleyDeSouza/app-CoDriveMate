@@ -9,12 +9,13 @@ export interface TileId {
 /** Closer than half a tile at the closest zoom, so that none is skipped. */
 const STEP_M = 600;
 
-/** Tiles along a line including their neighbours, whole world first. */
+/** Tiles along a line including their neighbours up to `reach`, whole world first. */
 export function tilesAlong(
   points: readonly Coordinate[],
   minZoom: number,
   maxZoom: number,
   limit: number,
+  reach = 1,
 ): TileId[] {
   const places = sample(points);
   const tiles = new Map<string, TileId>();
@@ -24,9 +25,9 @@ export function tilesAlong(
       const rad = (lat * Math.PI) / 180;
       const tx = Math.floor(((lon + 180) / 360) * size);
       const ty = Math.floor(((1 - Math.asinh(Math.tan(rad)) / Math.PI) / 2) * size);
-      for (let y = ty - 1; y <= ty + 1; y++) {
+      for (let y = ty - reach; y <= ty + reach; y++) {
         if (y < 0 || y >= size) continue;
-        for (let dx = -1; dx <= 1; dx++) {
+        for (let dx = -reach; dx <= reach; dx++) {
           if (tiles.size >= limit) return [...tiles.values()];
           const x = (tx + dx + size) % size;
           tiles.set(`${z}/${x}/${y}`, { z, x, y });

@@ -21,6 +21,15 @@
       "offline": "No connection to the copilot.",
       "other": "The copilot could not answer."
     },
+    "memory": {
+      "title": "What I know about you",
+      "note": "In dialogue, the conversation remembers a few preferences at most. Everything stays on this device and in your backup; each talk sends at most five fitting notes to the AI provider, and learning sends the answers of the talk and the list.",
+      "on": "Learning is on",
+      "off": "Learning is off",
+      "empty": "Nothing remembered yet.",
+      "forget": "Forget",
+      "clear": "Forget everything"
+    },
     "talk": {
       "title": "Conversation",
       "stop": "End conversation",

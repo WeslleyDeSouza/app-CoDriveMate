@@ -1,3 +1,4 @@
+import { OfflineArea } from './domain/offline-areas';
 import { Provider } from '@angular/core';
 import { signal } from '@angular/core';
 import { SpeechInput, SpeechKind, SpeechOutput, WakeLock } from '@core/device';
@@ -145,6 +146,13 @@ export class FakeNavigationRepository extends NavigationRepository {
   }
   async savePreferences(preferences: MapPreferences): Promise<void> {
     this.preferences = preferences;
+  }
+  areas: readonly OfflineArea[] = [];
+  async loadOfflineAreas(): Promise<readonly OfflineArea[]> {
+    return this.areas;
+  }
+  async saveOfflineAreas(areas: readonly OfflineArea[]): Promise<void> {
+    this.areas = areas;
   }
   async loadExhausted(): Promise<Record<string, string>> {
     return this.exhausted;

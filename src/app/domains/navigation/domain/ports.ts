@@ -1,3 +1,4 @@
+import { OfflineArea } from './offline-areas';
 import { Coordinate } from './geo';
 import { Place, ProviderId, Route } from './route';
 import { MapKind } from './map-choice';
@@ -66,6 +67,9 @@ export abstract class NavigationRepository {
   abstract saveExhausted(entries: Record<string, string>): Promise<void>;
   abstract loadPlaces(): Promise<SavedPlaces>;
   abstract savePlaces(places: SavedPlaces): Promise<void>;
+  /** Newest first. Belongs to this device, so it is not part of a backup. */
+  abstract loadOfflineAreas(): Promise<readonly OfflineArea[]>;
+  abstract saveOfflineAreas(areas: readonly OfflineArea[]): Promise<void>;
 }
 
 export interface MapCamera {

@@ -48,6 +48,17 @@ Ungetestet im Auto.
 Mehrere Modi lassen sich zusammen einschalten; dann wechseln sie zufällig, nie zweimal
 hintereinander derselbe.
 
+## Gedächtnis
+
+`domain/memory.ts`, gespeichert unter `copilot/memory` (nur auf dem Gerät und in der
+Datensicherung). Nach vier Antworten oder beim Beenden sucht ein Aufruf höchstens drei
+dauerhafte Vorlieben; heikle Themen, andere Personen und Orte sind im Prompt ausgeschlossen.
+Höchstens 100 Notizen, die am längsten ungenutzten fallen weg. Pro Gespräch gehen höchstens
+fünf passende (80 Wörter) mit der ersten Nachricht mit, der Systemprompt bleibt gleich.
+Welche Themen beantwortet werden, zählt das Gerät selbst und gewichtet die Auswahl.
+Gelernt wird nur im Dialog. Wer die App ohne «Beenden» schliesst, verliert höchstens drei
+Antworten. Ansehen, löschen, abschalten: Copilot-Seite. Mit echtem Key ungetestet.
+
 ## Sprachvorrang
 
 `SpeechOutput` kennt `nav` > `answer` > `talk`. Höheres unterbricht Tieferes sofort,

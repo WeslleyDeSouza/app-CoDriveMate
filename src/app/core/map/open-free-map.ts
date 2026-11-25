@@ -50,6 +50,11 @@ export class OpenFreeMap {
     });
   }
 
+  /** Whether a tile of `DETAIL_ZOOM` is on the device. */
+  hasTile(x: number, y: number): Promise<boolean> {
+    return this.cache.has(DETAIL_BUCKET, `${DETAIL_ZOOM}/${x}/${y}`).catch(() => false);
+  }
+
   /** Style, icons, fonts and tiles by their address, null if not available. */
   async resource(url: string): Promise<ArrayBuffer | null> {
     const path = new URL(url).pathname;

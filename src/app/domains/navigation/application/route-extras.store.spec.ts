@@ -143,6 +143,18 @@ describe('RouteExtrasStore', () => {
     expect(extras.offline()).toEqual({ kind: 'done' });
   });
 
+  it('knows on the next drive that the way is saved', async () => {
+    await start(0, 15);
+    const saving = extras.saveOffline();
+    savers.forEach((saver) => saver.finish(true));
+    await saving;
+    navigation.stop();
+    await settle();
+    await navigation.navigateTo({ name: 'Ziel', detail: '', coordinate: B });
+    await settle();
+    expect(extras.offline()).toEqual({ kind: 'covered' });
+  });
+
   it('says when something is missing', async () => {
     await start(0, 15);
     const saving = extras.saveOffline();

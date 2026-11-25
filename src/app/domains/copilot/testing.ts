@@ -2,6 +2,7 @@ import { Provider } from '@angular/core';
 import { SpeechInput } from '@core/device';
 import { Landmark, LandmarkSource, TalkRepository } from './domain/conversation';
 import { ChatModel, ChatRequest } from './domain/copilot';
+import { DriverMemory, MemoryRepository, NO_MEMORY } from './domain/memory';
 
 export class FakeChatModel extends ChatModel {
   readonly requests: ChatRequest[] = [];
@@ -54,18 +55,31 @@ export class FakeTalkRepository extends TalkRepository {
   }
 }
 
+export class FakeMemoryRepository extends MemoryRepository {
+  stored: DriverMemory = NO_MEMORY;
+
+  async load(): Promise<DriverMemory> {
+    return this.stored;
+  }
+  async save(memory: DriverMemory): Promise<void> {
+    this.stored = memory;
+  }
+}
+
 export function copilotTesting() {
   const fakes = {
     model: new FakeChatModel(),
     input: new FakeSpeechInput(),
     landmarks: new FakeLandmarks(),
     talk: new FakeTalkRepository(),
+    memory: new FakeMemoryRepository(),
   };
   const providers: Provider[] = [
     { provide: ChatModel, useValue: fakes.model },
     { provide: SpeechInput, useValue: fakes.input },
     { provide: LandmarkSource, useValue: fakes.landmarks },
     { provide: TalkRepository, useValue: fakes.talk },
+    { provide: MemoryRepository, useValue: fakes.memory },
   ];
   return { ...fakes, providers };
 }

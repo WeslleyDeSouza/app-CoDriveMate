@@ -10,4 +10,9 @@ export interface OfflineSaveJob {
 export abstract class OfflineSaver {
   /** False if not everything could be saved. */
   abstract save(points: readonly Coordinate[], job: OfflineSaveJob): Promise<boolean>;
+
+  /** False if something saved earlier along the line is gone. */
+  covers(points: readonly Coordinate[]): Promise<boolean> {
+    return Promise.resolve(points.length > 0);
+  }
 }

@@ -255,7 +255,10 @@ a special case in the UI. Everything must be testable without a car:
   nearby traffic messages, destination/ETA, trip and tank figures. Conversation
   mode also sends street, nearby place names, time and remarks about the car
   (tank almost empty with range, engine cold, standing still) and figures of the
-  current drive (distance, duration, hard braking/acceleration). The usual destination
+  current drive (distance, duration, hard braking/acceleration), and up to five remembered
+  preferences of the driver (about 80 words). Learning them sends the answers of the talk and
+  the list of known ones (up to 100); it can be switched off, seen and deleted on the copilot
+  page (decided 2026-11-25). The usual destination
   is worked out on the device and never goes to the copilot. Wikipedia gets the
   position rounded to about 100 m for them. Never sent: coordinates
   as a track, the logbook, stored trips, API keys of other services. Keep this

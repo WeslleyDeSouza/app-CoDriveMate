@@ -50,6 +50,13 @@ export class OfmOfflineSaver extends OfflineSaver {
     return complete && !job.cancelled();
   }
 
+  override async covers(points: readonly Coordinate[]): Promise<boolean> {
+    for (const { x, y } of tilesAlong(points, DETAIL_ZOOM, DETAIL_ZOOM, MAX_TILES, 0)) {
+      if (!(await this.map.hasTile(x, y))) return false;
+    }
+    return true;
+  }
+
   /** What the styles need besides tiles; empty if they cannot be loaded. */
   private async assets(): Promise<string[]> {
     const urls = new Set([`${OPEN_FREE_MAP}/planet`]);

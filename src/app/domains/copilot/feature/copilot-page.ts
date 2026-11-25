@@ -14,6 +14,7 @@ import { TranslatePipe, TranslateService } from '@core/i18n';
 import { SheetPage } from '@shared/ui/sheet-page';
 import { ConversationStore } from '../application/conversation.store';
 import { TALK_PACES } from '../domain/conversation';
+import { MemoryPanel } from './memory-panel';
 import { ChatLine, CopilotStore } from '../application/copilot.store';
 import { TalkStyle } from '../domain/passenger';
 
@@ -23,7 +24,7 @@ const LISTEN_MS = 10_000;
 /** Questions to the copilot and the conversation modes. */
 @Component({
   selector: 'app-copilot-page',
-  imports: [RouterLink, SheetPage, TranslatePipe],
+  imports: [MemoryPanel, RouterLink, SheetPage, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-sheet-page section="copilot" [title]="'copilot.title' | translate">
@@ -97,6 +98,7 @@ const LISTEN_MS = 10_000;
               {{ 'copilot.talk.notice.' + notice | translate }}
             </p>
           }
+          <app-memory-panel />
         </div>
 
         <div class="chat" #chat aria-live="polite" data-section-test="copilot-chat">

@@ -5,7 +5,7 @@ import { provideRouter } from '@angular/router';
 import { provideI18nTesting } from '@core/i18n/testing';
 import { AppSettings, DEFAULT_SETTINGS, SettingsStore, Theme } from '@domains/settings';
 import { TelemetryStore, XSARA_PICASSO } from '@domains/telemetry';
-import { CloudVoice } from '@core/device';
+import { CloudVoice, OnScreenKeyboard } from '@core/device';
 import { copilotTesting } from '@domains/copilot/testing';
 import { parkingTesting } from '@domains/parking/testing';
 import { fuelTesting } from '@domains/fuel/testing';
@@ -36,6 +36,7 @@ describe('App', () => {
         ...mediaTesting().providers,
         ...scene3dTesting().providers,
         ...parkingTesting().providers,
+        { provide: OnScreenKeyboard, useValue: { heightPx: signal(null) } },
         { provide: CloudVoice, useValue: { configure: () => undefined } },
         ...fuelTesting().providers,
         ...roadTesting().providers,
