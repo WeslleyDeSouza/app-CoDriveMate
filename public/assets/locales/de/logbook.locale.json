@@ -60,6 +60,12 @@
       "empty": "Keine Fahrten in diesem Zeitraum.",
       "not_measured": "Dieser Wert wurde nicht aufgezeichnet. Motorwerte brauchen den OBD-Adapter.",
       "only_stats": "Die Messpunkte dieser Fahrt sind nicht mehr vorhanden (90 Tage), Durchschnitt und Grenzwerte bleiben."
+    },
+    "routine": {
+      "title": "Wie immer nach {{name}}?",
+      "minutes": "ca. {{minutes}} min",
+      "start": "Route starten",
+      "dismiss": "Heute nicht"
     }
   }
 }

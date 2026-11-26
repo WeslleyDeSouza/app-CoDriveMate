@@ -60,6 +60,12 @@
       "empty": "No drives in this period.",
       "not_measured": "This value was not recorded. Engine values need the OBD adapter.",
       "only_stats": "The points of this drive are gone (90 days); average and limits remain."
+    },
+    "routine": {
+      "title": "To {{name}} as usual?",
+      "minutes": "about {{minutes}} min",
+      "start": "Start route",
+      "dismiss": "Not today"
     }
   }
 }

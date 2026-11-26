@@ -27,7 +27,9 @@
       "copied": "Kopiert",
       "share": "Teilen",
       "not_connected": "Kein OBD-Adapter verbunden. Zuerst verbinden und Zündung einschalten.",
-      "failed": "Die Daten konnten nicht gelesen werden."
+      "failed": "Die Daten konnten nicht gelesen werden.",
+      "last": "Letzte Auslesungen",
+      "shown": "{{kind}} vom {{date}}"
     }
   }
 }

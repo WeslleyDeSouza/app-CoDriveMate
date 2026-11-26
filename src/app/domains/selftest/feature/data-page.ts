@@ -8,7 +8,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { TranslatePipe } from '@core/i18n';
+import { TranslatePipe, TranslateService } from '@core/i18n';
 import { SheetPage } from '@shared/ui/sheet-page';
 import { DATA_KINDS, DataStore } from '../application/data.store';
 
@@ -36,6 +36,24 @@ const COPIED_MS = 2500;
           </button>
         }
       </div>
+      @if (store.saved().length) {
+        <h3>{{ 'selftest.data.last' | translate }}</h3>
+        <div class="row">
+          @for (one of store.saved(); track one.kind) {
+            <button
+              class="btn"
+              type="button"
+              [class.pri]="store.shown()?.kind === one.kind && store.shown()?.at === one.at"
+              [attr.data-section-test]="'data-last-' + one.kind"
+              [disabled]="!!store.busy()"
+              (click)="store.show(one.kind)"
+            >
+              <i class="ti ti-history" aria-hidden="true"></i>
+              {{ 'selftest.data.' + one.kind | translate }} · {{ date(one.at) }}
+            </button>
+          }
+        </div>
+      }
       @if (store.busy()) {
         <div class="row" role="status">
           <span data-section-test="data-busy">
@@ -54,6 +72,15 @@ const COPIED_MS = 2500;
         </p>
       }
       @if (store.json()) {
+        @if (store.shown(); as shown) {
+          <p class="hint" data-section-test="data-shown">
+            {{
+              'selftest.data.shown'
+                | translate
+                  : { kind: ('selftest.data.' + shown.kind | translate), date: date(shown.at) }
+            }}
+          </p>
+        }
         <div class="row">
           <button class="btn pri" type="button" data-section-test="data-copy" (click)="copy()">
             <i class="ti" [class]="copied() ? 'ti-check' : 'ti-copy'" aria-hidden="true"></i>
@@ -77,6 +104,11 @@ const COPIED_MS = 2500;
     </app-sheet-page>
   `,
   styles: `
+    h3 {
+      font-size: 15px;
+      color: var(--s);
+      margin: 4px 0 8px;
+    }
     .hint {
       color: var(--s);
       font-size: 14px;
@@ -113,6 +145,7 @@ const COPIED_MS = 2500;
 })
 export class DataPage {
   protected readonly store = inject(DataStore);
+  private readonly translate = inject(TranslateService);
   private readonly text = viewChild<ElementRef<HTMLTextAreaElement>>('text');
   protected readonly kinds = DATA_KINDS;
   protected readonly copied = signal(false);
@@ -137,6 +170,16 @@ export class DataPage {
     }
     this.copied.set(true);
     setTimeout(() => this.copied.set(false), COPIED_MS);
+  }
+
+  protected date(at: number): string {
+    return new Date(at).toLocaleString(this.translate.lang === 'de' ? 'de-CH' : 'en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   }
 
   protected async share(): Promise<void> {

@@ -11,7 +11,18 @@ import { DEFAULT_SETTINGS, SettingsStore } from '@domains/settings';
 import { TelemetryStore } from '@domains/telemetry';
 import { telemetryTesting } from '@domains/telemetry/testing';
 import { findHook, hook } from '@shared/testing';
+import { DataKind, ReadingRepository, SavedReading, SavedReadings } from '../domain/readings';
 import { DataPage } from './data-page';
+
+class MemoryReadings extends ReadingRepository {
+  saved: SavedReadings = {};
+  async load(): Promise<SavedReadings> {
+    return { ...this.saved };
+  }
+  async save(kind: DataKind, reading: SavedReading): Promise<void> {
+    this.saved = { ...this.saved, [kind]: reading };
+  }
+}
 
 describe('DataPage', () => {
   let fixture: ComponentFixture<DataPage>;
@@ -19,11 +30,16 @@ describe('DataPage', () => {
   let car: ReturnType<typeof telemetryTesting>;
   let light: ReturnType<typeof lightingTesting>;
   const writeText = vi.fn();
+  let readings: MemoryReadings;
 
   beforeEach(() => {
     vi.useFakeTimers();
     writeText.mockReset().mockResolvedValue(undefined);
     vi.stubGlobal('navigator', { userAgent: 'test', onLine: true, clipboard: { writeText } });
+    readings = new MemoryReadings();
+    readings.saved = {
+      esp: { at: new Date(2026, 10, 25, 8, 15).getTime(), json: '{"kind":"esp","old":true}' },
+    };
     car = telemetryTesting();
     light = lightingTesting();
     const keys = { ...DEFAULT_SETTINGS.keys, mapbox: 'pk.secret' };
@@ -38,6 +54,7 @@ describe('DataPage', () => {
         ...scene3dTesting().providers,
         { provide: BleTransport, useValue: { characteristics: async () => [] } },
         { provide: SettingsStore, useValue: { settings: signal({ ...DEFAULT_SETTINGS, keys }) } },
+        { provide: ReadingRepository, useValue: readings },
       ],
     });
     fixture = TestBed.createComponent(DataPage);
@@ -80,6 +97,18 @@ describe('DataPage', () => {
     expect(json().light.device).toBe('Currus Licht');
     expect(json().light.bluetooth.frames[0].hex).toBe('04 00 00 7c');
     expect(json().media.device).toBeNull();
+  });
+
+  it('keeps the last reading per module, with its date, to copy later', async () => {
+    await vi.advanceTimersByTimeAsync(0);
+    fixture.detectChanges();
+    await press('data-last-esp');
+    expect(json()).toEqual({ kind: 'esp', old: true });
+    expect(hook(root, 'data-shown').textContent).toContain('selftest.data.shown');
+    await press('data-read-scene');
+    expect(readings.saved.scene?.json).toBe(hook<HTMLTextAreaElement>(root, 'data-json').value);
+    expect(readings.saved.esp?.json).toBe('{"kind":"esp","old":true}');
+    expect(findHook(root, 'data-last-scene')).not.toBeNull();
   });
 
   it('tells about the 3D view without place and key', async () => {

@@ -1,4 +1,4 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { BleTrace, BleTransport } from '@core/bluetooth';
 import { LightStore } from '@domains/lighting';
 import { RemoteStore } from '@domains/media';
@@ -6,9 +6,10 @@ import { NavigationStore, PositionStore } from '@domains/navigation';
 import { SceneStore } from '@domains/scene3d';
 import { SettingsStore } from '@domains/settings';
 import { TelemetryStore } from '@domains/telemetry';
+import { DATA_KINDS, DataKind, ReadingRepository, SavedReadings } from '../domain/readings';
 
-export type DataKind = 'obd' | 'esp' | 'scene';
-export const DATA_KINDS: readonly DataKind[] = ['obd', 'esp', 'scene'];
+export { DATA_KINDS } from '../domain/readings';
+export type { DataKind } from '../domain/readings';
 /** Time for the module to answer. */
 const ANSWER_MS = 1500;
 
@@ -24,6 +25,9 @@ export class DataStore {
   private readonly positions = inject(PositionStore);
   private readonly navigation = inject(NavigationStore);
   private readonly settings = inject(SettingsStore).settings;
+  private readonly repository = inject(ReadingRepository);
+  private readonly _saved = signal<SavedReadings>({});
+  private readonly _shown = signal<{ kind: DataKind; at: number } | null>(null);
 
   private readonly _json = signal('');
   private readonly _busy = signal<DataKind | null>(null);
@@ -35,6 +39,31 @@ export class DataStore {
   readonly busy = this._busy.asReadonly();
   readonly share = this._share.asReadonly();
   readonly failed = this._failed.asReadonly();
+  /** The last reading per module, kept on the device. */
+  readonly saved = computed(() =>
+    DATA_KINDS.flatMap((kind) => {
+      const reading = this._saved()[kind];
+      return reading ? [{ kind, at: reading.at }] : [];
+    }),
+  );
+  /** Which reading the JSON is. */
+  readonly shown = this._shown.asReadonly();
+
+  constructor() {
+    void this.repository
+      .load()
+      .then((saved) => this._saved.update((now) => ({ ...saved, ...now })))
+      .catch(() => undefined);
+  }
+
+  /** Shows a saved reading again. */
+  show(kind: DataKind): void {
+    const reading = this._saved()[kind];
+    if (!reading || this._busy()) return;
+    this._failed.set(null);
+    this._json.set(reading.json);
+    this._shown.set({ kind, at: reading.at });
+  }
 
   async read(kind: DataKind): Promise<void> {
     if (this._busy()) return;
@@ -43,10 +72,17 @@ export class DataStore {
     this._share.set(0);
     this._failed.set(null);
     this._json.set('');
+    this._shown.set(null);
     try {
       const data = await { obd: this.obd, esp: this.esp, scene: this.world }[kind].call(this, run);
-      const head = { app: 'CoDriveMate', kind, at: new Date().toISOString() };
-      this._json.set(JSON.stringify({ ...head, ...data }, null, 2));
+      const at = Date.now();
+      const head = { app: 'CoDriveMate', kind, at: new Date(at).toISOString() };
+      const json = JSON.stringify({ ...head, ...data }, null, 2);
+      this._json.set(json);
+      this._shown.set({ kind, at });
+      this._saved.update((saved) => ({ ...saved, [kind]: { at, json } }));
+      // Kept for later, e.g. to copy it at the computer.
+      void this.repository.save(kind, { at, json }).catch(() => undefined);
     } catch (error) {
       const unconnected = /not connected/i.test(String(error));
       this._failed.set(unconnected ? 'not_connected' : 'failed');

@@ -27,7 +27,9 @@
       "copied": "Copied",
       "share": "Share",
       "not_connected": "No OBD adapter connected. Connect it first and switch on the ignition.",
-      "failed": "The data could not be read."
+      "failed": "The data could not be read.",
+      "last": "Last readings",
+      "shown": "{{kind}} of {{date}}"
     }
   }
 }

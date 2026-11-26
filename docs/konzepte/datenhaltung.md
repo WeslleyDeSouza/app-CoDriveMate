@@ -2,7 +2,7 @@
 
 Stand: 24.11.2026.
 
-Eine IndexedDB `codrivemate`: `kv` (Einstellungen, Wartung), `trips` und `cache`
+Eine IndexedDB `codrivemate`: `kv` (Einstellungen, Wartung, letzte Auslesung je Modul), `trips` und `cache`
 (Eimer wie `tile`, `vector`, `vector-overview`, `map-assets`, `trees`, `swiss3d`, `fuel`, `road`, `tts` mit Ablauf und Aufräumen). Ausnahme: die
 Übersetzungs-Bibliothek merkt sich die Sprache in `localStorage` (`app.lang`).
 
