@@ -11,7 +11,9 @@ Erstes Fahrzeug ist ein Citroën Xsara Picasso von 2005. Die App ist aber für
 jedes Fahrzeug mit OBD2 gebaut: Alles Fahrzeugspezifische steckt in einem
 `VehicleProfile`.
 
-![Cockpit in der Demo-Fahrt: Tempo, Gang, Tempolimit, 3D-Ansicht und Karte](docs/screenshots/cockpit.png)
+**Demo im Browser:** <https://weslleydesouza.github.io/app-CoDriveMate/?demo>
+
+![Cockpit in der Demo-Fahrt: Tempo, Gang, Tempolimit, 3D-Ansicht auf der Mapbox-Karte](docs/screenshots/cockpit.png)
 
 ## Was die App kann
 
@@ -22,7 +24,7 @@ jedes Fahrzeug mit OBD2 gebaut: Alles Fahrzeugspezifische steckt in einem
 | Warnungen | Kühlmittel, Ladespannung, Reichweite, Motorkontrollleuchte: als Karte und als Ansage |
 | Diagnose | Fehlercodes lesen und im Stand löschen, nur lesender Zugriff auf das Fahrzeug |
 | Navigation | Suche, Route, Führung mit Ansagen, Live-Verkehr, Karte und Route auch ohne Netz |
-| 3D-Ansicht | three.js-Modell des Autos in Gelände, Gebäuden und Bäumen von swisstopo |
+| 3D-Ansicht | three.js-Modell des Autos auf der 3D-Karte von Mapbox oder in Gelände, Gebäuden und Bäumen von swisstopo |
 | KI-Copilot | Fragen zum Auto mit Live-Daten, Sprache, Unterhaltungsmodus für die Fahrt |
 | Fahrtenbuch | Fahrten automatisch aufzeichnen, Eco-Punkte, Auswertung nach Tag, Woche, Monat |
 | Innenlicht | Szenen, Zonen, Farben und Effekte über ein ESP32-Modul, gedimmt beim Fahren |
@@ -30,8 +32,10 @@ jedes Fahrzeug mit OBD2 gebaut: Alles Fahrzeugspezifische steckt in einem
 
 | | |
 |---|---|
-| ![Warnung bei zu hoher Kühlmitteltemperatur](docs/screenshots/warning.png) | ![Motorwerte live](docs/screenshots/engine.png) |
-| Fahrzeugwarnung (`?demo&fault=cool`) | Motorwerte live |
+| ![KI-Copilot beantwortet eine Frage zum Motor](docs/screenshots/copilot.png) | ![KI erklärt einen Fehlercode](docs/screenshots/diagnosis-ai.png) |
+| KI-Copilot mit Live-Daten | KI erklärt einen Fehlercode (`?demo&fault=mil`) |
+| ![Warnung bei zu hoher Kühlmitteltemperatur](docs/screenshots/warning.png) | ![Motorwerte live mit rundem Tacho](docs/screenshots/engine.png) |
+| Fahrzeugwarnung (`?demo&fault=cool`) | Motorwerte live, links der runde Tacho |
 | ![Verlauf der Messwerte](docs/screenshots/chart.png) | ![Innenbeleuchtung](docs/screenshots/lighting.png) |
 | Verlauf | Innenbeleuchtung |
 

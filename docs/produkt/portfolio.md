@@ -21,7 +21,7 @@ ein Citroën Xsara Picasso, gebaut ist die App für jedes Fahrzeug.
 | **OBD2 über Bluetooth** | ELM327-Protokoll, serielle Befehle, adaptives Polling, automatisch neu verbinden mit Backoff |
 | **Diagnose** | Fehlercodes lesen und im Stand löschen; die KI erklärt typische Ursachen für das Modell |
 | **Navigation** | Suche mit Sprache, Route mit Live-Verkehr, Ansagen, Wetter entlang der Route, Karten und Routen offline, Route ohne Netz auf dem Gerät gerechnet |
-| **3D-Ansicht** | three.js-Auto in der echten Umgebung: Gelände, Gebäude und Bäume von swisstopo, Himmel nach Tageszeit, Schatten |
+| **3D-Ansicht** | three.js-Auto in der echten Umgebung: auf der 3D-Karte von Mapbox oder in Gelände, Gebäuden und Bäumen von swisstopo, Himmel nach Tageszeit, Schatten |
 | **Fahrtenbuch** | zeichnet automatisch auf, Eco-Score, Monate und Summen, CSV-Export, geplante Fahrten |
 | **Wartung** | Service-Intervalle, MFK, Vignette, Kilometer zählen über OBD mit |
 | **Tank** | Füllstand, Reichweite, Kosten, Tankstellen in der Nähe und auf der Route |
@@ -31,6 +31,10 @@ ein Citroën Xsara Picasso, gebaut ist die App für jedes Fahrzeug.
 | **Unterhaltung** | Begleiter, Fahrtipps, Eco-Coach, Plaudern, Fakten zu Orten an der Strecke (Wikipedia), Quiz |
 
 ![Motorwerte](../screenshots/engine.png)
+
+![KI-Copilot](../screenshots/copilot.png)
+
+![KI erklärt einen Fehlercode](../screenshots/diagnosis-ai.png)
 
 ## Highlight: Geplante Fahrten mit Thema
 
@@ -93,7 +97,6 @@ Schwimmen!»
   Mapbox und Google werden nicht gespeichert.
 
 ![Innenlicht](../screenshots/lighting.png)
-
 
 **Stack:** Angular 22 · TypeScript · Capacitor 8 · three.js · MapLibre / Mapbox ·
 OpenStreetMap / swisstopo · Bluetooth LE / ELM327 · ESP32 · IndexedDB · Vitest ·
