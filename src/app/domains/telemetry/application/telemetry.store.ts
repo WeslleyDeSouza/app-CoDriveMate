@@ -1,4 +1,5 @@
 import { Injectable, InjectionToken, computed, inject, isDevMode, signal } from '@angular/core';
+import { environment } from '@core/environment';
 import { AdapterUnknownError, reconnectDelayS } from '../domain/adapter';
 import { consumptionPer100Km, fuelRateLph } from '../domain/fuel';
 import { estimateGear } from '../domain/gear';
@@ -15,10 +16,10 @@ import { VehicleProfile, XSARA_PICASSO } from '../domain/vehicle-profile';
 import { AdapterStore } from './adapter.store';
 
 export const OBD_TELEMETRY_SOURCE = new InjectionToken<TelemetrySource>('OBD_TELEMETRY_SOURCE');
-/** The demo drive is for development; a production build does not offer it. */
+/** The demo drive is for development and the demo page; the app build does not offer it. */
 export const DEMO_ENABLED = new InjectionToken<boolean>('DEMO_ENABLED', {
   providedIn: 'root',
-  factory: () => isDevMode(),
+  factory: () => isDevMode() || environment.demo,
 });
 export const DEMO_TELEMETRY_SOURCE = new InjectionToken<TelemetrySource>('DEMO_TELEMETRY_SOURCE');
 
