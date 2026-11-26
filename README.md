@@ -13,11 +13,6 @@ jedes Fahrzeug mit OBD2 gebaut: Alles Fahrzeugspezifische steckt in einem
 
 ![Cockpit in der Demo-Fahrt: Tempo, Gang, Tempolimit, 3D-Ansicht und Karte](docs/screenshots/cockpit.png)
 
-> **Stand:** Alle Bilder stammen aus der Demo-Fahrt im Browser. Die App ist noch
-> nicht im echten Auto und nicht am echten Adapter getestet. Was pro Bereich
-> gebaut und was ungetestet ist, steht in der
-> [Funktionsübersicht](docs/produkt/funktionsuebersicht.md).
-
 ## Was die App kann
 
 | Bereich | Inhalt |

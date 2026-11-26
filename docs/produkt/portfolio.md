@@ -94,11 +94,6 @@ Schwimmen!»
 
 ![Innenlicht](../screenshots/lighting.png)
 
-## Stand
-
-Die App ist gebaut, umfassend getestet und läuft im Demo-Modus. Am echten Auto, am
-OBD-Adapter und mit echten KI-Keys ist sie noch nicht erprobt. Das ist der nächste
-Schritt.
 
 **Stack:** Angular 22 · TypeScript · Capacitor 8 · three.js · MapLibre / Mapbox ·
 OpenStreetMap / swisstopo · Bluetooth LE / ELM327 · ESP32 · IndexedDB · Vitest ·
