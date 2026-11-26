@@ -112,8 +112,8 @@
 }
 
 @if (eta(); as e) {
-  <div class="bcard gl trip" data-section-test="map-eta">
-    @if (weatherOpen() && weather().length) {
+  <div class="bcard gl trip" data-section-test="map-eta" [class.folded]="etaFolded()">
+    @if (!etaFolded() && weatherOpen() && weather().length) {
       <ul class="wx-list" data-section-test="map-weather-list">
         @for (point of weather(); track $index) {
           <li>
@@ -132,6 +132,9 @@
           class="extra"
           type="button"
           data-section-test="map-weather"
+          [class.gone]="!weatherShown()"
+          [attr.aria-hidden]="!weatherShown() || null"
+          [attr.tabindex]="weatherShown() ? null : -1"
           [attr.aria-expanded]="weatherOpen()"
           (click)="weatherOpen.set(!weatherOpen())"
         >
@@ -148,6 +151,9 @@
           class="extra"
           type="button"
           data-section-test="map-offline"
+          [class.gone]="!offlineShown()"
+          [attr.aria-hidden]="!offlineShown() || null"
+          [attr.tabindex]="offlineShown() ? null : -1"
           [disabled]="extras.offline().kind === 'saving' || extras.offline().kind === 'done'"
           (click)="extras.saveOffline()"
         >
@@ -184,6 +190,20 @@
       </div>
       <button class="end" type="button" data-section-test="map-stop" (click)="navigation.end()">
         {{ 'navigation.stop' | translate }}
+      </button>
+      <button
+        class="fold"
+        type="button"
+        data-section-test="map-eta-fold"
+        [attr.aria-expanded]="!etaFolded()"
+        [attr.aria-label]="'navigation.button.' + (etaFolded() ? 'unfold' : 'fold') | translate"
+        (click)="toggleEta()"
+      >
+        <i
+          class="ti"
+          [class]="etaFolded() ? 'ti-chevron-up' : 'ti-chevron-down'"
+          aria-hidden="true"
+        ></i>
       </button>
     </div>
   </div>
