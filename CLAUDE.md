@@ -261,7 +261,12 @@ a special case in the UI. Everything must be testable without a car:
   copilot page, decided 2026-11-26), and up to five remembered
   preferences of the driver (about 80 words). Learning them sends the answers of the talk and
   the list of known ones (up to 100); it can be switched off, seen and deleted on the copilot
-  page (decided 2026-11-25). The usual destination
+  page (decided 2026-11-25). When the copilot may act (tools, switch in the
+  privacy settings, on by default, decided 2026-11-26), the results of its tools
+  go along too: place names and addresses from the search, names, addresses and
+  distances of filling stations, the range, names of light scenes; never
+  coordinates. A tool that starts something the driver did not plainly ask for
+  (a route) asks for a spoken or tapped yes first. The usual destination
   is worked out on the device and never goes to the copilot. Wikipedia gets the
   position rounded to about 100 m for them. Never sent: coordinates
   as a track, the logbook, single stored trips, API keys of other services. Keep this

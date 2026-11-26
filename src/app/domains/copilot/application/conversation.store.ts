@@ -91,6 +91,8 @@ const QUIP_PROMPT =
 /** The usual destination is offered at the start of a drive only. */
 const OFFER_MAX_KM = 2;
 const RECENT_TOPICS = 5;
+/** Drives started before this hour get a word of respect. */
+const EARLY_HOUR = 7;
 const MAX_TURNS = 6;
 const LANDMARKS_VALID_M = 3000;
 const MAX_SEEN = 500;
@@ -535,7 +537,8 @@ export class ConversationStore {
     this.ride.offered = true;
     const { name, at } = usual;
     const dialogue = this.style() === 'dialogue' && !this.deaf;
-    const key = dialogue ? 'copilot.talk.usual_offer' : 'copilot.talk.usual';
+    const early = new Date(trip.startedAt).getHours() < EARLY_HOUR ? '_early' : '';
+    const key = (dialogue ? 'copilot.talk.usual_offer' : 'copilot.talk.usual') + early;
     const spoken = await this.mention(this.t(key, { name }), session);
     this.pauseFor(RIDE_PAUSE_MS);
     if (!dialogue || !spoken || !this.free()) return true;

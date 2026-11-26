@@ -131,7 +131,9 @@
         "5": "Kurz durchatmen. Wir sind gut unterwegs.",
         "6": "Da hat wohl jemand nicht mit uns gerechnet.",
         "7": "Gut, dass du wach bist. Ich hab kurz die Luft angehalten."
-      }
+      },
+      "usual_early": "Wieder früh unterwegs nach {{name}}, stark. Gute Fahrt!",
+      "usual_offer_early": "Wieder früh unterwegs nach {{name}}, stark. Soll ich die Route starten?"
     },
     "confirm": {
       "yes": "Ja",

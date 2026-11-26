@@ -1,5 +1,7 @@
 import { Provider } from '@angular/core';
+import { ASSISTANT_TOOLS } from '@core/assistant';
 import { LEGACY_MIGRATIONS } from '@core/storage';
+import { destinationTool } from './application/navigation.tools';
 import { OFFLINE_SAVERS } from './application/route-extras.store';
 import { WeatherSource } from './domain/weather';
 import { MapboxOfflineSaver } from './infrastructure/mapbox-offline.saver';
@@ -33,5 +35,6 @@ export function provideNavigation(): Provider[] {
     { provide: OSM_SERVICE, useClass: OsmNavigationService },
     { provide: OFFLINE_SERVICE, useClass: OfflineRoutingService },
     { provide: LEGACY_MIGRATIONS, useValue: navigationLegacyMigration, multi: true },
+    { provide: ASSISTANT_TOOLS, useFactory: destinationTool, multi: true },
   ];
 }

@@ -131,7 +131,9 @@
         "5": "Take a breath. We are doing fine.",
         "6": "Someone did not expect us there, it seems.",
         "7": "Good thing you are awake. I held my breath for a second."
-      }
+      },
+      "usual_early": "Out early to {{name}} again, impressive. Have a good drive!",
+      "usual_offer_early": "Out early to {{name}} again, impressive. Shall I start the route?"
     },
     "confirm": {
       "yes": "Yes",

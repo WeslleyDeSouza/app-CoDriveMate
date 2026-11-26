@@ -106,6 +106,9 @@
       "free": "Karte frei. Tippen: hinter dem Pfeil folgen",
       "heading": "Folgt in Fahrtrichtung. Tippen: Norden oben",
       "north": "Folgt mit Norden oben. Tippen: Karte frei"
+    },
+    "tool": {
+      "confirm": "Route nach {{place}} starten?"
     }
   }
 }

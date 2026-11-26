@@ -16,7 +16,7 @@ import { ConversationBar } from '@domains/copilot';
 import { VehicleWarningCard, WarningStore } from '@domains/diagnostics';
 import { FuelAlert, FuelStore } from '@domains/fuel';
 import { MediaStore, MusicBar, YoutubeSlot } from '@domains/media';
-import { EcoTipHint, LogbookStore } from '@domains/logbook';
+import { EcoTipHint, LogbookStore, RoutineHint, RoutineStore } from '@domains/logbook';
 import { MaintenanceNotice, MaintenanceStore } from '@domains/maintenance';
 import { MapStage, NavigationStore, PositionStore } from '@domains/navigation';
 import { ParkingAlert, ParkingStore } from '@domains/parking';
@@ -48,6 +48,7 @@ const KEYBOARD_MIN_PX = 120;
     MapStage,
     MusicBar,
     ParkingAlert,
+    RoutineHint,
     SceneView,
     SpeedGauge,
     VehicleWarningCard,
@@ -87,6 +88,7 @@ const KEYBOARD_MIN_PX = 120;
       <app-maintenance-notice />
       <app-parking-alert />
       <app-conversation-bar />
+      <app-routine-hint />
       <app-eco-tip />
     </div>
 
@@ -129,6 +131,7 @@ export class Shell {
     void inject(MaintenanceStore).start();
     void this.fuel.start();
     this.logbook.start();
+    inject(RoutineStore).start();
     this.road.start();
     this.warnings.start();
     const wakeLock = inject(WakeLock);

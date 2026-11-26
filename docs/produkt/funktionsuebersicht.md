@@ -21,7 +21,7 @@ Stand: 24.11.2026. Nichts davon ist im echten Auto oder am echten Adapter getest
 | Fahrtenbuch | zeichnet automatisch auf (OBD, sonst GPS), Monate, Summen, Karte, CSV, Eco-Tipps; im Auto ungetestet |
 | Wartung | gebaut: Intervalle, eigene Einträge, MFK, Vignette, Hinweis beim Start, Punkt im Dock; Kilometerstand zählt bei OBD mit, im Auto ungetestet |
 | Gerätetest | gebaut: prüft Gerät, Sensoren, Plugins, Dienste und Keys; Bericht ohne Keys und Standort teilbar |
-| Daten auslesen | gebaut (Einstellungen): OBD, ESP32 (letzte 120 Bluetooth-Pakete je Modul) und 3D-Zustand als JSON zum Kopieren; nur lesend (`domain/obd-report.ts`), ohne Fahrgestellnummer; am Gerät ungetestet |
+| Daten auslesen | gebaut (Einstellungen): OBD, ESP32 (letzte 120 Bluetooth-Pakete je Modul) und 3D-Zustand als JSON zum Kopieren; die letzte Auslesung je Modul bleibt mit Datum gespeichert (kein Verlauf, `kv` `selftest/readings`, in der Datensicherung); nur lesend (`domain/obd-report.ts`), ohne Fahrgestellnummer; am Gerät ungetestet |
 | Hintergrund | gebaut: Standort läuft bei OBD oder aktiver Route weiter, abschaltbar; am Gerät ungetestet |
 | OSM-Karte ohne Netz | gebaut: geladene Gebiete und gespeicherte Routen; am Tablet ungetestet |
 | Gespeicherte Ziele ohne Netz | gebaut; am Tablet ungetestet |
@@ -31,6 +31,7 @@ Stand: 24.11.2026. Nichts davon ist im echten Auto oder am echten Adapter getest
 | 3D-Ansicht | gebaut: vier Umgebungen (Luftbild, Schlicht, Mapbox, Google), vier Kameras, Route; Gelände, Gebäude und Bäume von swisstopo, Himmel nach Tageszeit, Schatten, Fassaden, Strassendetails, alles einzeln schaltbar; Google und Tablet ungeprüft |
 | Suche | Vorschläge beim Tippen, Spracheingabe, Zuhause, Arbeit, letzte Ziele, parkiertes Auto |
 | Parkplatz | gebaut: merken (von Hand oder nach OBD-Fahrt), Karte, Rückweg, Notiz, Parkuhr mit Ansage und Mitteilung, QR-Code fürs Handy, Parkplätze am Ziel; Mitteilungen am Gerät ungetestet |
+| Gewohnheiten | gebaut: erkennt wiederkehrende Fahrten aus dem Fahrtenbuch (gleicher Start und Ziel, Startzeit ±45 Min., mind. 3 Fahrten der letzten 8 Wochen, ab 5 Fahrten nach Wochentag); zur üblichen Zeit am üblichen Ort Karte «Wie immer nach X?» mit Fahrzeit, ein Tipp startet; Begleiter mit Spruch für frühe Fahrten; alles auf dem Gerät; nicht in der Demo (braucht echte Fahrten), im Auto ungetestet |
 | KI-Copilot | gebaut: Fragen mit Fahrzeugdaten, Sprache; handelt mit Werkzeugen (Ziel setzen mit Bestätigung, Tankstellen, Lichtszene, Parkplatz), abschaltbar unter Datenschutz; mit echtem Key ungetestet |
 | Unterhaltung | Begleiter, Tipps, Eco (mit Vergleich zu früheren Fahrten, an die KI nur wenn erlaubt), Spruch nach harter Bremsung, Plaudern, Fakten, Quiz; Dialog oder Monolog; wenig, mittel oder viel; merkt sich Vorlieben (abschaltbar); im Auto ungetestet |
 | Handys (unter 744 Breite, oder quer bis 500 Höhe); ab iPad mini Tablet-Ansicht; Tastatur schiebt die App auf iOS nicht mehr hoch (`@capacitor/keyboard` 8, MIT) | Bereiche und «Wohin» als schwebende Knöpfe; auf dem Gerät ungetestet |
@@ -57,4 +58,4 @@ Stand: 24.11.2026. Nichts davon ist im echten Auto oder am echten Adapter getest
 Notiert am 26.11.2026, nicht gebaut und nicht geplant:
 
 - **Auto als Willkommen:** Beim Einsteigen erkennt das iPad das Auto per BLE (OBD-Adapter oder Lichtmodul), startet das Cockpit, das Licht fährt eine Begrüssungsszene und der Copilot sagt Wetter und Verkehr zum üblichen Ziel an. Offen: Start im Hintergrund auf iOS (BLE-Wiederherstellung) und ob die App dafür offen sein muss.
-- **Gewohnheiten erkennen:** Heute bietet der Begleiter das übliche Ziel beim Losfahren an (mindestens drei Fahrten vom gleichen Ort zur gleichen Zeit). Weiter: wiederkehrende Fahrten (z.B. werktags 5–6 Uhr ins Fitness) früh erkennen, die Route samt Verkehr und Wetter vorbereiten und passende Sprüche dazu; alles auf dem Gerät gerechnet.
+- **Gewohnheiten, weiter:** Sprüche und Vorbereitung je Gewohnheit lernen (z.B. Wetter am Ziel, Parkplatz), mehrere Ziele pro Zeitfenster unterscheiden.

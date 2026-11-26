@@ -45,6 +45,62 @@ describe('OpenAiChatModel', () => {
     });
   });
 
+  it('runs a tool and sends back only the call and its result', async () => {
+    TestBed.configureTestingModule({
+      providers: [
+        OpenAiChatModel,
+        { provide: HttpPort, useValue: { fetch } },
+        {
+          provide: SettingsStore,
+          useValue: {
+            settings: signal({
+              ...DEFAULT_SETTINGS,
+              keys: { ...DEFAULT_SETTINGS.keys, openai: 'sk-test' },
+            }),
+          },
+        },
+      ],
+    });
+    fetch.mockReset();
+    fetch
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            output: [
+              { type: 'reasoning', id: 'rs_1' },
+              { type: 'function_call', call_id: 'c1', name: 'find_fuel', arguments: '{}' },
+            ],
+          }),
+        ),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            output: [
+              { type: 'message', content: [{ type: 'output_text', text: 'Zwei gefunden.' }] },
+            ],
+          }),
+        ),
+      );
+    const runTool = vi.fn().mockResolvedValue('2 found.');
+    const text = await TestBed.inject(OpenAiChatModel).ask({
+      system: 'S',
+      messages: [{ role: 'user', content: 'Tankstelle?' }],
+      tools: [{ name: 'find_fuel', description: 'Finds fuel.', input: { properties: {} } }],
+      runTool,
+    });
+    expect(text).toBe('Zwei gefunden.');
+    expect(runTool).toHaveBeenCalledWith('find_fuel', {});
+    const first = JSON.parse(fetch.mock.calls[0][1].body);
+    expect(first.tools[0]).toMatchObject({ type: 'function', name: 'find_fuel' });
+    expect(first.tool_choice).toBe('auto');
+    const second = JSON.parse(fetch.mock.calls[1][1].body);
+    expect(second.input.slice(1)).toEqual([
+      { type: 'function_call', call_id: 'c1', name: 'find_fuel', arguments: '{}' },
+      { type: 'function_call_output', call_id: 'c1', output: '2 found.' },
+    ]);
+  });
+
   it.each([
     [401, 'key'],
     [429, 'quota'],

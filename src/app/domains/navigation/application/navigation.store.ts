@@ -194,6 +194,19 @@ export class NavigationStore {
     return this.calculate(place, 'start');
   }
 
+  /** Expected duration to a place, without starting guidance; null if there is no route. */
+  async estimate(place: Place): Promise<{ durationS: number; delayS: number } | null> {
+    const from = this.positions.position()?.coordinate;
+    if (!from) return null;
+    try {
+      await this.restored;
+      const { result } = await this.chain.run(from, place.coordinate);
+      return { durationS: result.durationS, delayS: result.delayS };
+    } catch {
+      return null;
+    }
+  }
+
   stop(): void {
     this.requestId++;
     this._route.set(null);

@@ -16,6 +16,29 @@ diese Bereiche nicht portiert sind.
 
 Beide Prompts verbieten Hinweise auf Kontrollen und Blitzer.
 
+## Werkzeuge (Copilot handelt)
+
+Jede Domain bringt ihre Werkzeuge selbst mit (`ASSISTANT_TOOLS` in `core/assistant`,
+Multi-Provider in `<domain>.providers.ts`); der Copilot kennt die Domains nicht.
+
+| Werkzeug | Domain | Was es tut | Bestätigung |
+|---|---|---|---|
+| `set_destination` | navigation | Ort suchen, Route starten | ja: «Route nach X starten?», per Stimme oder Antippen (12 s, sonst nein) |
+| `find_fuel` | fuel | Tankstellen entlang der Route oder in der Nähe, auf der Karte | nein |
+| `set_light_scene` | lighting | Lichtszene; beim Fahren bleibt die Dimmung | nein |
+| `remember_parking` | parking | Parkplatz hier merken | nein |
+
+Die Schleife (Werkzeug, Ergebnis, Antwort) läuft im Adapter, höchstens 4 Runden; in der
+letzten muss das Modell in Worten antworten. OpenAI bekommt ohne Speicherung nur die
+Aufrufe und Ergebnisse zurück, nicht das Denken. Die Werkzeuge gibt es bei Fragen im
+Copilot und beim Plaudern im Unterhaltungsmodus.
+
+Datenschutz: Schalter «Copilot darf handeln» unter Einstellungen > Datenschutz (Vorgabe
+ein). Ergebnisse gehen an den KI-Anbieter: Ortsnamen und Adressen aus der Suche, Namen,
+Adressen und Distanzen von Tankstellen, Reichweite, Namen der Lichtszenen. Nie
+Koordinaten oder Strecken. Blitzer und Kontrollen sind im Hinweis an das Modell
+ausgeschlossen. Mit echtem Key und im Auto ungetestet.
+
 ## Unterhaltung
 
 | Modus | Quelle | Key nötig |

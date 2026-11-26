@@ -106,6 +106,9 @@
       "free": "Map is free. Tap: follow behind the arrow",
       "heading": "Follows in driving direction. Tap: north up",
       "north": "Follows with north up. Tap: free map"
+    },
+    "tool": {
+      "confirm": "Start the route to {{place}}?"
     }
   }
 }
