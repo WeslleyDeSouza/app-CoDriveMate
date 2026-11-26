@@ -110,7 +110,9 @@
       "north": "Folgt mit Norden oben. Tippen: Karte frei"
     },
     "tool": {
-      "confirm": "Route nach {{place}} starten?"
+      "confirm": "Route nach {{place}} starten?",
+      "plan_confirm": "{{place}} für {{when}} speichern?",
+      "plan_confirm_any": "{{place}} für später speichern?"
     },
     "plan": {
       "title": "Für später speichern",

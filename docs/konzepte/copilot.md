@@ -24,6 +24,7 @@ Multi-Provider in `<domain>.providers.ts`); der Copilot kennt die Domains nicht.
 | Werkzeug | Domain | Was es tut | Bestätigung |
 |---|---|---|---|
 | `set_destination` | navigation | Ort suchen, Route starten | ja: «Route nach X starten?», per Stimme oder Antippen (12 s, sonst nein) |
+| `plan_trip` | navigation | Ort suchen, mit Thema, Notiz, Tag und Favorit für später speichern; keine Route | ja: «X für Samstag speichern?» |
 | `find_fuel` | fuel | Tankstellen entlang der Route oder in der Nähe, auf der Karte | nein |
 | `set_light_scene` | lighting | Lichtszene; beim Fahren bleibt die Dimmung | nein |
 | `remember_parking` | parking | Parkplatz hier merken | nein |
@@ -38,6 +39,13 @@ ein). Ergebnisse gehen an den KI-Anbieter: Ortsnamen und Adressen aus der Suche,
 Adressen und Distanzen von Tankstellen, Reichweite, Namen der Lichtszenen. Nie
 Koordinaten oder Strecken. Blitzer und Kontrollen sind im Hinweis an das Modell
 ausgeschlossen. Mit echtem Key und im Auto ungetestet.
+
+**Für später speichern** (`plan_trip`, Bereich navigation): «Merk dir das Hallenbad Oerlikon
+für Samstag, Schwimmen». Sucht den Ort, fragt «Hallenbad Oerlikon für Samstag, 28. November
+speichern?» und speichert nach einem Ja Thema, Notiz, Tag (Wochentag = der nächste, heute
+eingeschlossen, oder Tage ab heute; ohne Angabe jederzeit) und Favorit als geplante Fahrt.
+Startet keine Route. Ans Modell zurück gehen Name, Adresse, Tag und Thema, keine Koordinaten.
+Mit echtem Key ungetestet.
 
 ## Unterhaltung
 

@@ -193,7 +193,7 @@
     "group_privacy": "Datenschutz",
     "privacy_summary": "Was an die KI geht",
     "ai_tools": "Copilot darf handeln",
-    "ai_tools_note": "Ziel setzen, Tankstellen suchen, Lichtszene, Parkplatz merken. Die Ergebnisse gehen an den KI-Anbieter: Ortsnamen aus der Suche, Namen, Adressen und Distanzen von Tankstellen, Namen der Lichtszenen. Nie Koordinaten oder Strecken.",
+    "ai_tools_note": "Ziel setzen, Ziel für später speichern, Tankstellen suchen, Lichtszene, Parkplatz merken. Die Ergebnisse gehen an den KI-Anbieter: Ortsnamen aus der Suche, Namen, Adressen und Distanzen von Tankstellen, Namen der Lichtszenen. Nie Koordinaten oder Strecken.",
     "share_trips": "Frühere Fahrten an die KI",
     "share_trips_note": "Durchschnitte der letzten Fahrten (Eco-Score, Verbrauch, harte Bremsungen pro 10 km) für Tipps und Eco. Ausgeschaltet vergleicht nur dieses Gerät."
   }

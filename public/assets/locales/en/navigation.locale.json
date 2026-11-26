@@ -110,7 +110,9 @@
       "north": "Follows with north up. Tap: free map"
     },
     "tool": {
-      "confirm": "Start the route to {{place}}?"
+      "confirm": "Start the route to {{place}}?",
+      "plan_confirm": "Save {{place}} for {{when}}?",
+      "plan_confirm_any": "Save {{place}} for later?"
     },
     "plan": {
       "title": "Save for later",

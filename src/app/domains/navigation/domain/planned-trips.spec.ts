@@ -8,6 +8,7 @@ import {
   hasPurpose,
   purposeText,
   sortedTrips,
+  spokenDay,
   validTrips,
   whenOf,
   withTrip,
@@ -92,5 +93,28 @@ describe('planned trips', () => {
     expect(validTrips([trip('a', TODAY), { id: 'x' }, trip('b', '26.11.2026')])).toEqual([
       trip('a', TODAY),
     ]);
+  });
+});
+
+describe('spoken day', () => {
+  // Thursday, 26 November 2026
+  const NOW = new Date(2026, 10, 26, 9).getTime();
+
+  it('takes the next weekday, today if it is that day', () => {
+    expect(spokenDay(NOW, 'saturday')).toBe('2026-11-28');
+    expect(spokenDay(NOW, 'Thursday')).toBe('2026-11-26');
+    expect(spokenDay(NOW, 'monday')).toBe('2026-11-30');
+  });
+
+  it('counts days from today, across months', () => {
+    expect(spokenDay(NOW, undefined, 0)).toBe('2026-11-26');
+    expect(spokenDay(NOW, undefined, 7)).toBe('2026-12-03');
+  });
+
+  it('is any day without a usable day', () => {
+    expect(spokenDay(NOW)).toBeNull();
+    expect(spokenDay(NOW, 'someday')).toBeNull();
+    expect(spokenDay(NOW, undefined, -1)).toBeNull();
+    expect(spokenDay(NOW, undefined, 1.5)).toBeNull();
   });
 });

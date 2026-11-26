@@ -110,3 +110,30 @@ export function validTrips(stored: unknown): PlannedTrip[] {
       (trip.day === null || (typeof trip.day === 'string' && isDay(trip.day))),
   );
 }
+
+export const WEEKDAYS = [
+  'sunday',
+  'monday',
+  'tuesday',
+  'wednesday',
+  'thursday',
+  'friday',
+  'saturday',
+] as const;
+export type Weekday = (typeof WEEKDAYS)[number];
+const MAX_DAYS_AHEAD = 366;
+
+/**
+ * The day a spoken plan means: a weekday is the next one (today if it is that day),
+ * or a number of days from today. null: any day.
+ */
+export function spokenDay(now: number, weekday?: string, daysFromToday?: number): string | null {
+  const date = new Date(now);
+  const index = WEEKDAYS.indexOf(String(weekday ?? '').toLowerCase() as Weekday);
+  let ahead: number | null = null;
+  if (index >= 0) ahead = (index - date.getDay() + 7) % 7;
+  else if (Number.isInteger(daysFromToday) && daysFromToday! >= 0) ahead = daysFromToday!;
+  if (ahead === null || ahead > MAX_DAYS_AHEAD) return null;
+  date.setDate(date.getDate() + ahead);
+  return dayOf(date.getTime());
+}

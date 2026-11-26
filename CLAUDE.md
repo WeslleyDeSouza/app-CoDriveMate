@@ -265,7 +265,8 @@ a special case in the UI. Everything must be testable without a car:
   page (decided 2026-11-25). When the copilot may act (tools, switch in the
   privacy settings, on by default, decided 2026-11-26), the results of its tools
   go along too: place names and addresses from the search, names, addresses and
-  distances of filling stations, the range, names of light scenes; never
+  distances of filling stations, the range, names of light scenes, the saved day and topic of a
+  destination saved for later by voice; never
   coordinates. A tool that starts something the driver did not plainly ask for
   (a route) asks for a spoken or tapped yes first. The usual destination
   is worked out on the device and never goes to the copilot. Wikipedia gets the
