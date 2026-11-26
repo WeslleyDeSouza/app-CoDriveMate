@@ -24,7 +24,8 @@ import { SavedPlace } from '../domain/saved-places';
       <p class="where">
         <i class="ti ti-map-pin" aria-hidden="true"></i>
         <span
-          ><b>{{ place().name }}</b><small>{{ place().detail }}</small></span
+          ><b>{{ place().name }}</b
+          ><small>{{ place().detail }}</small></span
         >
       </p>
       <label class="f">

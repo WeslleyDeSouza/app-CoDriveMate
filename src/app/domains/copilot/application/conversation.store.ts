@@ -930,7 +930,9 @@ export class ConversationStore {
         ? ''
         : `, arrival ${new Date(Date.now() + remainingS * 1000).toTimeString().slice(0, 5)}`;
     const why = hasPurpose(purpose) ? ` (${purposeText(purpose)})` : '';
-    return `destination: "${destination.name}"${why}${arrival}`;
+    const delayMin = Math.round((this.navigation.route()?.delayS ?? 0) / 60);
+    const traffic = delayMin > 0 ? `, ${delayMin} min of it due to traffic` : '';
+    return `destination: "${destination.name}"${why}${arrival}${traffic}`;
   }
 
   private t(key: string, params?: Record<string, unknown>): string {

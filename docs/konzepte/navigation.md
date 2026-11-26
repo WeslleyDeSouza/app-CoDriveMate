@@ -74,6 +74,24 @@ OSM-Koordinate gilt nur, wenn die Suche nichts liefert oder 5 s nicht antwortet.
 Beim Tippen erscheinen passende gespeicherte Ziele zuerst. Früher gespeicherte
 Mapbox- und Google-Ziele erhalten die Koordinate bei der nächsten Fahrt dorthin.
 
+### Ortssuche
+
+Mit Mapbox-Key sucht die App über die Search Box API (`/search/searchbox/v1/forward`):
+Die Geocoding-API v6 kennt keine Geschäfte, Bäder oder Fitnesscenter mehr. Search Box
+rechnet pro Anfrage ab (laut Mapbox 25'000 im Monat frei; die Doku ist dazu nicht ganz
+eindeutig), beim Tippen einmal pro Pause von 450 ms. Die Resultate dürfen nicht
+gespeichert werden; gespeicherte Ziele behalten nur Name und Adresse. Findet Mapbox
+nichts, fragt die App OpenStreetMap.
+
+Die freien OSM-Suchen (Nominatim beim Absenden, Photon beim Tippen) verlangen jedes Wort
+im Namen. Findet die ganze Eingabe nichts, wird mit hinten gekürzten Wörtern nachgesucht
+(höchstens zwei weitere Versuche, über Photon, damit Nominatim nur eine Anfrage pro Suche
+bekommt): «Lionsoul Zürich 24H Fitness» findet so «Lionsoul Zürich». Photon rät bei
+Unbekanntem wild; seine Vorschläge bleiben nur, wenn ein Wort der Eingabe im Namen oder
+in der Strasse vorkommt (`domain/search-text.ts`). Was OSM unter einem anderen Namen
+kennt, findet die freie Suche nicht: Das Hürlimannbad heisst dort «Thermalbad & Spa
+Zürich». Abhilfe wäre ein `alt_name` in OpenStreetMap.
+
 ### Geplante und gespeicherte Fahrten
 
 Ein Ziel lässt sich für später speichern (`domain/planned-trips.ts`,

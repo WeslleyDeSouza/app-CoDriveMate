@@ -36,14 +36,14 @@ import { TripForm } from './trip-form';
           >
             <i
               class="ti"
-              [class]="trip.favourite ? 'ti-star-filled' : trip.day ? 'ti-calendar-event' : 'ti-bookmark'"
+              [class]="
+                trip.favourite ? 'ti-star-filled' : trip.day ? 'ti-calendar-event' : 'ti-bookmark'
+              "
               aria-hidden="true"
             ></i>
             <span>
               <b>{{ trip.topic || trip.place.name }}</b>
-              <small>
-                {{ dayText(trip) }}{{ trip.topic ? ' · ' + trip.place.name : '' }}
-              </small>
+              <small> {{ dayText(trip) }}{{ trip.topic ? ' · ' + trip.place.name : '' }} </small>
               @if (trip.note) {
                 <small class="note">{{ trip.note }}</small>
               }

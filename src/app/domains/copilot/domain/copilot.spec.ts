@@ -35,6 +35,7 @@ const snapshot: CarSnapshot = {
     nextManeuverM: 420.4,
     arrival: '18:10',
     remainingKm: 98.76,
+    trafficDelayMin: 6,
     topic: '',
     note: '',
   },
@@ -52,6 +53,7 @@ describe('what the copilot is told', () => {
         next_maneuver_m: 420,
         arrival: '18:10',
         remaining_km: 98.8,
+        delay_by_traffic_min: 6,
       },
       fault_codes: 'not read',
     });

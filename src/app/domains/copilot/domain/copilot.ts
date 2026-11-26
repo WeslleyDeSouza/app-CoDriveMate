@@ -69,6 +69,8 @@ export interface CarSnapshot {
     readonly nextManeuverM: number | null;
     readonly arrival: string;
     readonly remainingKm: number;
+    /** minutes of the remaining time caused by traffic */
+    readonly trafficDelayMin: number;
     /** why the driver goes there, from a planned trip; '' if not known */
     readonly topic: string;
     readonly note: string;
@@ -104,6 +106,9 @@ export function snapshotText({
             next_maneuver_m: destination.nextManeuverM && Math.round(destination.nextManeuverM),
             arrival: destination.arrival,
             remaining_km: Math.round(destination.remainingKm * 10) / 10,
+            ...(destination.trafficDelayMin > 0
+              ? { delay_by_traffic_min: destination.trafficDelayMin }
+              : {}),
             ...(destination.topic ? { reason_of_drive: destination.topic } : {}),
             ...(destination.note ? { drivers_note: destination.note } : {}),
           },

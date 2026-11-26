@@ -252,7 +252,7 @@ a special case in the UI. Everything must be testable without a car:
 - **AI copilot (Anthropic or OpenAI API, user's own key):** each request sends the
   question, the chat history of the session and a snapshot — vehicle name and
   engine, live OBD values, current street, speed limit, outside temperature,
-  nearby traffic messages, destination/ETA, trip and tank figures, and for a planned drive
+  nearby traffic messages, destination/ETA with the delay by traffic, trip and tank figures, and for a planned drive
   its topic and description (decided 2026-11-26). Conversation
   mode also sends destination/ETA with that topic and description, street, nearby place names, time and remarks about the car
   (tank almost empty with range, engine cold, standing still) and figures of the

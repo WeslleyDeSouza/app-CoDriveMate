@@ -5,6 +5,7 @@ import { QuotaExhaustedError } from '@shared/kernel/provider-chain';
 import { Coordinate } from '../domain/geo';
 import { NavigationService } from '../domain/ports';
 import { KeyRejectedError, NoRouteError, Place, Route } from '../domain/route';
+import { isRelevant } from '../domain/search-text';
 import { routeFromOsrm } from './osrm-format';
 
 const pair = (c: Coordinate) => `${c[0].toFixed(6)},${c[1].toFixed(6)}`;
@@ -25,10 +26,14 @@ export class MapboxNavigationService extends NavigationService {
     return routeFromOsrm(result.body, 'mapbox');
   }
 
+  /**
+   * The Search Box API: places, addresses and businesses. The geocoding API knows no
+   * businesses ("no longer provides POI data"), so a gym or a pool would not be found.
+   */
   async search(text: string, near: Coordinate | null, lang: string): Promise<Place[]> {
     const proximity = near ? `&proximity=${pair(near)}` : '';
     const result = await this.http.getJson(
-      `https://api.mapbox.com/search/geocode/v6/forward?q=${encodeURIComponent(text)}` +
+      `https://api.mapbox.com/search/searchbox/v1/forward?q=${encodeURIComponent(text)}` +
         `&limit=5&language=${lang}${proximity}&${this.token()}`,
     );
     this.check(result);
@@ -37,16 +42,17 @@ export class MapboxNavigationService extends NavigationService {
         result.body as {
           features?: {
             geometry: { coordinates: [number, number] };
-            properties: { name?: string; place_formatted?: string };
+            properties: { name?: string; full_address?: string; place_formatted?: string };
           }[];
         } | null
       )?.features ?? [];
-    return features.map(({ geometry, properties }) => ({
-      name: properties.name ?? text,
-      detail: properties.place_formatted ?? '',
-      coordinate: geometry.coordinates,
-      source: this.id,
-    }));
+    return features.map(({ geometry, properties }) => {
+      const name = properties.name ?? text;
+      const address = properties.full_address ?? properties.place_formatted ?? '';
+      // The full address often begins with the name itself.
+      const detail = address.startsWith(name + ', ') ? address.slice(name.length + 2) : address;
+      return { name, detail, coordinate: geometry.coordinates, source: this.id };
+    });
   }
 
   /** Mapbox completes what is being typed by itself. */
@@ -125,14 +131,16 @@ export class OsmNavigationService extends NavigationService {
           }[];
         } | null
       )?.features ?? [];
-    return features.map(({ geometry, properties: p }) => {
+    return features.flatMap(({ geometry, properties: p }) => {
       const street = [p['street'], p['housenumber']].filter(Boolean).join(' ');
       const town = [p['postcode'], p['city']].filter(Boolean).join(' ');
       const name = p['name'] || street || town || text;
+      // Photon guesses wildly when it knows nothing; such guesses are left out.
+      if (!isRelevant({ name, street }, text)) return [];
       const detail = [street, town, p['state'], p['country']]
         .filter((part) => part && part !== name)
         .join(', ');
-      return { name, detail, coordinate: geometry.coordinates, source: this.id };
+      return [{ name, detail, coordinate: geometry.coordinates, source: this.id }];
     });
   }
 }

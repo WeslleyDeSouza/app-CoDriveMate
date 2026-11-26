@@ -22,6 +22,7 @@ import {
   progressOn,
 } from '../domain/guidance';
 import { chooseMap, providerOf } from '../domain/map-choice';
+import { searchVariants } from '../domain/search-text';
 import { NavigationRepository, NavigationService } from '../domain/ports';
 import { KeyRejectedError, Place, ProviderId, Route, RouteStep } from '../domain/route';
 import { GOOGLE_SERVICE, MAPBOX_SERVICE, OFFLINE_SERVICE, OSM_SERVICE } from './tokens';
@@ -166,18 +167,37 @@ export class NavigationStore {
     return this.find(text, 'suggest');
   }
 
+  /**
+   * Finds places for a text; if nothing is found, again with fewer words. The shorter tries
+   * use the suggestions, so that Nominatim gets at most one request per search.
+   */
   private async find(text: string, how: 'search' | 'suggest'): Promise<Place[]> {
     const query = text.trim();
     if (query.length < 3) return [];
     await this.restored;
     const near = this.positions.position()?.coordinate ?? null;
     const lang = this.translate.lang;
+    const variants = searchVariants(query);
+    for (const [i, variant] of variants.entries()) {
+      const found = await this.findOnce(variant, i === 0 ? how : 'suggest', near, lang);
+      if (found.length || i === variants.length - 1) return found;
+    }
+    return [];
+  }
+
+  private async findOnce(
+    query: string,
+    how: 'search' | 'suggest',
+    near: Coordinate | null,
+    lang: string,
+  ): Promise<Place[]> {
     // Places belong to the map they are shown on, like routes.
     const provider = providerOf(this.mapKind());
     // Google counts every search, so typing uses the free suggestions.
     if (provider !== 'osm' && !(provider === 'google' && how === 'suggest')) {
       try {
-        return await this.service(provider)[how](query, near, lang);
+        const found = await this.service(provider)[how](query, near, lang);
+        if (found.length) return found;
       } catch (error) {
         this.noteFailure(error);
       }
