@@ -14,6 +14,7 @@ Wer eine Datei dazulegt, trägt sie hier ein.
 | Datei | Inhalt |
 |---|---|
 | [funktionsuebersicht.md](produkt/funktionsuebersicht.md) | Stand pro Bereich, offene Punkte |
+| [portfolio.md](produkt/portfolio.md) | Projektbeschrieb für die Portfolio-Webseite |
 | [architektur.md](konzepte/architektur.md) | Module, Schichten, Performance-Regeln |
 | [bluetooth.md](konzepte/bluetooth.md) | Gemeinsame BLE-Schicht, UUIDs, Berechtigungen |
 | [datenhaltung.md](konzepte/datenhaltung.md) | IndexedDB, Cache, Übernahme der alten Daten |
