@@ -347,7 +347,20 @@
             <option value="1.15">{{ 'settings.rate_brisk' | translate }}</option>
           </select>
         </label>
+        <label class="f">
+          {{ 'settings.voice_loudness' | translate }}
+          <select
+            data-section-test="settings-voice-loudness"
+            [value]="draft().voice.loudness"
+            (change)="patch({ voice: { loudness: num($event, draft().voice.loudness) } })"
+          >
+            <option value="1">{{ 'settings.loudness_normal' | translate }}</option>
+            <option value="1.6">{{ 'settings.loudness_loud' | translate }}</option>
+            <option value="2.4">{{ 'settings.loudness_max' | translate }}</option>
+          </select>
+        </label>
       </div>
+      <p class="hint">{{ 'settings.loudness_note' | translate }}</p>
       @if (draft().voice.provider === 'auto') {
         <label class="f">
           <span>

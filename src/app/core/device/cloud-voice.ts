@@ -9,6 +9,7 @@ import {
   googleVoice,
   voiceProblem,
 } from './cloud-voice-services';
+import { louder } from './loudness';
 import { nativeVoice } from './native-voice';
 import { RealtimeRefusedError, RealtimeVoice } from './realtime-voice';
 import { Voice } from './speech';
@@ -19,6 +20,8 @@ export interface CloudVoiceSettings {
   readonly key: string;
   /** name or ID of the voice at the provider */
   readonly voice: string;
+  /** louder than the provider delivers it, 1 = as delivered */
+  readonly boost?: number;
 }
 
 /** A voice in the account of the user. */
@@ -156,9 +159,11 @@ export class CloudVoice implements Voice {
       (await (fetching ? inTime(fetching, TIMEOUT_MS) : this.synthesize(text, lang, rate)));
     // Stopped while the sound was on its way.
     if (generation !== this.generation) return;
+    const sound = await louder(blob, this.settings().boost ?? 1);
+    if (generation !== this.generation) return;
     const native = nativeVoice();
-    if (!native) return this.play(blob);
-    const data = encode(new Uint8Array(await blob.arrayBuffer()));
+    if (!native) return this.play(sound);
+    const data = encode(new Uint8Array(await sound.arrayBuffer()));
     if (generation === this.generation) await native.play({ data });
   }
 

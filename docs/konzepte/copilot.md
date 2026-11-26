@@ -21,6 +21,8 @@ Beide Prompts verbieten Hinweise auf Kontrollen und Blitzer.
 | Modus | Quelle | Key nötig |
 |---|---|---|
 | Begleiter zur Fahrt | Auf dem Gerät: Tank, Pause, kalter Motor, Bremsen, Beschleunigen, Drehzahl, Leerlauf; übliches Ziel | nein |
+| Tipps | Auf dem Gerät: zur Fahrt (kalter Motor, knappe Bremsungen, kräftiges Anfahren, Pause, ruhiger oder unruhiger als sonst), sonst allgemeine Tipps | nein (mit Key umformuliert) |
+| Eco | Auf dem Gerät: Eco-Score und Verbrauch im Vergleich mit früheren Fahrten, Drehzahl, Leerlauf, sonst allgemeine Spartipps | nein (mit Key umformuliert) |
 | Plaudern | Sprachmodell mit wechselnden Themen, hört bis 6-mal zu | ja |
 | Fakten zur Route | Wikipedia, 10 km Umkreis | nein (mit Key umformuliert) |
 | Quiz | Anthropic, Antwort per Stimme oder Tippen | ja |
@@ -44,6 +46,20 @@ gleichen Ort (300 m), zur gleichen Zeit (±90 Min.) und Art von Tag (Werktag,
 Wochenende); die Route startet nur nach einem klaren Ja. Diese Sätze gehen nicht ans
 Sprachmodell; mit gewählter Cloud-Stimme geht der gesprochene Text an deren Anbieter.
 Ungetestet im Auto.
+
+**Tipps und Eco:** Jeder Hinweis kommt höchstens einmal pro Fahrt, dann 3 Minuten Pause
+(mal Faktor «Wie oft»). Vergleiche brauchen mindestens 5 km der laufenden Fahrt und drei
+frühere Fahrten ab 3 km (die letzten 30; Demo-Fahrten nur mit Demo-Fahrten). Gerechnet wird
+immer auf dem Gerät (`domain/coach.ts`). Die Einstellung `ai.shareTrips` (Vorgabe aus,
+Schalter auf der Copilot-Seite) entscheidet, ob Durchschnitte der früheren Fahrten (Eco-Score,
+Verbrauch, harte Bremsungen und Beschleunigungen pro 10 km) ans Sprachmodell gehen. Aus:
+Vergleichssätze werden fest gesprochen, nur die übrigen Tipps formuliert das Modell um.
+Strecken, Orte und einzelne Fahrten gehen nie mit.
+
+**Nach einer harten Bremsung** (jeder eingeschaltete Modus): 4 Sekunden später ein lockerer
+Spruch, höchstens alle 3 Minuten, verworfen nach 30 Sekunden ohne ruhigen Moment. Mit Key
+formuliert ihn das Modell (es erfährt nur, dass hart gebremst wurde), sonst einer von acht
+festen Sprüchen. Im Auto ungetestet.
 
 Mehrere Modi lassen sich zusammen einschalten; dann wechseln sie zufällig, nie zweimal
 hintereinander derselbe.

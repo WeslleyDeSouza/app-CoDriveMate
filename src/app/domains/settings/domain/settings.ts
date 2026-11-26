@@ -40,6 +40,8 @@ export interface AppSettings {
     provider: VoiceProvider;
     /** speaking rate, 1 = normal */
     rate: number;
+    /** natural voices louder than delivered, 1 = as delivered; the device voice is at most 1 */
+    loudness: number;
     /** name of the Google voice */
     cloudVoice: string;
     openaiVoice: string;
@@ -84,6 +86,8 @@ export interface AppSettings {
     talkPace: 'little' | 'medium' | 'much';
     /** the conversation remembers things about the driver */
     memory: boolean;
+    /** averages of earlier drives go to the language model; otherwise compared on the device only */
+    shareTrips: boolean;
   };
   /**
    * API keys entered by the user. They live only on this device; nothing is
@@ -124,6 +128,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     conversation: true,
     provider: 'auto',
     rate: 1.05,
+    loudness: 1,
     cloudVoice: 'Aoede',
     openaiVoice: 'marin',
     elevenVoice: { id: '', name: '' },
@@ -149,13 +154,28 @@ export const DEFAULT_SETTINGS: AppSettings = {
     swissTrafficReports: false,
     swissTrafficUrl: '',
   },
-  ai: { model: 'claude-haiku-5-5', talkStyle: 'dialogue', talkPace: 'medium', memory: true },
+  ai: {
+    model: 'claude-haiku-5-5',
+    talkStyle: 'dialogue',
+    talkPace: 'medium',
+    memory: true,
+    shareTrips: false,
+  },
   keys: { anthropic: '', openai: '', elevenlabs: '', google: '', mapbox: '', tomtom: '' },
   proxyUrl: '',
 };
 
 /** The natural voice to use; without a key the device speaks. */
 export function cloudVoice({ voice, keys }: Pick<AppSettings, 'voice' | 'keys'>): {
+  provider: 'google' | 'openai' | 'elevenlabs';
+  key: string;
+  voice: string;
+  boost: number;
+} {
+  return { ...cloudVoiceOf({ voice, keys }), boost: voice.loudness };
+}
+
+function cloudVoiceOf({ voice, keys }: Pick<AppSettings, 'voice' | 'keys'>): {
   provider: 'google' | 'openai' | 'elevenlabs';
   key: string;
   voice: string;

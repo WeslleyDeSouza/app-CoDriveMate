@@ -36,6 +36,19 @@ import {
   quizAnswer,
   talkPause,
 } from '../domain/conversation';
+import {
+  BRAKE_QUIP_DELAY_MS,
+  BRAKE_QUIP_MAX_MS,
+  BRAKE_QUIP_PAUSE_MS,
+  CoachFacts,
+  PAST_NOTES,
+  PastFigures,
+  pastFigures,
+  pastText,
+  pickEco,
+  pickQuip,
+  pickTip,
+} from '../domain/coach';
 import { ChatError, ChatMessage, ChatModel, MAX_HISTORY, passengerPrompt } from '../domain/copilot';
 import {
   Remark,
@@ -68,6 +81,13 @@ const QUIZ_PAUSE_MS = 45_000;
 const MONOLOGUE_PAUSE_MS = 60_000;
 const RIDE_PAUSE_MS = 240_000;
 const RIDE_QUIET_MS = 30_000;
+const COACH_PAUSE_MS = 180_000;
+/** Fixed sayings not repeated within this many. */
+const RECENT_QUIPS = 3;
+const QUIP_PROMPT =
+  'The driver just had to brake hard. Say one short, light and kind remark with a bit of ' +
+  'humour, as a friend on the passenger seat would. No reproach, no advice, no question, ' +
+  'at most 15 words.';
 /** The usual destination is offered at the start of a drive only. */
 const OFFER_MAX_KM = 2;
 const RECENT_TOPICS = 5;
@@ -122,6 +142,8 @@ export class ConversationStore {
   readonly allowed = computed(() => this.settings().voice.conversation);
   readonly pace = computed<TalkPace>(() => this.settings().ai.talkPace);
   readonly style = computed<TalkStyle>(() => this.settings().ai.talkStyle);
+  /** Averages of earlier drives may go to the language model. */
+  readonly shareTrips = computed(() => this.settings().ai.shareTrips);
   /** A quiz needs answers, so it does not exist in a monologue. */
   readonly offered = computed(() =>
     TALK_MODES.filter((mode) => mode !== 'quiz' || this.style() === 'dialogue'),
@@ -140,7 +162,13 @@ export class ConversationStore {
   private seen?: Set<number>;
   private topics: Topic[] = [];
   /** Remarks and offer already made, of which drive. */
-  private ride = { id: 0, made: new Set<Remark>(), offered: false };
+  private ride = { id: 0, made: new Set<Remark>(), coached: new Set<string>(), offered: false };
+  /** Hard brakings of the current drive, to notice a new one. */
+  private brakings = { id: 0, count: 0 };
+  /** When a saying about a hard braking is due; 0 if none. */
+  private quipAt = 0;
+  private lastQuip = -Infinity;
+  private quips: number[] = [];
   private around: { at: LonLat; places: Landmark[] } | null = null;
 
   constructor() {
@@ -150,6 +178,11 @@ export class ConversationStore {
     });
     effect(() => {
       if (!this.allowed()) untracked(() => this.stop());
+    });
+    effect(() => {
+      const trip = this.logbook.current();
+      const count = trip?.driving.hardBrakings ?? 0;
+      untracked(() => this.braked(trip?.id ?? 0, count));
     });
     // Back online: no need to sit out the pause after a failure.
     globalThis.addEventListener?.('online', () => {
@@ -178,6 +211,10 @@ export class ConversationStore {
     this.interrupt();
     await this.settingsStore.update({ ai: { talkStyle } });
     if (modes.length) this.use(modes.filter((mode) => this.offered().includes(mode)));
+  }
+
+  async setShareTrips(shareTrips: boolean): Promise<void> {
+    await this.settingsStore.update({ ai: { shareTrips } });
   }
 
   async setPace(talkPace: TalkPace): Promise<void> {
@@ -256,22 +293,40 @@ export class ConversationStore {
       this.input.abort();
       void this.output.stop('talk');
     }
-    if (this.working || Date.now() < this.nextAt) return;
+    if (this.working) return;
+    if (this.quipAt && Date.now() >= this.quipAt) {
+      if (Date.now() - this.quipAt > BRAKE_QUIP_MAX_MS) this.quipAt = 0;
+      else if (this.free()) {
+        this.quipAt = 0;
+        return this.run(null);
+      }
+    }
+    if (Date.now() < this.nextAt) return;
     if (!this.free()) {
       this.nextAt = Date.now() + RETRY_MS;
       return;
     }
     const mode = pickMode(this._modes(), this.last, Math.random);
     if (!mode) return;
-    const session = this.session;
     this.last = mode;
+    return this.run(mode);
+  }
+
+  /** One step of a mode, or a saying about a hard braking (null). */
+  private async run(mode: TalkMode | null): Promise<void> {
+    const session = this.session;
     this._current.set(mode);
     this.working = true;
     try {
-      await { ride: this.accompany, chat: this.chat, facts: this.facts, quiz: this.ask }[mode].call(
-        this,
-        session,
-      );
+      if (!mode) return await this.quip(session);
+      await {
+        ride: this.accompany,
+        tips: this.tips,
+        eco: this.eco,
+        chat: this.chat,
+        facts: this.facts,
+        quiz: this.ask,
+      }[mode].call(this, session);
     } catch (error) {
       if (session !== this.session) return;
       this.nextAt = Date.now() + FAILED_MS;
@@ -332,10 +387,7 @@ export class ConversationStore {
 
   /** Remarks about the drive and the usual destination. Nothing of it leaves the app. */
   private async accompany(session: number): Promise<void> {
-    const trip = this.logbook.current();
-    if (trip && trip.id !== this.ride.id) {
-      this.ride = { id: trip.id, made: new Set(), offered: false };
-    }
+    const trip = this.newRide();
     if (await this.offerDestination(session)) return;
     if (session !== this.session) return;
     const facts = this.rideFacts();
@@ -349,6 +401,119 @@ export class ConversationStore {
       this.ride.made.add(remark);
     }
     if (session === this.session) this.pauseFor(RIDE_PAUSE_MS);
+  }
+
+  /** The current drive; what was said about the one before is forgotten. */
+  private newRide() {
+    const trip = this.logbook.current();
+    if (trip && trip.id !== this.ride.id) {
+      this.ride = { id: trip.id, made: new Set(), coached: new Set(), offered: false };
+    }
+    return trip;
+  }
+
+  private tips(session: number): Promise<void> {
+    return this.coach('tips', session);
+  }
+
+  private eco(session: number): Promise<void> {
+    return this.coach('eco', session);
+  }
+
+  /** A tip about driving or consumption, about this drive if there is something to say. */
+  private async coach(kind: 'tips' | 'eco', session: number): Promise<void> {
+    this.newRide();
+    const facts = await this.coachFacts();
+    if (session !== this.session) return;
+    const { coached } = this.ride;
+    const note =
+      kind === 'tips' ? pickTip(facts, coached, Math.random) : pickEco(facts, coached, Math.random);
+    if (!note) {
+      this.nextAt = Date.now() + (this.mixed() ? RETRY_MS : COACH_PAUSE_MS);
+      return;
+    }
+    const plain = this.t(`copilot.talk.${kind}.${note}`, {
+      score: facts?.score ?? '',
+      usual: facts?.past?.score ?? '',
+    });
+    // Comparisons with earlier drives stay on the device unless the driver allowed otherwise.
+    const local = PAST_NOTES.has(note) && !this.shareTrips();
+    const text =
+      this.copilot.available() && !local
+        ? await this.model
+            .ask({
+              system: passengerPrompt(this.translate.lang),
+              messages: [{ role: 'user', content: this.coachPrompt(kind, plain, facts) }],
+            })
+            .catch(() => '')
+        : '';
+    if (session !== this.session) return;
+    // Thinking takes time; a manoeuvre may have come close.
+    let told = false;
+    if (this.free()) told = await this.say(text || plain, session);
+    if (told) coached.add(note);
+    if (session === this.session) this.pauseFor(COACH_PAUSE_MS, told);
+  }
+
+  private coachPrompt(kind: 'tips' | 'eco', tip: string, facts: CoachFacts | null): string {
+    const what = kind === 'eco' ? 'tip for driving economically' : 'driving tip';
+    const parts = [
+      facts ? `this drive: ${rideText(facts)}, eco score ${facts.score}` : '',
+      this.shareTrips() && facts?.past ? pastText(facts.past) : '',
+    ].filter(Boolean);
+    return (
+      `Pass on this ${what} in your own words, friendly and short, with a light touch of ` +
+      `humour if it fits, never lecturing: "${tip}".` +
+      (parts.length ? ` Data (use only if it fits): ${parts.join('; ')}.` : '')
+    );
+  }
+
+  private async coachFacts(): Promise<CoachFacts | null> {
+    const trip = this.logbook.current();
+    if (!trip) return null;
+    const fuelled = trip.distanceKm >= 1 && trip.fuelL > 0;
+    return {
+      ...this.rideFacts(),
+      score: trip.score,
+      litresPer100: fuelled ? (trip.fuelL / trip.distanceKm) * 100 : null,
+      past: await this.past(),
+    };
+  }
+
+  /** Averages of earlier drives; demo drives are compared with demo drives only. */
+  private async past(): Promise<PastFigures | null> {
+    if (!this.logbook.loaded()) await this.logbook.load().catch(() => undefined);
+    const current = this.logbook.current();
+    const demo = current?.source === 'demo';
+    return pastFigures(
+      this.logbook.trips().filter((t) => t.id !== current?.id && (t.source === 'demo') === demo),
+    );
+  }
+
+  /** A new hard braking: a saying follows soon, if the conversation is on. */
+  private braked(id: number, count: number): void {
+    const before = this.brakings;
+    this.brakings = { id, count };
+    if (!id || id !== before.id || count <= before.count || !this.active()) return;
+    if (Date.now() - this.lastQuip < BRAKE_QUIP_PAUSE_MS) return;
+    this.quipAt = Date.now() + BRAKE_QUIP_DELAY_MS;
+  }
+
+  /** Something light after a hard braking; the language model knows only that it happened. */
+  private async quip(session: number): Promise<void> {
+    this.lastQuip = Date.now();
+    const index = pickQuip(this.quips, Math.random);
+    this.quips = [...this.quips, index].slice(-RECENT_QUIPS);
+    const text = this.copilot.available()
+      ? await this.model
+          .ask({
+            system: passengerPrompt(this.translate.lang),
+            messages: [{ role: 'user', content: QUIP_PROMPT }],
+          })
+          .catch(() => '')
+      : '';
+    if (session !== this.session || !this.free()) return;
+    await this.say(text || this.t('copilot.talk.brake.' + index), session);
   }
 
   /** True if something was offered. */
@@ -506,9 +671,10 @@ export class ConversationStore {
   }
 
   private async reply(text: string, session: number): Promise<string> {
+    const past = this.shareTrips() ? await this.past().catch(() => null) : null;
     const messages: ChatMessage[] = [
       ...this.history,
-      { role: 'user', content: `[Context: ${this.context()}] ${text}` },
+      { role: 'user', content: `[Context: ${this.context(past)}] ${text}` },
     ];
     const system = passengerPrompt(this.translate.lang, this.style());
     const answer = await this.model.ask({ system, messages });
@@ -589,14 +755,17 @@ export class ConversationStore {
     }));
   }
 
-  private context(): string {
+  private context(past: PastFigures | null): string {
     const near = (this.around?.places ?? []).slice(0, 6).map(({ title }) => title);
     const { coolantTemp, speed } = this.telemetry.snapshot();
     const connected = ['obd', 'demo'].includes(this.telemetry.mode());
     const car = carRemark(this.fuel.rangeKm(), coolantTemp, speed, connected);
     const parts = [
       car ? `car: ${car}` : '',
-      this.logbook.current() ? `this drive: ${rideText(this.rideFacts())}` : '',
+      this.logbook.current()
+        ? `this drive: ${rideText(this.rideFacts())}, eco score ${this.logbook.current()?.score}`
+        : '',
+      past ? `earlier drives: ${pastText(past)}` : '',
       `street: ${this.scene.street() || 'unknown'}`,
       near.length ? `nearby: ${near.join(', ')}` : '',
       `time: ${new Date().toTimeString().slice(0, 5)}`,

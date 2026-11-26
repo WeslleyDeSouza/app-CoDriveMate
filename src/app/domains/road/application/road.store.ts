@@ -11,12 +11,14 @@ import {
   LonLat,
   RoadData,
   RoadSource,
+  Hazard,
   hazardAhead,
   limitAt,
   mergeRoads,
   metresBetween,
   pointAhead,
   roadCell,
+  sameArea,
 } from '../domain/road';
 import { Incident, TrafficSource, isUrgent } from '../domain/traffic';
 
@@ -29,6 +31,9 @@ const MAX_PINS = 30;
 const LOOK_AHEAD_M = 900;
 const KEPT_CELLS = 4;
 const PIN = 'traffic-';
+const KEPT_SAID = 50;
+/** Spoken distances are round, like those of the navigation. */
+const SPOKEN_STEP_M = 50;
 
 export interface IncidentNear extends Incident {
   readonly distanceM: number;
@@ -57,7 +62,7 @@ export class RoadStore {
   private loading = false;
   private trafficAt: LonLat | null = null;
   private trafficTime = 0;
-  private readonly said = new Set<string>();
+  private said: Hazard[] = [];
   private readonly seen = new Set<string>();
   private timer?: ReturnType<typeof setInterval>;
 
@@ -96,11 +101,15 @@ export class RoadStore {
         ? hazardAhead(data.hazards, coordinate, heading, this.speed(), new Date())
         : null;
     this._hazard.set(hazard);
-    if (hazard && !this.said.has(hazard.hazard.id)) {
-      this.said.add(hazard.hazard.id);
+    if (hazard && !sameArea(hazard.hazard, this.said)) {
+      this.said = [...this.said, hazard.hazard].slice(-KEPT_SAID);
+      const rounded = Math.max(
+        SPOKEN_STEP_M,
+        Math.round(hazard.distanceM / SPOKEN_STEP_M) * SPOKEN_STEP_M,
+      );
       this.say('road.say.hazard', {
         hazard: this.t('road.hazard.' + hazard.hazard.kind),
-        distance: formatDistanceIn(hazard.distanceM, this.units()),
+        distance: formatDistanceIn(rounded, this.units()),
       });
     }
   }

@@ -35,13 +35,15 @@
       "stop": "Unterhaltung beenden",
       "mode": {
         "ride": "Begleiter zur Fahrt",
+        "tips": "Tipps",
+        "eco": "Eco",
         "chat": "Plaudern",
         "facts": "Fakten zur Route",
         "quiz": "Quiz",
         "mixed": "Alles gemischt"
       },
       "notice": {
-        "needs_key": "Plaudern und Quiz brauchen einen KI-Key. Begleiter und Fakten zur Route gehen auch ohne.",
+        "needs_key": "Plaudern und Quiz brauchen einen KI-Key. Begleiter, Tipps, Eco und Fakten zur Route gehen auch ohne.",
         "key_rejected": "Der KI-Key wurde abgelehnt.",
         "failed": "Gerade nicht möglich, ich versuche es wieder.",
         "no_microphone": "Kein Mikrofon verfügbar oder nicht erlaubt.",
@@ -82,7 +84,54 @@
         "idling": "Wir standen schon eine Weile mit laufendem Motor. Bei längeren Halten lohnt es sich, ihn abzustellen.",
         "smooth": "Schön ruhig gefahren bis jetzt. So macht das Mitfahren Spass."
       },
-      "off": "Die Unterhaltung ist in den Einstellungen ausgeschaltet."
+      "off": "Die Unterhaltung ist in den Einstellungen ausgeschaltet.",
+      "share": {
+        "on": "Frühere Fahrten an die KI: ein",
+        "off": "Frühere Fahrten an die KI: aus",
+        "note": "Tipps und Eco vergleichen mit deinen früheren Fahrten. Ausgeschaltet rechnet das nur dieses Gerät. Eingeschaltet gehen Durchschnitte der letzten Fahrten (Eco-Score, Verbrauch, harte Bremsungen pro 10 km) an den KI-Anbieter, nie Strecken oder Orte."
+      },
+      "tips": {
+        "cold": "Der Motor ist noch kalt. Fahr ihn die ersten Kilometer mit wenig Drehzahl warm, das mag er.",
+        "brake_early": "Ein paar Bremsungen waren heute knapp. Mit etwas mehr Abstand wird es entspannter.",
+        "gentle_start": "Du ziehst heute kräftig an. Sanfter anfahren ist leiser und schont Reifen und Kupplung.",
+        "pause_soon": "Du bist schon anderthalb Stunden unterwegs. Bei der nächsten Gelegenheit wäre eine kurze Pause gut.",
+        "calmer_than_usual": "Heute fährst du ruhiger als sonst. Weiter so.",
+        "busier_than_usual": "Heute wird mehr gebremst und beschleunigt als sonst. Vielleicht etwas mehr Zeit einplanen?",
+        "distance": "Faustregel für den Abstand: mindestens zwei Sekunden zum Vordermann, bei Nässe mehr.",
+        "look_ahead": "Weit vorausschauen hilft: Wer früh sieht, was kommt, muss selten hart bremsen.",
+        "phone": "Das Handy darf ruhig warten. Ich sage dir, wenn etwas Wichtiges ist.",
+        "tyres": "Ab und zu den Reifendruck prüfen lohnt sich, am besten einmal im Monat an der Tankstelle.",
+        "seat": "Gut eingestellter Sitz und Spiegel machen lange Fahrten deutlich angenehmer.",
+        "lights": "In der Schweiz gilt auch tagsüber Licht. Bei Regen und Nebel sowieso.",
+        "wipers": "Schlieren auf der Scheibe? Dann sind die Wischerblätter wohl bald fällig.",
+        "zip": "Beim Reissverschluss gilt: bis zum Ende der Spur fahren, dann abwechselnd einfädeln."
+      },
+      "eco": {
+        "score_better": "Dein Eco-Score liegt heute bei {{score}}, besser als dein Schnitt von {{usual}}. Schön gemacht.",
+        "score_worse": "Dein Eco-Score liegt heute bei {{score}}, sonst bist du bei {{usual}}. Da geht noch was.",
+        "fuel_better": "Du verbrauchst heute weniger als sonst. Der Tank freut sich.",
+        "fuel_worse": "Heute brauchst du mehr Treibstoff als sonst. Etwas sanfter am Gas hilft.",
+        "shift_early": "Der Motor dreht oft hoch. Früher hochschalten spart Treibstoff und ist leiser.",
+        "idle": "Wir standen schon eine Weile mit laufendem Motor. Bei längeren Halten lohnt sich Abstellen.",
+        "coast": "Bei Rot vorne früh vom Gas gehen und rollen lassen, das kostet fast nichts.",
+        "tyre_pressure": "Zu wenig Luft in den Reifen kostet merklich Treibstoff. Der richtige Druck steht meist in der Tür.",
+        "steady": "Gleichmässig fahren ist der grösste Spartipp: lieber konstant als ständig Gas und Bremse.",
+        "roof_box": "Dachträger oder Box, die nicht gebraucht werden, kosten Treibstoff. Runter damit, wenn sie leer sind.",
+        "weight": "Unnötiges Gewicht im Kofferraum braucht auf jeder Fahrt mit Treibstoff.",
+        "motorway": "Auf der Autobahn spart 110 statt 120 spürbar Treibstoff und kostet kaum Zeit.",
+        "air_con": "Die Klimaanlage braucht Treibstoff. Bei angenehmen Temperaturen reicht oft die Lüftung.",
+        "short_trips": "Kurze Strecken mit kaltem Motor brauchen am meisten. Kurze Wege lassen sich oft zu Fuss erledigen."
+      },
+      "brake": {
+        "0": "Uff, das war knapp. Gut reagiert.",
+        "1": "Mein Kaffee hätte das nicht überlebt.",
+        "2": "Alles noch an seinem Platz? Ich schon.",
+        "3": "Das nenne ich eine Notbremsung mit Stil.",
+        "4": "Puh. Die Bremsen funktionieren jedenfalls.",
+        "5": "Kurz durchatmen. Wir sind gut unterwegs.",
+        "6": "Da hat wohl jemand nicht mit uns gerechnet.",
+        "7": "Gut, dass du wach bist. Ich hab kurz die Luft angehalten."
+      }
     }
   }
 }

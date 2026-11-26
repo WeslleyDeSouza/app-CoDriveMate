@@ -88,6 +88,23 @@ const LISTEN_MS = 10_000;
                 {{ 'copilot.talk.mode.mixed' | translate }}
               </button>
             </div>
+            <div class="row">
+              <button
+                class="btn"
+                type="button"
+                data-section-test="copilot-talk-share-trips"
+                [class.pri]="talk.shareTrips()"
+                [attr.aria-pressed]="talk.shareTrips()"
+                (click)="talk.setShareTrips(!talk.shareTrips())"
+              >
+                <i class="ti ti-chart-line" aria-hidden="true"></i>
+                {{
+                  (talk.shareTrips() ? 'copilot.talk.share.on' : 'copilot.talk.share.off')
+                    | translate
+                }}
+              </button>
+            </div>
+            <p class="note">{{ 'copilot.talk.share.note' | translate }}</p>
           } @else {
             <p class="note" data-section-test="copilot-talk-off">
               {{ 'copilot.talk.off' | translate }}

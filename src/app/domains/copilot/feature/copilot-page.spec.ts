@@ -15,6 +15,7 @@ import { telemetryTesting } from '@domains/telemetry/testing';
 import { findHook, hook, hooks, textOf } from '@shared/testing';
 import { ConversationStore } from '../application/conversation.store';
 import { ChatError } from '../domain/copilot';
+import { TalkMode } from '../domain/conversation';
 import { copilotTesting } from '../testing';
 import { ConversationBar } from './conversation-bar';
 import { CopilotPage } from './copilot-page';
@@ -149,7 +150,7 @@ describe('copilot', () => {
       vi.useRealTimers();
     });
 
-    async function start(mode: 'ride' | 'chat' | 'facts' | 'quiz', key?: string): Promise<void> {
+    async function start(mode: TalkMode, key?: string): Promise<void> {
       await setup(key);
       store = TestBed.inject(ConversationStore);
       nav.gps.emit([8.54, 47.38], 0);
@@ -255,14 +256,16 @@ describe('copilot', () => {
       await start('facts');
       ai.landmarks.places = [{ id: 7, title: 'Turm', at: [8.54, 47.39] }];
       store.toggleAll();
-      expect(store.modes()).toEqual(['ride', 'chat', 'facts', 'quiz']);
-      const random = vi.spyOn(Math, 'random').mockReturnValue(0.5);
+      expect(store.modes()).toEqual(['ride', 'tips', 'eco', 'chat', 'facts', 'quiz']);
+      const random = vi.spyOn(Math, 'random').mockReturnValue(0.7);
       await wait();
       expect(ai.talk.seen).toEqual([7]);
       random.mockRestore();
       store.toggle('quiz');
-      expect(store.modes()).toEqual(['ride', 'chat', 'facts']);
+      expect(store.modes()).toEqual(['ride', 'tips', 'eco', 'chat', 'facts']);
       store.toggle('ride');
+      store.toggle('tips');
+      store.toggle('eco');
       store.toggle('chat');
       store.toggle('facts');
       expect(store.active()).toBe(false);
@@ -271,7 +274,7 @@ describe('copilot', () => {
     it('mixes only what works without a key', async () => {
       await start('facts', '');
       store.toggleAll();
-      expect(store.modes()).toEqual(['ride', 'facts']);
+      expect(store.modes()).toEqual(['ride', 'tips', 'eco', 'facts']);
       expect(store.notice()).toBe('needs_key');
       store.toggleAll();
       expect(store.active()).toBe(false);
@@ -311,6 +314,47 @@ describe('copilot', () => {
       await wait(600_000);
       expect(nav.speech.said).toHaveLength(1);
       expect(ai.model.requests).toEqual([]);
+    });
+
+    const earlier = (score: number): Trip => ({ ...TRIP, id: score, distanceKm: 10, score });
+
+    it('compares with earlier drives on the device only, unless allowed', async () => {
+      await start('eco');
+      trips.set([earlier(70), earlier(71), earlier(72)]);
+      current.set({ ...TRIP, id: 99, distanceKm: 12, score: 90 });
+      await wait();
+      expect(nav.speech.said).toEqual(['copilot.talk.eco.score_better']);
+      expect(ai.model.requests).toEqual([]);
+    });
+
+    it('puts a tip in its own words with a key, and sends averages only when allowed', async () => {
+      await start('tips');
+      await store.setShareTrips(true);
+      trips.set([earlier(70), earlier(71), earlier(72)]);
+      current.set({ ...TRIP, id: 99, distanceKm: 4, score: 90 });
+      ai.model.answers = ['Zwei Sekunden Abstand, mein Freund.'];
+      await wait();
+      expect(nav.speech.said).toEqual(['Zwei Sekunden Abstand, mein Freund.']);
+      const request = String(ai.model.requests[0].messages[0].content);
+      expect(request).toContain('copilot.talk.tips.');
+      expect(request).toContain('average of the last 3 drives');
+      expect(request).not.toContain('Werkstrasse');
+    });
+
+    it('says something light a few seconds after a hard braking', async () => {
+      await start('ride', '');
+      current.set(TRIP);
+      await wait(1000);
+      current.set({ ...TRIP, driving: { ...TRIP.driving, hardBrakings: 1 } });
+      await wait(1000);
+      expect(nav.speech.said).toEqual([]);
+      await wait(5000);
+      expect(nav.speech.said).toHaveLength(1);
+      expect(nav.speech.said[0]).toMatch(/^copilot\.talk\.brake\.\d$/);
+      // Not after every braking.
+      current.set({ ...TRIP, driving: { ...TRIP.driving, hardBrakings: 2 } });
+      await wait(10_000);
+      expect(nav.speech.said).toHaveLength(1);
     });
 
     async function offer(heard: string) {

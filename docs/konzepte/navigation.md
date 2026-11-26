@@ -104,6 +104,13 @@ Grenzen:
 - Keine Ortssuche ohne Netz; Ziele kommen aus gespeicherten Orten.
 - Gerechnet nur mit echten Kacheln auf dem Entwicklungsrechner geprüft, nicht auf dem Tablet.
 
+## Ansagen
+
+Jedes Manöver wird je Distanzstufe (800 m, 300 m, 60 m) einmal angesagt.
+Erkannt wird ein Manöver an Art und Ort (unter 40 m), nicht an der Schrittnummer:
+eine neue Route zum gleichen Ziel (Umleitung, Verkehrs-Check alle 4 Minuten)
+sagt dieselbe Abzweigung nicht nochmals an. Erst ein neues Ziel beginnt neu.
+
 ## Hintergrund
 
 Nativ liefert `@capacitor-community/background-geolocation` (MIT) den Standort

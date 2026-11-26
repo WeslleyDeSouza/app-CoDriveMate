@@ -35,13 +35,15 @@
       "stop": "End conversation",
       "mode": {
         "ride": "Driving companion",
+        "tips": "Tips",
+        "eco": "Eco",
         "chat": "Chat",
         "facts": "Facts on the way",
         "quiz": "Quiz",
         "mixed": "All mixed"
       },
       "notice": {
-        "needs_key": "Chat and quiz need an AI key. The companion and facts on the way work without.",
+        "needs_key": "Chat and quiz need an AI key. Companion, tips, eco and facts about the route work without one.",
         "key_rejected": "The AI key was rejected.",
         "failed": "Not possible right now, I will try again.",
         "no_microphone": "No microphone available or not allowed.",
@@ -82,7 +84,54 @@
         "idling": "We have been standing with the engine running for a while. For longer stops it pays to switch it off.",
         "smooth": "Nice and smooth so far. A pleasure to ride along."
       },
-      "off": "The conversation is switched off in the settings."
+      "off": "The conversation is switched off in the settings.",
+      "share": {
+        "on": "Earlier drives to the AI: on",
+        "off": "Earlier drives to the AI: off",
+        "note": "Tips and eco compare with your earlier drives. Switched off, only this device works it out. Switched on, averages of the last drives (eco score, consumption, hard brakings per 10 km) go to the AI provider, never routes or places."
+      },
+      "tips": {
+        "cold": "The engine is still cold. Keep the revs low for the first few kilometres, it likes that.",
+        "brake_early": "A few brakings were tight today. A bit more distance makes it more relaxed.",
+        "gentle_start": "You pull away hard today. A gentler start is quieter and spares tyres and clutch.",
+        "pause_soon": "You have been driving for an hour and a half. A short break would be good at the next chance.",
+        "calmer_than_usual": "You drive more calmly than usual today. Keep it up.",
+        "busier_than_usual": "There is more braking and accelerating than usual today. Maybe allow a little more time?",
+        "distance": "Rule of thumb for the distance: at least two seconds to the car ahead, more in the wet.",
+        "look_ahead": "Looking far ahead helps: who sees early what is coming rarely has to brake hard.",
+        "phone": "The phone can wait. I will tell you if something important comes up.",
+        "tyres": "Checking the tyre pressure now and then pays off, best once a month at the petrol station.",
+        "seat": "A well adjusted seat and mirrors make long drives much more pleasant.",
+        "lights": "In Switzerland, lights are on during the day too. In rain and fog anyway.",
+        "wipers": "Streaks on the windscreen? Then the wiper blades are probably due soon.",
+        "zip": "When lanes merge: drive to the end of the lane, then take turns."
+      },
+      "eco": {
+        "score_better": "Your eco score is {{score}} today, better than your average of {{usual}}. Well done.",
+        "score_worse": "Your eco score is {{score}} today, usually you are at {{usual}}. There is room for more.",
+        "fuel_better": "You use less fuel than usual today. The tank is pleased.",
+        "fuel_worse": "You need more fuel than usual today. A gentler foot helps.",
+        "shift_early": "The engine often revs high. Shifting up earlier saves fuel and is quieter.",
+        "idle": "We have been standing with the engine running for a while. On longer stops it pays to switch it off.",
+        "coast": "With red ahead, lift off early and let the car roll, that costs almost nothing.",
+        "tyre_pressure": "Too little air in the tyres costs noticeable fuel. The right pressure is usually on the door.",
+        "steady": "Driving steadily is the biggest saving: better constant than always throttle and brake.",
+        "roof_box": "Roof racks or boxes that are not needed cost fuel. Take them off when they are empty.",
+        "weight": "Needless weight in the boot costs fuel on every drive.",
+        "motorway": "On the motorway, 110 instead of 120 saves noticeable fuel and hardly any time.",
+        "air_con": "Air conditioning uses fuel. When it is pleasant outside, the fan is often enough.",
+        "short_trips": "Short trips with a cold engine use the most. Short ways can often be walked."
+      },
+      "brake": {
+        "0": "Phew, that was close. Well reacted.",
+        "1": "My coffee would not have survived that.",
+        "2": "Everything still in place? I am.",
+        "3": "That is what I call braking with style.",
+        "4": "Phew. The brakes work, at least.",
+        "5": "Take a breath. We are doing fine.",
+        "6": "Someone did not expect us there, it seems.",
+        "7": "Good thing you are awake. I held my breath for a second."
+      }
     }
   }
 }

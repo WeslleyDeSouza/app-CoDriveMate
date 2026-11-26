@@ -9,6 +9,7 @@ Wer eine Datei dazulegt, trägt sie hier ein.
 | [`konzepte/`](konzepte) | Aufbau und Entscheidungen |
 | [`betrieb/`](betrieb) | Build, Versionen, Release |
 | [`analysen/`](analysen) | Untersuchungen und Faktenchecks |
+| [`screenshots/`](screenshots) | Bilder aus der Demo-Fahrt für das README (1366 × 1024, `?demo`) |
 
 | Datei | Inhalt |
 |---|---|

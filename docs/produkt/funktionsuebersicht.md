@@ -32,7 +32,7 @@ Stand: 24.11.2026. Nichts davon ist im echten Auto oder am echten Adapter getest
 | Suche | Vorschläge beim Tippen, Spracheingabe, Zuhause, Arbeit, letzte Ziele, parkiertes Auto |
 | Parkplatz | gebaut: merken (von Hand oder nach OBD-Fahrt), Karte, Rückweg, Notiz, Parkuhr mit Ansage und Mitteilung, QR-Code fürs Handy, Parkplätze am Ziel; Mitteilungen am Gerät ungetestet |
 | KI-Copilot | gebaut: Fragen mit Fahrzeugdaten, Sprache; mit echtem Key ungetestet |
-| Unterhaltung | Begleiter, Plaudern, Fakten, Quiz; Dialog oder Monolog; wenig, mittel oder viel; merkt sich Vorlieben (abschaltbar); im Auto ungetestet |
+| Unterhaltung | Begleiter, Tipps, Eco (mit Vergleich zu früheren Fahrten, an die KI nur wenn erlaubt), Spruch nach harter Bremsung, Plaudern, Fakten, Quiz; Dialog oder Monolog; wenig, mittel oder viel; merkt sich Vorlieben (abschaltbar); im Auto ungetestet |
 | Handys (unter 744 Breite, oder quer bis 500 Höhe); ab iPad mini Tablet-Ansicht; Tastatur schiebt die App auf iOS nicht mehr hoch (`@capacitor/keyboard` 8, MIT) | Bereiche und «Wohin» als schwebende Knöpfe; auf dem Gerät ungetestet |
 | Anzeige links | 3D-Ansicht, runder Tacho (Tempo, Drehzahl, Gang, Limit), beides (ab 1100 × 700) oder ausgeblendet; Idee für später: Widgets selbst anordnen; im Auto ungetestet |
 | Vorlesen | Navigation, Warnungen, Infos und Unterhaltung einzeln schaltbar |
