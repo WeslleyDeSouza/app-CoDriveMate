@@ -2,7 +2,6 @@ import { routeFromOsrm } from './osrm-format';
 import { Coordinate, bearing, distanceM, panCenter, pointAt, polyline, snap } from '../domain/geo';
 import {
   AnnouncementPlan,
-  Progress,
   announcementsAhead,
   OffRouteDetector,
   formatDuration,
@@ -116,17 +115,17 @@ describe('guidance', () => {
   it('announces every distance once', () => {
     const plan = new AnnouncementPlan();
     const at = (distanceM: number) => ({ ...progressOn(route, A), stepIndex: 1, distanceM });
-    expect(plan.next(at(900))).toBeNull();
-    expect(plan.next(at(790))).toMatchObject({ immediate: false });
-    expect(plan.next(at(500))).toBeNull();
-    expect(plan.next(at(299))).toMatchObject({ immediate: false });
-    expect(plan.next(at(50))).toMatchObject({ immediate: true });
-    expect(plan.next(at(40))).toBeNull();
+    expect(plan.next(at(900), route)).toBeNull();
+    expect(plan.next(at(790), route)).toMatchObject({ immediate: false });
+    expect(plan.next(at(500), route)).toBeNull();
+    expect(plan.next(at(299), route)).toMatchObject({ immediate: false });
+    expect(plan.next(at(50), route)).toMatchObject({ immediate: true });
+    expect(plan.next(at(40), route)).toBeNull();
   });
 
   it('says a round figure only where it is true', () => {
     const said = (distanceM: number) =>
-      new AnnouncementPlan().next({ stepIndex: 1, distanceM } as Progress)?.spokenM;
+      new AnnouncementPlan().next({ ...progressOn(route, A), distanceM }, route)?.spokenM;
     expect(said(790)).toBe(800);
     expect(said(500)).toBe(500);
     expect(said(290)).toBe(300);
@@ -139,7 +138,9 @@ describe('guidance', () => {
       street: '',
       alongM,
     });
-    const route = { steps: [step(0), step(2000), step(2415), step(2500), step(9000)] } as unknown as Route;
+    const route = {
+      steps: [step(0), step(2000), step(2415), step(2500), step(9000)],
+    } as unknown as Route;
     const ahead = announcementsAhead(route, { stepIndex: 1, alongM: 500 }, 3);
     expect(
       ahead.map(({ step: { alongM }, spokenM, immediate }) => [alongM, immediate || spokenM]),
@@ -160,8 +161,44 @@ describe('guidance', () => {
   it('starting close to a turn announces only the nearest distance', () => {
     const plan = new AnnouncementPlan();
     const at = (distanceM: number) => ({ ...progressOn(route, A), stepIndex: 1, distanceM });
-    expect(plan.next(at(40))).toMatchObject({ immediate: true });
-    expect(plan.next(at(41))).toBeNull();
+    expect(plan.next(at(40), route)).toMatchObject({ immediate: true });
+    expect(plan.next(at(41), route)).toBeNull();
+  });
+
+  it('does not announce a turn again on a new route to the same destination', () => {
+    const plan = new AnnouncementPlan();
+    const at = (distanceM: number) => ({ ...progressOn(route, A), stepIndex: 1, distanceM });
+    expect(plan.next(at(280), route)).toMatchObject({ spokenM: 300 });
+    // Rerouted from a little further: the same turn at B, now as another step.
+    const again = routeFromOsrm(
+      {
+        ...osrm,
+        routes: [
+          {
+            ...osrm.routes[0],
+            geometry: { coordinates: [[8.54, 47.371], B, C] as [number, number][] },
+            legs: [
+              {
+                ...osrm.routes[0].legs[0],
+                steps: [
+                  { name: 'Neu', maneuver: { type: 'depart', location: [8.54, 47.371] } },
+                  {
+                    name: 'Neu',
+                    maneuver: { type: 'continue', modifier: 'straight', location: [8.54, 47.375] },
+                  },
+                  ...osrm.routes[0].legs[0].steps.slice(1),
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      'mapbox',
+    );
+    const turn = progressOn(again, [8.54, 47.378]);
+    expect(turn.next.maneuver.type).toBe('turn');
+    expect(plan.next({ ...turn, distanceM: 200 }, again)).toBeNull();
+    expect(plan.next({ ...turn, distanceM: 50 }, again)).toMatchObject({ immediate: true });
   });
 
   it('reroutes only after some seconds off the route', () => {

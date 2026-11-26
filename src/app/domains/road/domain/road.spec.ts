@@ -10,6 +10,7 @@ import {
   parseLimit,
   parseRoad,
   roadQuery,
+  sameArea,
 } from './road';
 import {
   TRAFFIC_KINDS,
@@ -112,6 +113,14 @@ describe('hazards', () => {
     expect(hazardAhead(school, HERE, 0, 40, tuesday)).not.toBeNull();
     expect(hazardAhead(school, HERE, 0, 40, new Date(2026, 10, 24, 21))).toBeNull();
     expect(hazardAhead(school, HERE, 0, 40, new Date(2026, 10, 22, 10))).toBeNull();
+  });
+
+  it('of one kind close together are announced once, as one area', () => {
+    const said = [hazard('school', 150)];
+    expect(sameArea(hazard('school', 150), said)).toBe(true);
+    expect(sameArea(hazard('school', 400), said)).toBe(true);
+    expect(sameArea(hazard('kindergarten', 400), said)).toBe(false);
+    expect(sameArea(hazard('school', 900), said)).toBe(false);
   });
 });
 

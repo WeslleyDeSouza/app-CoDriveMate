@@ -264,7 +264,8 @@ export class NavigationStore {
   }
 
   private adopt(route: Route, place: Place): void {
-    this.announcements = new AnnouncementPlan();
+    // A new route to the same destination must not announce the same turn again.
+    if (place !== this._destination()) this.announcements = new AnnouncementPlan();
     this.lastFasterCheck = Date.now();
     this._destination.set(place);
     this._progress.set(null);
@@ -284,7 +285,7 @@ export class NavigationStore {
       this.say(this.t('navigation.say.arrived'));
       return;
     }
-    const announcement = this.announcements.next(progress);
+    const announcement = this.announcements.next(progress, route);
     if (announcement) this.say(this.announcementText(progress.next, announcement));
     this.prepareVoice(route, progress);
 

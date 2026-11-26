@@ -107,9 +107,14 @@ describe('cloudVoice', () => {
     });
 
   it('uses the key and voice of the chosen provider', () => {
-    expect(choose('auto')).toEqual({ provider: 'google', key: 'g', voice: 'Aoede' });
-    expect(choose('openai')).toEqual({ provider: 'openai', key: 'o', voice: 'marin' });
-    expect(choose('elevenlabs')).toEqual({ provider: 'elevenlabs', key: 'e', voice: 'v1' });
+    expect(choose('auto')).toEqual({ provider: 'google', key: 'g', voice: 'Aoede', boost: 1 });
+    expect(choose('openai')).toEqual({ provider: 'openai', key: 'o', voice: 'marin', boost: 1 });
+    expect(choose('elevenlabs')).toEqual({
+      provider: 'elevenlabs',
+      key: 'e',
+      voice: 'v1',
+      boost: 1,
+    });
   });
 
   it('sends nothing anywhere with the device voice', () => {

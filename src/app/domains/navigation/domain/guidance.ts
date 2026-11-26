@@ -1,4 +1,4 @@
-import { Coordinate, snap } from './geo';
+import { Coordinate, distanceM, pointAt, snap } from './geo';
 import { Maneuver, Route, RouteStep } from './route';
 
 export interface Progress {
@@ -88,16 +88,37 @@ export function announcementsAhead(
   });
 }
 
-/** Decides when a manoeuvre is announced; every distance is announced once. */
+/** Two manoeuvres of the same kind this close together are one and the same. */
+const SAME_MANOEUVRE_M = 40;
+const KEPT_MANOEUVRES = 50;
+
+interface Announced {
+  readonly at: Coordinate;
+  readonly kind: string;
+  stage: number;
+}
+
+/**
+ * Decides when a manoeuvre is announced; every distance is announced once.
+ * A manoeuvre is known by its place, not by its step number: a new route to the
+ * same destination (rerouting, traffic check) keeps what was said already.
+ */
 export class AnnouncementPlan {
-  private readonly done = new Map<number, number>();
+  private done: Announced[] = [];
 
   /** The distance stage to announce now, or null. */
-  next(progress: Progress): Announcement | null {
+  next(progress: Progress, route: Route): Announcement | null {
     const stage = THRESHOLDS.find((t) => progress.distanceM <= t);
     if (stage === undefined) return null;
-    if ((this.done.get(progress.stepIndex) ?? Infinity) <= stage) return null;
-    this.done.set(progress.stepIndex, stage);
+    const { type, modifier, exit } = progress.next.maneuver;
+    const kind = `${type}|${modifier}|${exit ?? ''}`;
+    const at = pointAt(route.line, progress.next.alongM).point;
+    const known = this.done.find(
+      (one) => one.kind === kind && distanceM(one.at, at) < SAME_MANOEUVRE_M,
+    );
+    if (known && known.stage <= stage) return null;
+    if (known) known.stage = stage;
+    else this.done = [...this.done, { at, kind, stage }].slice(-KEPT_MANOEUVRES);
     return announcement(stage, progress.distanceM);
   }
 }

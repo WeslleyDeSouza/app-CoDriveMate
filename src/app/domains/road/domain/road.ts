@@ -233,3 +233,15 @@ export function hazardAhead(
   }
   return best;
 }
+
+/** Hazards of one kind this close together are one area, e.g. the buildings of a school. */
+const SAME_AREA_M = 500;
+
+/** True if a hazard of the same kind nearby was announced already. */
+export function sameArea(hazard: Hazard, said: readonly Hazard[]): boolean {
+  return said.some(
+    (one) =>
+      one.id === hazard.id ||
+      (one.kind === hazard.kind && metresBetween(one.at, hazard.at) < SAME_AREA_M),
+  );
+}
