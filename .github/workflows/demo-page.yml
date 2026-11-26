@@ -1,0 +1,46 @@
+# Demo page on GitHub Pages: a production build with the demo drive (`npm run build:demo`).
+# Needs the repository secret NPM_TOKEN (private registry) and Pages set to "GitHub Actions".
+name: Demo page
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install
+        run: npm ci --userconfig=.npmrc.example --legacy-peer-deps
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Build demo
+        run: npm run build:demo -- --base-href "/${{ github.event.repository.name }}/"
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist/app/browser
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

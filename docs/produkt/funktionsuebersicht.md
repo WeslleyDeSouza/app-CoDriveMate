@@ -47,7 +47,7 @@ Stand: 24.11.2026. Nichts davon ist im echten Auto oder am echten Adapter getest
 ## Offen, technisch
 
 - Zum Schluss: realistischeres Automodell
-- Demo: nur in Entwicklungs-Builds; `?demo` und `fault=cool\|volt\|fuel\|mil`
+- Demo: in Entwicklungs-Builds und im Demo-Build (`npm run build:demo`, Demo-Seite auf GitHub Pages); `?demo` und `fault=cool\|volt\|fuel\|mil`
 - Schweizer Verkehrsmeldungen (opentransportdata.swiss): liefern keine Koordinaten, nur TMC-Ortscodes. Nötig sind ein API-Key und die TMC-Ortstabelle, die das ASTRA auf Anfrage abgibt (verkehrsdaten-plattform@astra.admin.ch). Vorher ist ein Proxy nicht sinnvoll
 - Mapbox Navigation SDK für Routen ohne Netz auf der Mapbox-Karte: nach dem ersten iOS-Build (entschieden 24.11.2026)
 - Freie Ortssuche ohne Netz

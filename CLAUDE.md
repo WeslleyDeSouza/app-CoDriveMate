@@ -43,6 +43,7 @@ update this section when a major version changes.
 ```bash
 npm start                # dev server (web), http://localhost:4200
 npm run build            # production build -> dist/app/browser
+npm run build:demo       # production build with the demo drive (demo page, GitHub Pages)
 npm test                 # unit tests (Vitest)
 npm run lint             # ESLint incl. architecture boundaries
 npm run cap:sync         # build + copy web assets into android/ and ios/

@@ -24,7 +24,7 @@ Wer eine Datei dazulegt, trägt sie hier ein.
 | [copilot.md](konzepte/copilot.md) | KI-Copilot, Unterhaltung, Sprachvorrang |
 | [musik.md](konzepte/musik.md) | Apple Music, YouTube, Spotify: was geht und warum |
 | [mehrsprachigkeit.md](konzepte/mehrsprachigkeit.md) | Sprachen, Textdateien, Übersetzen |
-| [release-pipeline.md](betrieb/release-pipeline.md) | Capawesome Cloud, Versionsnummer, Registry |
+| [release-pipeline.md](betrieb/release-pipeline.md) | Capawesome Cloud, Versionsnummer, Registry, Demo-Seite auf GitHub Pages |
 | [mapbox-offline.md](analysen/mapbox-offline.md) | Faktencheck natives Mapbox-SDK und Offline |
 
 Die Funktionsübersicht wandert bei jeder Funktionsänderung mit.

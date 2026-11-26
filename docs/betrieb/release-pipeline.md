@@ -69,3 +69,27 @@ Quellen: capawesome.io/docs/cloud/migrations/ionic-appflow, /native-builds/build
 /native-builds/environment-variables, /native-builds/npm-private-registry,
 /native-builds/auto-incrementing-build-numbers; capacitorjs.com/docs/updating/8-0;
 developer.apple.com/news/upcoming-requirements.
+
+## Demo-Seite (GitHub Pages)
+
+Ein Produktions-Build mit Demo-Fahrt: `npm run build:demo` (Konfiguration `demo` in
+`angular.json`, ersetzt `core/environment/environment.ts` durch `environment.demo.ts`).
+Der normale Build und die Apps bieten die Demo nicht an. Keine Keys im Build; Keys gibt
+der Besucher selbst in den Einstellungen ein, sie bleiben in seinem Browser.
+
+Workflow `.github/workflows/demo-page.yml`: bei jedem Push auf `main` (oder von Hand)
+bauen mit `--base-href /<repo>/` und auf GitHub Pages veröffentlichen. Die App nutzt
+Hash-Routen (`#/…`), deshalb braucht Pages keine Weiterleitung für Unterseiten.
+
+Einmalig einzurichten:
+- Repository > Settings > Pages > Source: «GitHub Actions»
+- Repository > Settings > Secrets and variables > Actions: Secret `NPM_TOKEN` (Token
+  der privaten Registry, wie bei Capawesome)
+
+Adresse: `https://<user>.github.io/<repo>/?demo` startet die Demo sofort, sonst über den
+Demo-Knopf im Dock. Ein Mapbox-Token mit Domain-Beschränkung muss `*.github.io` erlauben.
+Nicht auf Pages: die Schweizer Verkehrsmeldungen (Netlify-Funktion).
+
+Fehler `E401 … Sonatype Nexus` beim Installieren (Capawesome oder Actions): Das Secret
+`NPM_TOKEN` fehlt, ist falsch oder das Environment ist beim Build nicht ausgewählt.
+Lokal mit dem Token aus `.npmrc` geprüft (26.11.2026): mit Token 200, ohne 401.
