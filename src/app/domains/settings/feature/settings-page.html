@@ -591,6 +591,48 @@
     </div>
   </details>
 
+  <!-- Datenschutz -->
+  <details class="grp" data-section-test="settings-group-privacy">
+    <summary data-section-test="settings-toggle-privacy">
+      <i class="ti ti-shield-lock" aria-hidden="true"></i>
+      <span>
+        <b>{{ 'settings.group_privacy' | translate }}</b>
+        <small>{{ 'settings.privacy_summary' | translate }}</small>
+      </span>
+      <i class="ti ti-chevron-down chev" aria-hidden="true"></i>
+    </summary>
+    <div class="gb">
+      <label class="f">
+        <span>
+          {{ 'settings.ai_tools' | translate }}
+          <em>{{ 'settings.ai_tools_note' | translate }}</em>
+        </span>
+        <select
+          data-section-test="settings-ai-tools"
+          [value]="draft().ai.tools ? '1' : '0'"
+          (change)="patch({ ai: { tools: on($event) } })"
+        >
+          <option value="1">{{ 'settings.on' | translate }}</option>
+          <option value="0">{{ 'settings.off' | translate }}</option>
+        </select>
+      </label>
+      <label class="f">
+        <span>
+          {{ 'settings.share_trips' | translate }}
+          <em>{{ 'settings.share_trips_note' | translate }}</em>
+        </span>
+        <select
+          data-section-test="settings-share-trips"
+          [value]="draft().ai.shareTrips ? '1' : '0'"
+          (change)="patch({ ai: { shareTrips: on($event) } })"
+        >
+          <option value="1">{{ 'settings.on' | translate }}</option>
+          <option value="0">{{ 'settings.off' | translate }}</option>
+        </select>
+      </label>
+    </div>
+  </details>
+
   <!-- Datensicherung -->
   <details class="grp" data-section-test="settings-group-backup">
     <summary data-section-test="settings-toggle-backup">

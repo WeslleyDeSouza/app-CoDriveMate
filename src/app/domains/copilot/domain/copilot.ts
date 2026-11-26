@@ -3,12 +3,34 @@ export interface ChatMessage {
   readonly content: string;
 }
 
+/** A tool as the language model sees it. */
+export interface ToolSpec {
+  readonly name: string;
+  readonly description: string;
+  /** JSON schema of the input */
+  readonly input: Readonly<Record<string, unknown>>;
+}
+
 export interface ChatRequest {
   readonly system: string;
   readonly messages: readonly ChatMessage[];
   /** JSON schema the answer must follow */
   readonly schema?: Record<string, unknown>;
+  /** What the model may do; it gets each result and answers after. */
+  readonly tools?: readonly ToolSpec[];
+  /** Runs a tool and says what came of it; must not reject. */
+  readonly runTool?: (name: string, input: Readonly<Record<string, unknown>>) => Promise<string>;
 }
+
+/** Rounds of tools in one answer; the last one must answer in words. */
+export const MAX_TOOL_ROUNDS = 4;
+
+/** Added to the instructions when tools are there. */
+export const TOOL_NOTE =
+  'You can act with the tools given: use one when the driver asks for it or it clearly helps. ' +
+  'The app asks the driver to confirm what needs it, so do not ask first yourself. ' +
+  'After a tool, say in one short sentence what happened. ' +
+  'Never search for, name or warn of speed cameras or police checks.';
 
 export type ChatFailure = 'key' | 'quota' | 'refused' | 'offline' | 'other';
 

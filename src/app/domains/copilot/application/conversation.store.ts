@@ -676,8 +676,8 @@ export class ConversationStore {
       ...this.history,
       { role: 'user', content: `[Context: ${this.context(past)}] ${text}` },
     ];
-    const system = passengerPrompt(this.translate.lang, this.style());
-    const answer = await this.model.ask({ system, messages });
+    const system = this.copilot.withTools(passengerPrompt(this.translate.lang, this.style()));
+    const answer = await this.model.ask({ system, messages, ...this.copilot.toolRequest() });
     if (session !== this.session) return '';
     const all: ChatMessage[] = [...messages, { role: 'assistant', content: answer }];
     this.history = all.slice(-MAX_HISTORY);

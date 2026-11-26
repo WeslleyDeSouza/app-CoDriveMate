@@ -1,5 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { SpeechOutput } from '@core/device';
+import { ASSISTANT_TOOLS, AssistantTool, ToolInput } from '@core/assistant';
+import { SpeechInput, SpeechOutput } from '@core/device';
 import { TranslateService } from '@core/i18n';
 import { DiagnosticsStore } from '@domains/diagnostics';
 import { NavigationStore } from '@domains/navigation';
@@ -14,10 +15,13 @@ import {
   ChatMessage,
   ChatModel,
   MAX_HISTORY,
+  TOOL_NOTE,
+  ToolSpec,
   assistantPrompt,
   questionText,
   spokenText,
 } from '../domain/copilot';
+import { isYes } from '../domain/passenger';
 
 export interface ChatLine {
   readonly id: number;
@@ -26,6 +30,9 @@ export interface ChatLine {
 }
 
 const MAX_LINES = 60;
+/** Waits this long for a yes, by voice or by tap. */
+const CONFIRM_MS = 12_000;
+const CONFIRM_LISTEN_MS = 7000;
 
 /** Questions about the car. The chat lives as long as the app is open. */
 @Injectable({ providedIn: 'root' })
@@ -38,7 +45,12 @@ export class CopilotStore {
   private readonly diagnostics = inject(DiagnosticsStore);
   private readonly road = inject(RoadStore);
   private readonly speech = inject(SpeechOutput);
+  private readonly input = inject(SpeechInput);
   private readonly translate = inject(TranslateService);
+  private readonly tools: readonly AssistantTool[] =
+    inject(ASSISTANT_TOOLS, { optional: true }) ?? [];
+  private readonly _question = signal<string | null>(null);
+  private settle?: (yes: boolean) => void;
 
   private readonly _lines = signal<readonly ChatLine[]>([]);
   private readonly _busy = signal(false);
@@ -51,6 +63,10 @@ export class CopilotStore {
   readonly failure = this._failure.asReadonly();
   /** A key is entered, or a proxy has one. */
   readonly available = computed(() => aiAvailable(this.settings()));
+  /** The copilot may act; switched in the privacy settings. */
+  readonly toolsAllowed = computed(() => this.settings().ai.tools && this.tools.length > 0);
+  /** What a tool asks the driver to confirm; null if nothing. */
+  readonly question = this._question.asReadonly();
 
   async ask(question: string): Promise<void> {
     const text = question.trim();
@@ -62,8 +78,9 @@ export class CopilotStore {
     try {
       const snapshot = this.snapshot();
       const answer = await this.model.ask({
-        system: assistantPrompt(snapshot.vehicle, this.translate.lang),
+        system: this.withTools(assistantPrompt(snapshot.vehicle, this.translate.lang)),
         messages: [...this.history, { role: 'user', content: questionText(text, snapshot) }],
+        ...this.toolRequest(),
       });
       this.add('assistant', answer);
       const turn: ChatMessage[] = [
@@ -82,6 +99,69 @@ export class CopilotStore {
     } finally {
       this._busy.set(false);
     }
+  }
+
+  /** Tools for a request to the language model; nothing if they are switched off. */
+  toolRequest(): {
+    tools?: readonly ToolSpec[];
+    runTool?: (name: string, input: ToolInput) => Promise<string>;
+  } {
+    if (!this.toolsAllowed()) return {};
+    return {
+      tools: this.tools.map(({ name, description, input }) => ({ name, description, input })),
+      runTool: (name, input) => this.runTool(name, input),
+    };
+  }
+
+  /** The instructions, with the note about tools if there are any. */
+  withTools(system: string): string {
+    return this.toolsAllowed() ? `${system} ${TOOL_NOTE}` : system;
+  }
+
+  /** Answer to the open question by tap. */
+  answer(yes: boolean): void {
+    this.settle?.(yes);
+  }
+
+  private async runTool(name: string, input: ToolInput): Promise<string> {
+    const tool = this.tools.find((one) => one.name === name);
+    if (!tool) return `There is no tool "${name}".`;
+    try {
+      return await tool.run(input, { confirm: (question) => this.confirm(question) });
+    } catch (error) {
+      console.warn('Tool failed', name, error);
+      return 'That did not work.';
+    }
+  }
+
+  /** Asks aloud and on screen; a clear yes by voice or a tap on yes confirms. */
+  private async confirm(question: string): Promise<boolean> {
+    this.settle?.(false);
+    this._question.set(question);
+    const decided = new Promise<boolean>((resolve) => {
+      const timer = setTimeout(() => resolve(false), CONFIRM_MS);
+      this.settle = (yes) => {
+        clearTimeout(timer);
+        resolve(yes);
+      };
+    });
+    void this.listenForYes(question);
+    const yes = await decided;
+    this.settle = undefined;
+    this._question.set(null);
+    this.input.abort();
+    return yes;
+  }
+
+  private async listenForYes(question: string): Promise<void> {
+    const { lang } = this.translate;
+    const { rate } = this.settings().voice;
+    await this.speech.speak(question, lang, rate, 'answer');
+    if (this._question() !== question) return;
+    const heard = await this.input
+      .listen(lang === 'de' ? 'de-CH' : 'en-GB', CONFIRM_LISTEN_MS)
+      .catch(() => '');
+    if (heard && this._question() === question) this.settle?.(isYes(heard));
   }
 
   /** Adds a line of the conversation mode. */

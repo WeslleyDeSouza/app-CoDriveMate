@@ -31,11 +31,11 @@ Stand: 24.11.2026. Nichts davon ist im echten Auto oder am echten Adapter getest
 | 3D-Ansicht | gebaut: vier Umgebungen (Luftbild, Schlicht, Mapbox, Google), vier Kameras, Route; Gelände, Gebäude und Bäume von swisstopo, Himmel nach Tageszeit, Schatten, Fassaden, Strassendetails, alles einzeln schaltbar; Google und Tablet ungeprüft |
 | Suche | Vorschläge beim Tippen, Spracheingabe, Zuhause, Arbeit, letzte Ziele, parkiertes Auto |
 | Parkplatz | gebaut: merken (von Hand oder nach OBD-Fahrt), Karte, Rückweg, Notiz, Parkuhr mit Ansage und Mitteilung, QR-Code fürs Handy, Parkplätze am Ziel; Mitteilungen am Gerät ungetestet |
-| KI-Copilot | gebaut: Fragen mit Fahrzeugdaten, Sprache; mit echtem Key ungetestet |
+| KI-Copilot | gebaut: Fragen mit Fahrzeugdaten, Sprache; handelt mit Werkzeugen (Ziel setzen mit Bestätigung, Tankstellen, Lichtszene, Parkplatz), abschaltbar unter Datenschutz; mit echtem Key ungetestet |
 | Unterhaltung | Begleiter, Tipps, Eco (mit Vergleich zu früheren Fahrten, an die KI nur wenn erlaubt), Spruch nach harter Bremsung, Plaudern, Fakten, Quiz; Dialog oder Monolog; wenig, mittel oder viel; merkt sich Vorlieben (abschaltbar); im Auto ungetestet |
 | Handys (unter 744 Breite, oder quer bis 500 Höhe); ab iPad mini Tablet-Ansicht; Tastatur schiebt die App auf iOS nicht mehr hoch (`@capacitor/keyboard` 8, MIT) | Bereiche und «Wohin» als schwebende Knöpfe; auf dem Gerät ungetestet |
 | Anzeige links | 3D-Ansicht, runder Tacho (Tempo, Drehzahl, Gang, Limit), beides (ab 1100 × 700) oder ausgeblendet; Idee für später: Widgets selbst anordnen; im Auto ungetestet |
-| Vorlesen | Navigation, Warnungen, Infos und Unterhaltung einzeln schaltbar |
+| Vorlesen | Navigation, Warnungen, Infos und Unterhaltung einzeln schaltbar; natürliche Stimmen lauter einstellbar (normal, lauter, sehr laut; auf dem Gerät ungetestet) |
 | Zu schnell | Tempo gelb ab 4, rot ab 10 km/h über dem Limit (OpenStreetMap), mit Differenz; im Auto ungetestet |
 | Unterhaltungsmodus | gebaut: Plaudern, Fakten zur Route (ohne Key), Quiz; Fahrzeugwarnungen unterbrechen noch nicht, weil nicht portiert |
 | Tank und Tankstellen | gebaut: Füllstand (Sensor oder gezählt), Reichweite, Kosten, Tankstellen in der Nähe und auf der Route, Warnung unter 80 km; Zählung im Auto ungetestet, keine Preise |
@@ -51,3 +51,10 @@ Stand: 24.11.2026. Nichts davon ist im echten Auto oder am echten Adapter getest
 - Freie Ortssuche ohne Netz
 - Aus dem Mock fehlen in den Einstellungen: aktueller Tankstand, Vollgetankt
 - Startpaket liegt knapp über der Warngrenze von 800 kB
+
+## Ideen für später
+
+Notiert am 26.11.2026, nicht gebaut und nicht geplant:
+
+- **Auto als Willkommen:** Beim Einsteigen erkennt das iPad das Auto per BLE (OBD-Adapter oder Lichtmodul), startet das Cockpit, das Licht fährt eine Begrüssungsszene und der Copilot sagt Wetter und Verkehr zum üblichen Ziel an. Offen: Start im Hintergrund auf iOS (BLE-Wiederherstellung) und ob die App dafür offen sein muss.
+- **Gewohnheiten erkennen:** Heute bietet der Begleiter das übliche Ziel beim Losfahren an (mindestens drei Fahrten vom gleichen Ort zur gleichen Zeit). Weiter: wiederkehrende Fahrten (z.B. werktags 5–6 Uhr ins Fitness) früh erkennen, die Route samt Verkehr und Wetter vorbereiten und passende Sprüche dazu; alles auf dem Gerät gerechnet.

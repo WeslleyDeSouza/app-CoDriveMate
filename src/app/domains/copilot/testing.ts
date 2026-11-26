@@ -4,13 +4,28 @@ import { Landmark, LandmarkSource, TalkRepository } from './domain/conversation'
 import { ChatModel, ChatRequest } from './domain/copilot';
 import { DriverMemory, MemoryRepository, NO_MEMORY } from './domain/memory';
 
+/** An answer of the fake model that uses a tool first. */
+export interface FakeToolUse {
+  readonly tool: string;
+  readonly input?: Record<string, unknown>;
+}
+
 export class FakeChatModel extends ChatModel {
   readonly requests: ChatRequest[] = [];
-  answers: (string | Error)[] = [];
+  /** What the tools gave back, in order. */
+  readonly toolResults: string[] = [];
+  answers: (string | Error | FakeToolUse)[] = [];
 
   async ask(request: ChatRequest): Promise<string> {
     this.requests.push(request);
-    const answer = this.answers.shift() ?? 'ok';
+    let answer = this.answers.shift() ?? 'ok';
+    while (typeof answer === 'object' && !(answer instanceof Error)) {
+      const result = request.runTool
+        ? await request.runTool(answer.tool, answer.input ?? {})
+        : 'No tools.';
+      this.toolResults.push(result);
+      answer = this.answers.shift() ?? 'ok';
+    }
     if (answer instanceof Error) throw answer;
     return answer;
   }

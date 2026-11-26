@@ -138,7 +138,7 @@
       "roadDetails": "asphalt, edge lines, zebra crossings"
     },
     "scene_privacy": "The 3D view loads map sections around the position: from swisstopo (Switzerland), OpenFreeMap and Overpass, and with “Mapbox” and “Google” from these providers (USA). “Mapbox” and “Google” may cost money depending on use. Everything is stored except Google and, in the browser, Mapbox.",
-    "ai_privacy": "With every question the provider of the chosen model, Anthropic or OpenAI (both USA), receives: the question and the chat of this session, vehicle, live values, current street, destination and arrival. Conversation mode also sends nearby place names, the time, the state of the car (tank almost empty, engine cold, standing) and figures of the current drive (distance, duration, hard braking and acceleration, eco score), after a hard braking only this fact, only if switched on in the copilot averages of earlier drives (eco score, consumption, hard brakings per 10 km) and, if not switched off in the copilot, remembered preferences; for these, Wikipedia gets the approximate location (about 100 m). Driven routes, the logbook and other keys are never sent. Speech input uses the service of the device (Apple or Google).",
+    "ai_privacy": "With every question the provider of the chosen model, Anthropic or OpenAI (both USA), receives: the question and the chat of this session, vehicle, live values, current street, destination and arrival. Conversation mode also sends nearby place names, the time, the state of the car (tank almost empty, engine cold, standing) and figures of the current drive (distance, duration, hard braking and acceleration, eco score), after a hard braking only this fact, only if switched on in the copilot averages of earlier drives (eco score, consumption, hard brakings per 10 km) and, if not switched off in the copilot, remembered preferences; for these, Wikipedia gets the approximate location (about 100 m). If the copilot may act (Settings > Privacy), the results of its tools go along too: place names from the search, filling stations with address and distance, range, names of light scenes. Driven routes, the logbook and other keys are never sent. Speech input uses the service of the device (Apple or Google).",
     "key_openai": "OpenAI API key",
     "key_openai_note": "for ChatGPT; a ChatGPT subscription is not enough",
     "model_luna": "ChatGPT (GPT-6 Luna, fast, cheap)",
@@ -189,6 +189,12 @@
       "conversation": "chat, companion, facts, quiz"
     },
     "scene3d_both": "3D view and speedometer (large screen)",
-    "data": "Read data"
+    "data": "Read data",
+    "group_privacy": "Privacy",
+    "privacy_summary": "What goes to the AI",
+    "ai_tools": "Copilot may act",
+    "ai_tools_note": "Set a destination, find filling stations, light scene, remember the parking spot. The results go to the AI provider: place names from the search, names, addresses and distances of filling stations, names of light scenes. Never coordinates or routes.",
+    "share_trips": "Earlier drives to the AI",
+    "share_trips_note": "Averages of the last drives (eco score, consumption, hard brakings per 10 km) for tips and eco. Switched off, only this device compares."
   }
 }

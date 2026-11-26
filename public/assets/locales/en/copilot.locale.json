@@ -132,6 +132,10 @@
         "6": "Someone did not expect us there, it seems.",
         "7": "Good thing you are awake. I held my breath for a second."
       }
+    },
+    "confirm": {
+      "yes": "Yes",
+      "no": "No"
     }
   }
 }

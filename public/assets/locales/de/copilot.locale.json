@@ -132,6 +132,10 @@
         "6": "Da hat wohl jemand nicht mit uns gerechnet.",
         "7": "Gut, dass du wach bist. Ich hab kurz die Luft angehalten."
       }
+    },
+    "confirm": {
+      "yes": "Ja",
+      "no": "Nein"
     }
   }
 }

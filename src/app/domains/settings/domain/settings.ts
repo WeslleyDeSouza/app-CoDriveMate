@@ -88,6 +88,8 @@ export interface AppSettings {
     memory: boolean;
     /** averages of earlier drives go to the language model; otherwise compared on the device only */
     shareTrips: boolean;
+    /** the copilot may act (destination, fuel, light, parking); results go to the language model */
+    tools: boolean;
   };
   /**
    * API keys entered by the user. They live only on this device; nothing is
@@ -160,6 +162,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     talkPace: 'medium',
     memory: true,
     shareTrips: false,
+    tools: true,
   },
   keys: { anthropic: '', openai: '', elevenlabs: '', google: '', mapbox: '', tomtom: '' },
   proxyUrl: '',

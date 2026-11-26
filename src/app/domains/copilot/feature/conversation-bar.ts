@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { TranslatePipe } from '@core/i18n';
 import { ConversationStore } from '../application/conversation.store';
+import { CopilotStore } from '../application/copilot.store';
 import { QUIZ_KEYS } from '../domain/conversation';
 
 /** Shown above the map while a conversation runs: one tap ends it. */
@@ -9,6 +10,28 @@ import { QUIZ_KEYS } from '../domain/conversation';
   imports: [TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
+    @if (copilot.question(); as question) {
+      <div class="quiz confirm" role="alertdialog" data-section-test="copilot-confirm">
+        <b>{{ question }}</b>
+        <div class="choices">
+          <button
+            type="button"
+            class="yes"
+            data-section-test="copilot-confirm-yes"
+            (click)="copilot.answer(true)"
+          >
+            <i class="ti ti-check" aria-hidden="true"></i>{{ 'copilot.confirm.yes' | translate }}
+          </button>
+          <button
+            type="button"
+            data-section-test="copilot-confirm-no"
+            (click)="copilot.answer(false)"
+          >
+            <i class="ti ti-x" aria-hidden="true"></i>{{ 'copilot.confirm.no' | translate }}
+          </button>
+        </div>
+      </div>
+    }
     @if (store.active()) {
       <button
         class="bar"
@@ -111,6 +134,22 @@ import { QUIZ_KEYS } from '../domain/conversation';
     .quiz b {
       font-size: 17px;
     }
+    .choices {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .confirm button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-align: center;
+    }
+    .confirm .yes {
+      background: var(--a);
+      color: #fff;
+    }
     .quiz button {
       min-height: 56px;
       border: 0;
@@ -124,6 +163,7 @@ import { QUIZ_KEYS } from '../domain/conversation';
 })
 export class ConversationBar {
   protected readonly store = inject(ConversationStore);
+  protected readonly copilot = inject(CopilotStore);
   protected readonly keys = QUIZ_KEYS;
   /** What is going on, or what is on. */
   protected readonly label = computed(

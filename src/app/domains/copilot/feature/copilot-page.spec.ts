@@ -1,4 +1,4 @@
-import { signal } from '@angular/core';
+import { Provider, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideI18nTesting } from '@core/i18n/testing';
@@ -15,6 +15,8 @@ import { telemetryTesting } from '@domains/telemetry/testing';
 import { findHook, hook, hooks, textOf } from '@shared/testing';
 import { ConversationStore } from '../application/conversation.store';
 import { ChatError } from '../domain/copilot';
+import { CopilotStore } from '../application/copilot.store';
+import { ASSISTANT_TOOLS, AssistantTool } from '@core/assistant';
 import { TalkMode } from '../domain/conversation';
 import { copilotTesting } from '../testing';
 import { ConversationBar } from './conversation-bar';
@@ -47,7 +49,7 @@ describe('copilot', () => {
     end: [8.64, 47.38],
   };
 
-  async function setup(key = 'sk-test'): Promise<void> {
+  async function setup(key = 'sk-test', extra: Provider[] = []): Promise<void> {
     nav = navigationTesting();
     ai = copilotTesting();
     nav.gps.allowed = true;
@@ -67,6 +69,7 @@ describe('copilot', () => {
         ...logbookTesting().providers,
         { provide: LogbookStore, useValue: logbook },
         { provide: SettingsStore, useValue: { settings, update } },
+        ...extra,
       ],
     });
     await TestBed.inject(PositionStore).start(false);
@@ -138,6 +141,86 @@ describe('copilot', () => {
       hook(root, 'copilot-microphone').click();
       await settle(fixture);
       expect(ai.model.requests[0].messages[0].content).toContain('Ist die Batterie gut');
+    });
+  });
+
+  describe('tools', () => {
+    let store: CopilotStore;
+    const done: string[] = [];
+    const tools: AssistantTool[] = [
+      {
+        name: 'remember_parking',
+        description: 'Remembers the parking spot.',
+        input: { properties: {} },
+        run: async () => (done.push('parked'), 'Parking spot saved.'),
+      },
+      {
+        name: 'set_destination',
+        description: 'Starts a route.',
+        input: { properties: { query: { type: 'string' } }, required: ['query'] },
+        run: async (input, { confirm }) => {
+          if (!(await confirm(`Route nach ${String(input['query'])} starten?`))) return 'Declined.';
+          done.push('route ' + String(input['query']));
+          return 'Route started.';
+        },
+      },
+    ];
+
+    async function begin(): Promise<void> {
+      done.length = 0;
+      await setup(
+        'sk-test',
+        tools.map((tool) => ({ provide: ASSISTANT_TOOLS, useValue: tool, multi: true })),
+      );
+      store = TestBed.inject(CopilotStore);
+    }
+
+    it('acts with a tool and answers with what came of it', async () => {
+      await begin();
+      ai.model.answers = [{ tool: 'remember_parking' }, 'Ich habe den Parkplatz gemerkt.'];
+      await store.ask('Merk dir, wo ich parke');
+      const [request] = ai.model.requests;
+      expect(request.tools?.map(({ name }) => name)).toEqual([
+        'remember_parking',
+        'set_destination',
+      ]);
+      expect(request.system).toContain('You can act with the tools');
+      expect(done).toEqual(['parked']);
+      expect(ai.model.toolResults).toEqual(['Parking spot saved.']);
+      expect(nav.speech.said).toEqual(['Ich habe den Parkplatz gemerkt.']);
+    });
+
+    it('starts a route only after a spoken yes', async () => {
+      await begin();
+      ai.input.heard = ['Ja gerne'];
+      ai.model.answers = [{ tool: 'set_destination', input: { query: 'Fitness' } }, 'Los gehts.'];
+      await store.ask('Bring mich ins Fitness');
+      expect(nav.speech.said[0]).toBe('Route nach Fitness starten?');
+      expect(done).toEqual(['route Fitness']);
+      expect(store.question()).toBeNull();
+    });
+
+    it('does nothing on a no, by voice or by tap', async () => {
+      await begin();
+      ai.input.heard = ['Nein danke'];
+      ai.model.answers = [{ tool: 'set_destination', input: { query: 'Fitness' } }, 'Gut.'];
+      await store.ask('Bring mich ins Fitness');
+      expect(ai.model.toolResults).toEqual(['Declined.']);
+
+      ai.model.answers = [{ tool: 'set_destination', input: { query: 'Büro' } }, 'Los.'];
+      const asking = store.ask('Ins Büro');
+      await vi.waitFor(() => expect(store.question()).toContain('Büro'));
+      store.answer(true);
+      await asking;
+      expect(done).toEqual(['route Büro']);
+    });
+
+    it('offers no tools when switched off in the privacy settings', async () => {
+      await begin();
+      settings.update((s) => ({ ...s, ai: { ...s.ai, tools: false } }));
+      await store.ask('Merk dir den Parkplatz');
+      expect(ai.model.requests[0].tools).toBeUndefined();
+      expect(ai.model.requests[0].system).not.toContain('You can act with the tools');
     });
   });
 
