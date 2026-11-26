@@ -128,7 +128,16 @@
         "7": "Gut, dass du wach bist. Ich hab kurz die Luft angehalten."
       },
       "usual_early": "Wieder früh unterwegs nach {{name}}, stark. Gute Fahrt!",
-      "usual_offer_early": "Wieder früh unterwegs nach {{name}}, stark. Soll ich die Route starten?"
+      "usual_offer_early": "Wieder früh unterwegs nach {{name}}, stark. Soll ich die Route starten?",
+      "planned": "Heute steht noch «{{topic}}» an, bei {{place}}. Du findest es in der Suche.",
+      "planned_offer": "Heute steht noch «{{topic}}» an, bei {{place}}. Soll ich die Route starten?",
+      "planned_place": "Heute ist eine Fahrt nach {{place}} geplant. Du findest sie in der Suche.",
+      "planned_place_offer": "Heute ist eine Fahrt nach {{place}} geplant. Soll ich die Route starten?",
+      "purpose": "Unterwegs zu {{place}}: {{topic}}. Freu dich drauf!",
+      "purpose_place": "Unterwegs zu {{place}}.",
+      "purpose_note": "Deine Notiz: {{note}}",
+      "arrived_topic": "Da wären wir. Viel Spass: {{topic}}!",
+      "arrived": "Da wären wir. Viel Spass!"
     },
     "confirm": {
       "yes": "Ja",

@@ -1,6 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { TranslateService } from '@core/i18n';
 import { NavigationRepository } from '../domain/ports';
+import { TripPurpose } from '../domain/planned-trips';
 import { Place } from '../domain/route';
 import {
   Favourite,
@@ -40,9 +41,9 @@ export class PlacesStore {
     return this.loaded;
   }
 
-  /** Starts the way to a found place and remembers it. */
-  async go(place: Place): Promise<boolean> {
-    if (!(await this.navigation.navigateTo(place))) return false;
+  /** Starts the way to a found place and remembers it; `purpose` if it was planned. */
+  async go(place: Place, purpose?: TripPurpose): Promise<boolean> {
+    if (!(await this.navigation.navigateTo(purpose ? { ...place, purpose } : place))) return false;
     const saved = toSaved(place);
     await this.change((places) => withRecent(places, this.keepOffline(places, saved)));
     void this.lookUpOffline(place, saved);
@@ -50,15 +51,26 @@ export class PlacesStore {
   }
 
   /** Starts the way to a saved place, after looking it up again if needed. */
-  async goSaved(saved: SavedPlace): Promise<boolean> {
+  async goSaved(saved: SavedPlace, purpose?: TripPurpose): Promise<boolean> {
     const { name, detail } = saved;
-    if (saved.coordinate) return this.go({ name, detail, coordinate: saved.coordinate });
+    if (saved.coordinate) return this.go({ name, detail, coordinate: saved.coordinate }, purpose);
     const found = await this.lookUp(saved);
     // The name the user knows, not the one of this search.
-    if (found) return this.go({ ...found, name, detail });
+    if (found) return this.go({ ...found, name, detail }, purpose);
     return saved.offline
-      ? this.navigation.navigateTo({ name, detail, coordinate: saved.offline })
+      ? this.navigation.navigateTo({ name, detail, coordinate: saved.offline, purpose })
       : false;
+  }
+
+  /** A found place as it may be kept, with the OpenStreetMap place for the time offline. */
+  async forLater(place: Place): Promise<SavedPlace> {
+    const saved = toSaved(place);
+    if (saved.coordinate) return saved;
+    const found = await this.osm
+      .search(searchText(saved), place.coordinate, this.translate.lang)
+      .catch(() => []);
+    const offline = offlineCoordinate(place, found);
+    return offline ? { ...saved, offline } : saved;
   }
 
   matching(text: string): SavedPlace[] {

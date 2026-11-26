@@ -66,6 +66,8 @@
       "minutes": "about {{minutes}} min",
       "start": "Start route",
       "dismiss": "Not today"
-    }
+    },
+    "planned": "Planned & saved",
+    "driven": "Driven"
   }
 }

@@ -66,6 +66,10 @@
   </button>
 </form>
 
+@if (planning(); as place) {
+  <app-trip-form [place]="place" (closed)="planning.set(null)" (saved)="planned()" />
+}
+
 @if (showSaved()) {
   <div class="chips">
     @for (kind of favourites; track kind) {
@@ -96,6 +100,18 @@
         }
       </span>
     }
+    @for (trip of favouriteTrips(); track trip.id) {
+      <span class="chip">
+        <button
+          type="button"
+          [attr.data-section-test]="'map-trip-favourite-' + trip.id"
+          [disabled]="navigation.busy() || locating()"
+          (click)="goTrip(trip)"
+        >
+          <i class="ti ti-star" aria-hidden="true"></i>{{ trip.topic || trip.place.name }}
+        </button>
+      </span>
+    }
     @for (pin of pins(); track pin.id) {
       <span class="chip">
         <button
@@ -109,6 +125,7 @@
       </span>
     }
   </div>
+  <app-planned-trips [soon]="true" (started)="close()" />
   @for (place of recent(); track $index) {
     <div class="saved">
       <button
@@ -122,6 +139,15 @@
         <span>
           <b>{{ place.name }}</b><small>{{ place.detail }}</small>
         </span>
+      </button>
+      <button
+        type="button"
+        class="icon"
+        [attr.data-section-test]="'map-plan-recent-' + $index"
+        [attr.aria-label]="'navigation.plan.title' | translate"
+        (click)="planSaved(place)"
+      >
+        <i class="ti ti-calendar-plus" aria-hidden="true"></i>
       </button>
       <button
         type="button"
@@ -158,18 +184,33 @@
     </span>
   </button>
 }
-@for (place of results(); track $index) {
-  <button
-    class="result"
-    type="button"
-    [attr.data-section-test]="'map-result-' + $index"
-    [disabled]="navigation.busy()"
-    (click)="choose(place)"
-  >
-    <i class="ti ti-map-pin" aria-hidden="true"></i>
-    <span>
-      <b>{{ place.name }}</b><small>{{ place.detail }}</small>
-    </span>
-    <em>{{ distance(place) }}</em>
-  </button>
+@if (!planning()) {
+  @for (place of results(); track $index) {
+    <div class="saved">
+      <button
+        class="result"
+        type="button"
+        [attr.data-section-test]="'map-result-' + $index"
+        [disabled]="navigation.busy()"
+        (click)="choose(place)"
+      >
+        <i class="ti ti-map-pin" aria-hidden="true"></i>
+        <span>
+          <b>{{ place.name }}</b><small>{{ place.detail }}</small>
+        </span>
+        <em>{{ distance(place) }}</em>
+      </button>
+      @if (!assigning()) {
+        <button
+          type="button"
+          class="icon"
+          [attr.data-section-test]="'map-plan-result-' + $index"
+          [attr.aria-label]="'navigation.plan.title' | translate"
+          (click)="plan(place)"
+        >
+          <i class="ti ti-calendar-plus" aria-hidden="true"></i>
+        </button>
+      }
+    </div>
+  }
 }

@@ -223,6 +223,8 @@ export class CopilotStore {
               nextManeuverM: progress?.distanceM ?? null,
               arrival: new Date(Date.now() + remainingS * 1000).toTimeString().slice(0, 5),
               remainingKm: (progress?.remainingM ?? route.line.lengthM) / 1000,
+              topic: destination.purpose?.topic ?? '',
+              note: destination.purpose?.note ?? '',
             }
           : null,
     };

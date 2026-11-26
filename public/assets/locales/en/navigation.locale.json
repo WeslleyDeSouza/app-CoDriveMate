@@ -111,6 +111,24 @@
     },
     "tool": {
       "confirm": "Start the route to {{place}}?"
+    },
+    "plan": {
+      "title": "Save for later",
+      "topic": "Topic",
+      "topic_hint": "e.g. swimming",
+      "note": "Description",
+      "note_hint": "e.g. with Lisa, bring a towel",
+      "day": "Day (empty: any day)",
+      "favourite": "Favourite",
+      "save": "Save",
+      "cancel": "Cancel",
+      "privacy": "Topic and description stay on the device. With an AI key they go to the AI provider during this drive (copilot and conversation mode).",
+      "empty": "Nothing planned yet. Search a destination on the map and tap the calendar.",
+      "remove_sure": "Tap again to remove",
+      "when": {
+        "today": "Today",
+        "anytime": "Any day"
+      }
     }
   }
 }

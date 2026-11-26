@@ -18,7 +18,7 @@ Stand: 24.11.2026. Nichts davon ist im echten Auto oder am echten Adapter getest
 | Demo-Fahrt | gebaut |
 | Motorwerte | gebaut |
 | Einstellungen | gebaut nach Mock; wirksam sind Sprache, Design, Fahrzeug und Datensicherung |
-| Fahrtenbuch | zeichnet automatisch auf (OBD, sonst GPS), Monate, Summen, Karte, CSV, Eco-Tipps; im Auto ungetestet |
+| Fahrtenbuch | zeichnet automatisch auf (OBD, sonst GPS), Monate, Summen, Karte, CSV, Eco-Tipps; zeigt geplante und gespeicherte Fahrten; im Auto ungetestet |
 | Wartung | gebaut: Intervalle, eigene Einträge, MFK, Vignette, Hinweis beim Start, Punkt im Dock; Kilometerstand zählt bei OBD mit, im Auto ungetestet |
 | Gerätetest | gebaut: prüft Gerät, Sensoren, Plugins, Dienste und Keys; Bericht ohne Keys und Standort teilbar |
 | Daten auslesen | gebaut (Einstellungen): OBD, ESP32 (letzte 120 Bluetooth-Pakete je Modul) und 3D-Zustand als JSON zum Kopieren; die letzte Auslesung je Modul bleibt mit Datum gespeichert (kein Verlauf, `kv` `selftest/readings`, in der Datensicherung); nur lesend (`domain/obd-report.ts`), ohne Fahrgestellnummer; am Gerät ungetestet |
@@ -29,7 +29,8 @@ Stand: 24.11.2026. Nichts davon ist im echten Auto oder am echten Adapter getest
 | OBD über WLAN und MFi | gebaut mit eigenem Plugin; nicht kompiliert, nicht getestet |
 | Karte und Navigation | gebaut: Suche, Route, Führung, Ansagen, Verkehr, Wetter auf der Route, Routenübersicht, Route offline speichern; natives Mapbox-SDK ungetestet |
 | 3D-Ansicht | gebaut: vier Umgebungen (Luftbild, Schlicht, Mapbox, Google), vier Kameras, Route; Gelände, Gebäude und Bäume von swisstopo, Himmel nach Tageszeit, Schatten, Fassaden, Strassendetails, alles einzeln schaltbar; Google und Tablet ungeprüft |
-| Suche | Vorschläge beim Tippen, Spracheingabe, Zuhause, Arbeit, letzte Ziele, parkiertes Auto |
+| Suche | Vorschläge beim Tippen, Spracheingabe, Zuhause, Arbeit, Favoriten, geplante und letzte Ziele, parkiertes Auto |
+| Geplante Fahrten | gebaut: Ziel für später speichern mit Thema, Beschreibung, optionalem Tag und Favorit (Kalender-Symbol bei Suchresultat oder letztem Ziel); Liste in der Suche (heute und kommend) und im Fahrtenbuch («Geplant & gespeichert», alle, ändern, entfernen); Favoriten als Schnellwahl neben Zuhause/Arbeit. Unterhaltung: bietet die Fahrt am geplanten Tag zu Fahrtbeginn an, bemerkt unterwegs einmal Thema und Notiz, Plaudern beginnt beim Thema, bei Ankunft ein passender Wunsch («Viel Spass beim Schwimmen»); ohne Key feste Sätze; im Auto ungetestet |
 | Parkplatz | gebaut: merken (von Hand oder nach OBD-Fahrt), Karte, Rückweg, Notiz, Parkuhr mit Ansage und Mitteilung, QR-Code fürs Handy, Parkplätze am Ziel; Mitteilungen am Gerät ungetestet |
 | Gewohnheiten | gebaut: erkennt wiederkehrende Fahrten aus dem Fahrtenbuch (gleicher Start und Ziel, Startzeit ±45 Min., mind. 3 Fahrten der letzten 8 Wochen, ab 5 Fahrten nach Wochentag); zur üblichen Zeit am üblichen Ort Karte «Wie immer nach X?» mit Fahrzeit, ein Tipp startet; Begleiter mit Spruch für frühe Fahrten; alles auf dem Gerät; nicht in der Demo (braucht echte Fahrten), im Auto ungetestet |
 | KI-Copilot | gebaut: Fragen mit Fahrzeugdaten, Sprache; handelt mit Werkzeugen (Ziel setzen mit Bestätigung, Tankstellen, Lichtszene, Parkplatz), abschaltbar unter Datenschutz; mit echtem Key ungetestet |

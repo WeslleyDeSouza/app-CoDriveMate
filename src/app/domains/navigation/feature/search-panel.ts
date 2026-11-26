@@ -13,21 +13,25 @@ import { TranslatePipe, TranslateService } from '@core/i18n';
 import { MapPin, MapPinsStore } from '../application/map-pins.store';
 import { NavigationStore } from '../application/navigation.store';
 import { PlacesStore } from '../application/places.store';
+import { PlannedTripsStore } from '../application/planned-trips.store';
+import { PlannedTrip } from '../domain/planned-trips';
 import { PositionStore } from '../application/position.store';
 import { distanceM } from '../domain/geo';
 import { Place } from '../domain/route';
 import { FAVOURITES, Favourite, SavedPlace } from '../domain/saved-places';
 import { UnitsStore } from '@core/units';
 import { formatDistanceIn } from '@shared/kernel/units';
+import { PlannedTrips } from './planned-trips';
+import { TripForm } from './trip-form';
 
 const TYPING_MS = 450;
 const MIN_LENGTH = 3;
 const LISTEN_MS = 8000;
 
-/** Search for a destination: typing, speaking, home, work, last destinations. */
+/** Search for a destination: typing, speaking, home, work, favourites, planned and last ones. */
 @Component({
   selector: 'app-search-panel',
-  imports: [TranslatePipe],
+  imports: [TranslatePipe, PlannedTrips, TripForm],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { '[class.open]': 'open()' },
   templateUrl: './search-panel.html',
@@ -36,6 +40,7 @@ const LISTEN_MS = 8000;
 export class SearchPanel {
   protected readonly navigation = inject(NavigationStore);
   private readonly places = inject(PlacesStore);
+  private readonly plannedTrips = inject(PlannedTripsStore);
   private readonly pinsStore = inject(MapPinsStore);
   private readonly positions = inject(PositionStore);
   private readonly microphone = inject(SpeechInput);
@@ -53,16 +58,19 @@ export class SearchPanel {
   /** The next chosen place becomes this favourite. */
   protected readonly assigning = signal<Favourite | null>(null);
   protected readonly favourites = FAVOURITES;
+  protected readonly favouriteTrips = this.plannedTrips.favourites;
+  /** A place is being saved for later. */
+  protected readonly planning = signal<SavedPlace | null>(null);
   protected readonly saved = this.places.places;
   protected readonly pins = computed(() =>
     this.pinsStore.pins().filter(({ icon }) => icon === 'parking'),
   );
   protected readonly recent = computed(() => this.saved().recent);
   protected readonly matches = computed(() =>
-    this.open() && !this.assigning() ? this.places.matching(this.text()) : [],
+    this.open() && !this.assigning() && !this.planning() ? this.places.matching(this.text()) : [],
   );
   protected readonly showSaved = computed(
-    () => this.open() && !this.text().trim() && !this.assigning(),
+    () => this.open() && !this.text().trim() && !this.assigning() && !this.planning(),
   );
 
   private searchId = 0;
@@ -70,6 +78,7 @@ export class SearchPanel {
 
   constructor() {
     void this.places.load();
+    void this.plannedTrips.load();
     inject(DestroyRef).onDestroy(() => {
       clearTimeout(this.typing);
       if (this.listening()) this.microphone.abort();
@@ -98,6 +107,7 @@ export class SearchPanel {
     clearTimeout(this.typing);
     this.clearResults();
     this.assigning.set(null);
+    this.planning.set(null);
     this.open.set(false);
     this.setText('');
     this.input().nativeElement.blur();
@@ -142,6 +152,29 @@ export class SearchPanel {
     const kind = this.assigning();
     if (kind) void this.places.setFavourite(kind, null);
     this.assigning.set(null);
+  }
+
+  /** Saves a found place for later, with a topic. */
+  protected async plan(place: Place): Promise<void> {
+    this.planning.set(await this.places.forLater(place));
+  }
+
+  protected planSaved(saved: SavedPlace): void {
+    this.planning.set(saved);
+  }
+
+  /** Saved: the list with it shows again. */
+  protected planned(): void {
+    this.planning.set(null);
+    this.setText('');
+    this.clearResults();
+  }
+
+  protected async goTrip(trip: PlannedTrip): Promise<void> {
+    this.locating.set(true);
+    const started = await this.plannedTrips.go(trip).finally(() => this.locating.set(false));
+    if (started) this.close();
+    else if (!this.navigation.notice()) this.state.set('unknown');
   }
 
   protected forget(saved: SavedPlace): void {

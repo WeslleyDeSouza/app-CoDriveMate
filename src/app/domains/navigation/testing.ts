@@ -18,6 +18,7 @@ import {
   PositionSource,
 } from './domain/ports';
 import { NO_PLACES, SavedPlaces } from './domain/saved-places';
+import { PlannedTrip } from './domain/planned-trips';
 import { HourlyWeather, WeatherSource } from './domain/weather';
 import { NoRouteError, Place, ProviderId, Route } from './domain/route';
 
@@ -167,6 +168,14 @@ export class FakeNavigationRepository extends NavigationRepository {
   }
   async savePlaces(places: SavedPlaces): Promise<void> {
     this.places = places;
+  }
+
+  trips: readonly PlannedTrip[] = [];
+  async loadTrips(): Promise<readonly PlannedTrip[]> {
+    return this.trips;
+  }
+  async saveTrips(trips: readonly PlannedTrip[]): Promise<void> {
+    this.trips = trips;
   }
 }
 

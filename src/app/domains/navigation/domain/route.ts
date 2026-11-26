@@ -1,4 +1,5 @@
 import { Coordinate, Polyline } from './geo';
+import { TripPurpose } from './planned-trips';
 
 export type ProviderId = 'mapbox' | 'google' | 'osm';
 
@@ -39,6 +40,8 @@ export interface Place {
   readonly coordinate: Coordinate;
   /** who found it */
   readonly source?: ProviderId;
+  /** why the driver goes there, if it was planned */
+  readonly purpose?: TripPurpose;
 }
 
 /** The service refused the key; using it again is pointless until it changes. */

@@ -55,6 +55,7 @@ export class NavigationStore {
   private readonly _progress = signal<Progress | null>(null);
   private readonly _busy = signal(false);
   private readonly _notice = signal('');
+  private readonly _arrival = signal<{ place: Place; at: number } | null>(null);
   /** Providers left alone until tomorrow or the next start. */
   private readonly paused = signal<ReadonlySet<ProviderId>>(new Set());
   private readonly rejected = signal<Partial<Record<ProviderId, string>>>({});
@@ -65,6 +66,8 @@ export class NavigationStore {
   readonly busy = this._busy.asReadonly();
   /** Translation key of a short message for the driver, '' if none. */
   readonly notice = this._notice.asReadonly();
+  /** The last destination reached under guidance, and when. */
+  readonly arrival = this._arrival.asReadonly();
 
   readonly mapboxToken = computed(() => this.settings().keys.mapbox);
   /** A Mapbox key is there and was not refused. */
@@ -296,6 +299,7 @@ export class NavigationStore {
     if (progress.arrived) {
       this.stop();
       this.say(this.t('navigation.say.arrived'));
+      this._arrival.set({ place: destination, at: Date.now() });
       return;
     }
     const announcement = this.announcements.next(progress, route);

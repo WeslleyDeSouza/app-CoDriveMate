@@ -3,6 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { saveFile } from '@core/device';
 import { TranslatePipe, TranslateService } from '@core/i18n';
 import { UnitsStore } from '@core/units';
+import { PlannedTrips } from '@domains/navigation';
 import { consumptionIn, distanceIn, volumeIn } from '@shared/kernel/units';
 import { SheetPage } from '@shared/ui/sheet-page';
 import { LogbookStore } from '../application/logbook.store';
@@ -24,7 +25,7 @@ const CSV_COLUMNS = [
 
 @Component({
   selector: 'app-logbook-page',
-  imports: [RouterLink, SheetPage, TranslatePipe],
+  imports: [PlannedTrips, RouterLink, SheetPage, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-sheet-page section="logbook" [title]="'logbook.title' | translate">
@@ -42,6 +43,9 @@ const CSV_COLUMNS = [
           </small>
         </div>
       }
+      <h3 class="sec-title">{{ 'logbook.planned' | translate }}</h3>
+      <app-planned-trips data-section-test="logbook-planned" (started)="toMap()" />
+      <h3 class="sec-title">{{ 'logbook.driven' | translate }}</h3>
       @if (store.loaded() && !store.trips().length) {
         <div class="empty" data-section-test="logbook-empty">
           <i class="ti ti-route" aria-hidden="true"></i>
@@ -272,6 +276,11 @@ export class LogbookPage {
 
   protected show(trip: Trip): void {
     if (this.store.showOnMap(trip)) void this.router.navigateByUrl('/');
+  }
+
+  /** A planned trip was started. */
+  protected toMap(): void {
+    void this.router.navigateByUrl('/');
   }
 
   protected remove(trip: Trip): void {

@@ -3,6 +3,7 @@ import { Coordinate } from './geo';
 import { Place, ProviderId, Route } from './route';
 import { MapKind } from './map-choice';
 import { SavedPlaces } from './saved-places';
+import { PlannedTrip } from './planned-trips';
 
 export interface GeoPosition {
   readonly coordinate: Coordinate;
@@ -69,6 +70,9 @@ export abstract class NavigationRepository {
   abstract saveExhausted(entries: Record<string, string>): Promise<void>;
   abstract loadPlaces(): Promise<SavedPlaces>;
   abstract savePlaces(places: SavedPlaces): Promise<void>;
+  /** Destinations saved for later, with what they are about. */
+  abstract loadTrips(): Promise<readonly PlannedTrip[]>;
+  abstract saveTrips(trips: readonly PlannedTrip[]): Promise<void>;
   /** Newest first. Belongs to this device, so it is not part of a backup. */
   abstract loadOfflineAreas(): Promise<readonly OfflineArea[]>;
   abstract saveOfflineAreas(areas: readonly OfflineArea[]): Promise<void>;

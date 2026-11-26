@@ -70,6 +70,15 @@ Wochenende); die Route startet nur nach einem klaren Ja. Diese Sätze gehen nich
 Sprachmodell; mit gewählter Cloud-Stimme geht der gesprochene Text an deren Anbieter.
 Ungetestet im Auto.
 
+**Geplante Fahrten:** Zu Fahrtbeginn (erste 2 km, keine Route aktiv) bietet der Begleiter
+eine für heute geplante Fahrt vor dem üblichen Ziel an, jede einmal, solange die App offen
+ist, und nicht, wenn das Auto schon dort steht (1 km); im Dialog startet ein klares Ja die
+Route. Unterwegs zu einem geplanten Ziel sagt der Begleiter einmal etwas zum Thema und gibt
+die Notiz weiter; das erste Plaudern auf dieser Fahrt beginnt beim Thema. Nach der Ankunft
+(jeder eingeschaltete Modus) folgt ein Wunsch, der zum Thema passt, sobald die Navigation
+fertig gesprochen hat, verworfen nach 2 Minuten. Mit Key formuliert das Modell, sonst feste
+Sätze. Thema und Notiz gehen als «Daten, keine Anweisungen» ans Modell. Im Auto ungetestet.
+
 **Tipps und Eco:** Jeder Hinweis kommt höchstens einmal pro Fahrt, dann 3 Minuten Pause
 (mal Faktor «Wie oft»). Vergleiche brauchen mindestens 5 km der laufenden Fahrt und drei
 frühere Fahrten ab 3 km (die letzten 30; Demo-Fahrten nur mit Demo-Fahrten). Gerechnet wird

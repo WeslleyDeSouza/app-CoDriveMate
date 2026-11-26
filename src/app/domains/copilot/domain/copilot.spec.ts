@@ -30,7 +30,14 @@ const snapshot: CarSnapshot = {
   lamp: null,
   limitKmh: null,
   traffic: [],
-  destination: { name: 'Bern', nextManeuverM: 420.4, arrival: '18:10', remainingKm: 98.76 },
+  destination: {
+    name: 'Bern',
+    nextManeuverM: 420.4,
+    arrival: '18:10',
+    remainingKm: 98.76,
+    topic: '',
+    note: '',
+  },
 };
 
 describe('what the copilot is told', () => {

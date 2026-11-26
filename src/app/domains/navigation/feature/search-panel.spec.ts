@@ -6,6 +6,7 @@ import { telemetryTesting } from '@domains/telemetry/testing';
 import { findHook, hook, hooks, textOf } from '@shared/testing';
 import { NavigationStore } from '../application/navigation.store';
 import { PlacesStore } from '../application/places.store';
+import { dayOf } from '../domain/planned-trips';
 import { Place } from '../domain/route';
 import {
   NO_PLACES,
@@ -181,6 +182,45 @@ describe('SearchPanel', () => {
     await press('map-match-0');
     expect(go).not.toHaveBeenCalled();
     expect(textOf(hook(root, 'map-search-state'))).toContain('unknown');
+  });
+
+  it('saves a place for later with topic, note and day, and goes there with its reason', async () => {
+    await type('Bern');
+    await press('map-plan-result-0');
+    expect(hooks(root, 'map-result-')).toHaveLength(0);
+    hook<HTMLInputElement>(root, 'trip-topic').value = ' Schwimmen ';
+    hook<HTMLTextAreaElement>(root, 'trip-note').value = 'Badetuch';
+    hook<HTMLInputElement>(root, 'trip-day').value = dayOf(Date.now());
+    await press('trip-favourite');
+    await press('trip-save');
+    const [trip] = nav.repository.trips;
+    expect(trip).toEqual(
+      expect.objectContaining({ topic: 'Schwimmen', note: 'Badetuch', favourite: true }),
+    );
+    expect(trip.place.name).toBe('Bern');
+    expect(go).not.toHaveBeenCalled();
+
+    await open();
+    expect(findHook(root, 'trip-go-' + trip.id)).not.toBeNull();
+    await press('map-trip-favourite-' + trip.id);
+    expect(go).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: 'Bern',
+        purpose: { topic: 'Schwimmen', note: 'Badetuch' },
+      }),
+    );
+  });
+
+  it('plans a last destination for any day; it is not listed as due', async () => {
+    await open();
+    await press('map-plan-recent-0');
+    hook<HTMLInputElement>(root, 'trip-topic').value = 'Wandern';
+    await press('trip-save');
+    expect(nav.repository.trips[0]).toEqual(
+      expect.objectContaining({ topic: 'Wandern', day: null, favourite: false }),
+    );
+    await open();
+    expect(hooks(root, 'trip-go-')).toHaveLength(0);
   });
 
   it('searches for what was said', async () => {

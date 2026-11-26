@@ -2,11 +2,13 @@ import { OfflineArea } from '../domain/offline-areas';
 import { Injectable, inject } from '@angular/core';
 import { CacheStore, KeyValueStore, LegacyMigration } from '@core/storage';
 import { NO_PLACES, SavedPlaces } from '../domain/saved-places';
+import { PlannedTrip, validTrips } from '../domain/planned-trips';
 import { DEFAULT_MAP_PREFERENCES, MapPreferences, NavigationRepository } from '../domain/ports';
 
 const PREFERENCES_KEY = 'navigation/map';
 const EXHAUSTED_KEY = 'navigation/exhausted';
 const PLACES_KEY = 'navigation/places';
+const TRIPS_KEY = 'navigation/trips';
 
 interface OldPreferences {
   bearingLock?: number | null;
@@ -53,6 +55,14 @@ export class IdbNavigationRepository extends NavigationRepository {
 
   savePlaces(places: SavedPlaces): Promise<void> {
     return this.kv.set(PLACES_KEY, places);
+  }
+
+  async loadTrips(): Promise<readonly PlannedTrip[]> {
+    return validTrips(await this.kv.get<unknown>(TRIPS_KEY));
+  }
+
+  saveTrips(trips: readonly PlannedTrip[]): Promise<void> {
+    return this.kv.set(TRIPS_KEY, trips);
   }
 }
 

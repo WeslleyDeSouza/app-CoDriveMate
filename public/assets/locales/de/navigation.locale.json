@@ -111,6 +111,24 @@
     },
     "tool": {
       "confirm": "Route nach {{place}} starten?"
+    },
+    "plan": {
+      "title": "Für später speichern",
+      "topic": "Thema",
+      "topic_hint": "z. B. Schwimmen",
+      "note": "Beschreibung",
+      "note_hint": "z. B. mit Lisa, Badetuch nicht vergessen",
+      "day": "Tag (leer: jederzeit)",
+      "favourite": "Favorit",
+      "save": "Speichern",
+      "cancel": "Abbrechen",
+      "privacy": "Thema und Beschreibung bleiben auf dem Gerät. Ist ein KI-Key eingetragen, gehen sie während dieser Fahrt an den KI-Anbieter (Copilot und Unterhaltungsmodus).",
+      "empty": "Noch nichts geplant. Such auf der Karte ein Ziel und tippe auf den Kalender.",
+      "remove_sure": "Nochmals tippen zum Entfernen",
+      "when": {
+        "today": "Heute",
+        "anytime": "Jederzeit"
+      }
     }
   }
 }

@@ -128,7 +128,16 @@
         "7": "Good thing you are awake. I held my breath for a second."
       },
       "usual_early": "Out early to {{name}} again, impressive. Have a good drive!",
-      "usual_offer_early": "Out early to {{name}} again, impressive. Shall I start the route?"
+      "usual_offer_early": "Out early to {{name}} again, impressive. Shall I start the route?",
+      "planned": "\"{{topic}}\" is still planned for today, at {{place}}. You will find it in the search.",
+      "planned_offer": "\"{{topic}}\" is still planned for today, at {{place}}. Shall I start the route?",
+      "planned_place": "A drive to {{place}} is planned for today. You will find it in the search.",
+      "planned_place_offer": "A drive to {{place}} is planned for today. Shall I start the route?",
+      "purpose": "On the way to {{place}}: {{topic}}. Enjoy!",
+      "purpose_place": "On the way to {{place}}.",
+      "purpose_note": "Your note: {{note}}",
+      "arrived_topic": "Here we are. Have fun: {{topic}}!",
+      "arrived": "Here we are. Have fun!"
     },
     "confirm": {
       "yes": "Yes",

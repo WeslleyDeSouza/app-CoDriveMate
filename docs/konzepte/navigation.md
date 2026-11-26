@@ -74,6 +74,18 @@ OSM-Koordinate gilt nur, wenn die Suche nichts liefert oder 5 s nicht antwortet.
 Beim Tippen erscheinen passende gespeicherte Ziele zuerst. Früher gespeicherte
 Mapbox- und Google-Ziele erhalten die Koordinate bei der nächsten Fahrt dorthin.
 
+### Geplante und gespeicherte Fahrten
+
+Ein Ziel lässt sich für später speichern (`domain/planned-trips.ts`,
+`PlannedTripsStore`, IndexedDB `kv` unter `navigation/trips`, Teil des Backups): Thema
+(höchstens 60 Zeichen), Beschreibung (300), Tag (leer = jederzeit) und Favorit. Der Ort
+wird wie ein gespeichertes Ziel behandelt: ohne Mapbox- oder Google-Koordinaten, dafür mit
+OSM-Koordinate für die Zeit ohne Netz. Sortiert: heute, kommende Tage, jederzeit,
+vergangene (blass, werden nicht automatisch gelöscht). Gestartet trägt das Ziel
+(`Place.purpose`) Thema und Beschreibung mit; Copilot und Unterhaltung sehen sie, solange
+die Route läuft. `NavigationStore.arrival` meldet das erreichte Ziel für den Wunsch bei
+Ankunft. Höchstens 50 Einträge, die ältesten fallen weg.
+
 ### Route ohne Netz berechnen
 
 Antworten weder Mapbox noch OSRM, rechnet das Gerät die Route selbst
