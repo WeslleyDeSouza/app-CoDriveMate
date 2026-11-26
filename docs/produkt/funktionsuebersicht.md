@@ -40,7 +40,7 @@ Stand: 24.11.2026. Nichts davon ist im echten Auto oder am echten Adapter getest
 | Zu schnell | Tempo gelb ab 4, rot ab 10 km/h über dem Limit (OpenStreetMap), mit Differenz; im Auto ungetestet |
 | Unterhaltungsmodus | gebaut: Plaudern, Fakten zur Route (ohne Key), Quiz; Fahrzeugwarnungen unterbrechen noch nicht, weil nicht portiert |
 | Tank und Tankstellen | gebaut: Füllstand (Sensor oder gezählt), Reichweite, Kosten, Tankstellen in der Nähe und auf der Route, Warnung unter 80 km; Zählung im Auto ungetestet, keine Preise |
-| Kartenansicht | drei Zustände: frei, hinter dem Pfeil, Norden oben; Zoom frei wählbar |
+| Kartenansicht | drei Zustände: frei, hinter dem Pfeil, Norden oben; Zoom frei wählbar; Fahrtinfo einklappbar (nur Ankunft und Restzeit, gemerkt); «Route offline speichern» nach 20 s ausgeblendet, Wetter nach 20 s ausgeblendet und alle 10 Min. oder bei Wetterwechsel kurz wieder da |
 | Musik | gebaut: Apple Music (iPad, ungetestet), YouTube und YouTube-Music-Links; jede andere App über das ESP32-Modul mit Anleitung (ungetestet) |
 
 ## Offen, technisch

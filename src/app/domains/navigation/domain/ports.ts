@@ -50,6 +50,8 @@ export interface MapPreferences {
   /** used when the map follows; a freely moved map is not remembered */
   follow: FollowMode;
   tilted: boolean;
+  /** trip card with arrival and remaining time only */
+  etaFolded?: boolean;
 }
 
 export const DEFAULT_MAP_PREFERENCES: MapPreferences = {

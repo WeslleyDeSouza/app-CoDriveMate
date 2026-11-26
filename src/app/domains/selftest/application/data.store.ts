@@ -151,6 +151,15 @@ export class DataStore {
       keys: { mapbox: !!keys.mapbox, google: !!keys.google },
       mapboxUsable: this.navigation.mapboxUsable(),
       mainMap: this.navigation.mapKind(),
+      // Which engine draws the main map right now.
+      mapEngine: document.documentElement.classList.contains('native-map')
+        ? 'mapbox-sdk-native'
+        : {
+            mapbox: 'mapbox-gl-js',
+            mapboxnav: 'mapbox-gl-js',
+            google: 'google-maps-js',
+            ofm: 'maplibre-gl-js',
+          }[this.navigation.mapKind()],
       surroundings: environment && {
         roadTriangles: environment.geometry.roads.index.length / 3,
         buildingTriangles: environment.geometry.buildings.index.length / 3,

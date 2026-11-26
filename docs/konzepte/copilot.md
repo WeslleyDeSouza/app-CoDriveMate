@@ -74,7 +74,7 @@ Ungetestet im Auto.
 (mal Faktor «Wie oft»). Vergleiche brauchen mindestens 5 km der laufenden Fahrt und drei
 frühere Fahrten ab 3 km (die letzten 30; Demo-Fahrten nur mit Demo-Fahrten). Gerechnet wird
 immer auf dem Gerät (`domain/coach.ts`). Die Einstellung `ai.shareTrips` (Vorgabe aus,
-Schalter auf der Copilot-Seite) entscheidet, ob Durchschnitte der früheren Fahrten (Eco-Score,
+Schalter unter Einstellungen > Datenschutz) entscheidet, ob Durchschnitte der früheren Fahrten (Eco-Score,
 Verbrauch, harte Bremsungen und Beschleunigungen pro 10 km) ans Sprachmodell gehen. Aus:
 Vergleichssätze werden fest gesprochen, nur die übrigen Tipps formuliert das Modell um.
 Strecken, Orte und einzelne Fahrten gehen nie mit.

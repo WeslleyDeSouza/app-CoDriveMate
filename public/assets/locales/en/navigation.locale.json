@@ -15,7 +15,9 @@
       "tilt": "2D or 3D",
       "zoom_in": "Zoom in",
       "zoom_out": "Zoom out",
-      "overview": "Show the whole route"
+      "overview": "Show the whole route",
+      "fold": "Shrink trip info",
+      "unfold": "Enlarge trip info"
     },
     "search_state": {
       "idle": "",

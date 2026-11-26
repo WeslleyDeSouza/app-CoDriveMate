@@ -258,7 +258,7 @@ a special case in the UI. Everything must be testable without a car:
   current drive (distance, duration, hard braking/acceleration, eco score), the fact that
   the driver just braked hard (for a light remark), averages of earlier drives (eco score,
   consumption, hard events per 10 km) only if the driver switched this on (off by default,
-  copilot page, decided 2026-11-26), and up to five remembered
+  privacy settings, decided 2026-11-26), and up to five remembered
   preferences of the driver (about 80 words). Learning them sends the answers of the talk and
   the list of known ones (up to 100); it can be switched off, seen and deleted on the copilot
   page (decided 2026-11-25). When the copilot may act (tools, switch in the

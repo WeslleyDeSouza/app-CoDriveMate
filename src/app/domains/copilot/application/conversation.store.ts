@@ -215,10 +215,6 @@ export class ConversationStore {
     if (modes.length) this.use(modes.filter((mode) => this.offered().includes(mode)));
   }
 
-  async setShareTrips(shareTrips: boolean): Promise<void> {
-    await this.settingsStore.update({ ai: { shareTrips } });
-  }
-
   async setPace(talkPace: TalkPace): Promise<void> {
     if (talkPace === this.pace()) return;
     await this.settingsStore.update({ ai: { talkPace } });

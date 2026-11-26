@@ -40,6 +40,10 @@ import {
 } from '../domain/ports';
 import { SearchPanel } from './search-panel';
 
+/** Extras on the trip card are shown this long, then they fade out. */
+const EXTRA_SHOWN_MS = 20_000;
+/** The weather comes back now and then. */
+const WEATHER_AGAIN_MS = 600_000;
 const START_CENTER = [8.5417, 47.3769] as const;
 const FOLLOW_INTERVAL_MS = 350;
 /** After a gesture the camera leaves the map alone for this long. */
@@ -155,6 +159,25 @@ export class MapStage {
       lowest: Math.min(...this.weather().map((point) => point.temperature)),
     };
   });
+  /** Since when the destination is set, and when the weather on the way last changed. */
+  private weatherKey: string | null = null;
+  private readonly routeSince = signal(0);
+  private readonly weatherSince = signal(0);
+  private readonly now = signal(Date.now());
+  /** Offered at the start of the route only, and while it is being saved. */
+  protected readonly offlineShown = computed(
+    () =>
+      this.extras.offline().kind === 'saving' || this.now() - this.routeSince() < EXTRA_SHOWN_MS,
+  );
+  /** At the start, now and then again, and when the weather on the way changes. */
+  protected readonly weatherShown = computed(() => {
+    if (this.weatherOpen()) return true;
+    const now = this.now();
+    return (
+      now - this.weatherSince() < EXTRA_SHOWN_MS ||
+      (now - this.routeSince()) % WEATHER_AGAIN_MS < EXTRA_SHOWN_MS
+    );
+  });
   protected readonly offlinePercent = computed(() => {
     const state = this.extras.offline();
     return state.kind === 'saving' ? Math.round(state.share * 100) : null;
@@ -169,7 +192,21 @@ export class MapStage {
       .catch(() => undefined)
       .finally(() => this.preferencesLoaded.set(true));
 
-    const timer = setInterval(() => this.clock.set(time(Date.now())), 5000);
+    const timer = setInterval(() => {
+      this.clock.set(time(Date.now()));
+      this.now.set(Date.now());
+    }, 5000);
+    effect(() => {
+      if (this.navigation.destination()) untracked(() => this.routeSince.set(Date.now()));
+    });
+    effect(() => {
+      const summary = this.weatherSummary();
+      const key = summary && `${summary.kind}|${summary.level}`;
+      untracked(() => {
+        if (key && key !== this.weatherKey) this.weatherSince.set(Date.now());
+        this.weatherKey = key;
+      });
+    });
     destroyRef.onDestroy(() => {
       clearInterval(timer);
       this.surface?.destroy();
@@ -265,6 +302,13 @@ export class MapStage {
     // Room for the guidance above and the cards below.
     const view = fitPoints(points, clientWidth - 160, clientHeight - 300);
     this.surface.moveTo({ ...view, bearing: 0, pitch: 0 }, 600);
+  }
+
+  /** The trip card shows arrival and remaining time only. */
+  protected readonly etaFolded = computed(() => !!this.preferences().etaFolded);
+
+  protected toggleEta(): void {
+    this.remember({ etaFolded: !this.etaFolded() });
   }
 
   protected toggleTilt(): void {

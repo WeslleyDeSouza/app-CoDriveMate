@@ -233,8 +233,25 @@
   flex-wrap: wrap;
   gap: 8px;
 }
+/* Nothing left to show: no empty row either. */
+.extras:not(:has(.extra:not(.gone))) {
+  gap: 0;
+}
+.extras:not(:has(.extra:not(.gone))) + .eta {
+  padding-top: 0;
+  transition: padding 0.6s ease;
+}
 
 .extra {
+  max-width: 400px;
+  max-height: 80px;
+  overflow: hidden;
+  transition:
+    opacity 0.5s ease,
+    max-width 0.6s ease,
+    max-height 0.6s ease,
+    padding 0.6s ease;
+
   min-height: var(--touch);
   border: 0;
   border-radius: 14px;
@@ -247,6 +264,16 @@
 
   i {
     font-size: 20px;
+  }
+
+  /* Faded out after a while; it comes back the same way. */
+  &.gone {
+    opacity: 0;
+    max-width: 0;
+    max-height: 0;
+    min-height: 0;
+    padding: 0;
+    pointer-events: none;
   }
 }
 
@@ -317,6 +344,29 @@
   border-radius: 99px;
   padding: 0 24px;
   font-weight: 700;
+}
+
+.fold {
+  min-width: var(--touch);
+  min-height: var(--touch);
+  border: 0;
+  border-radius: 99px;
+  background: var(--p2);
+  font-size: 20px;
+}
+
+/* Folded: arrival and remaining time only. */
+.trip.folded {
+  width: auto;
+
+  .extras,
+  .end,
+  .eta > div:has(.prov) {
+    display: none;
+  }
+  .eta {
+    padding: 0;
+  }
 }
 
 @include phone.any {

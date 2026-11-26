@@ -85,11 +85,6 @@
         "smooth": "Schön ruhig gefahren bis jetzt. So macht das Mitfahren Spass."
       },
       "off": "Die Unterhaltung ist in den Einstellungen ausgeschaltet.",
-      "share": {
-        "on": "Frühere Fahrten an die KI: ein",
-        "off": "Frühere Fahrten an die KI: aus",
-        "note": "Tipps und Eco vergleichen mit deinen früheren Fahrten. Ausgeschaltet rechnet das nur dieses Gerät. Eingeschaltet gehen Durchschnitte der letzten Fahrten (Eco-Score, Verbrauch, harte Bremsungen pro 10 km) an den KI-Anbieter, nie Strecken oder Orte."
-      },
       "tips": {
         "cold": "Der Motor ist noch kalt. Fahr ihn die ersten Kilometer mit wenig Drehzahl warm, das mag er.",
         "brake_early": "Ein paar Bremsungen waren heute knapp. Mit etwas mehr Abstand wird es entspannter.",

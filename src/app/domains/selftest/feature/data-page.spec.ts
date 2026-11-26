@@ -118,6 +118,7 @@ describe('DataPage', () => {
       keys: { mapbox: true },
       mapBehindCar: 'missing',
     });
+    expect(json().mapEngine).toMatch(/-js$/);
     expect(JSON.stringify(json())).not.toContain('pk.secret');
   });
 });

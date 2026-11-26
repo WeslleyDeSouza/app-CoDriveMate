@@ -412,7 +412,7 @@ describe('copilot', () => {
 
     it('puts a tip in its own words with a key, and sends averages only when allowed', async () => {
       await start('tips');
-      await store.setShareTrips(true);
+      await update({ ai: { shareTrips: true } });
       trips.set([earlier(70), earlier(71), earlier(72)]);
       current.set({ ...TRIP, id: 99, distanceKm: 4, score: 90 });
       ai.model.answers = ['Zwei Sekunden Abstand, mein Freund.'];

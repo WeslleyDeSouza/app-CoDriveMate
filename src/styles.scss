@@ -79,6 +79,19 @@ body {
     sans-serif;
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior: none;
+  /* A long press on the touch screen must not select text or open the callout. */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Typing and copying stay possible. */
+input,
+textarea,
+[contenteditable='true'] {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
 }
 
 body {
@@ -253,4 +266,8 @@ button {
     transition: none !important;
     animation: none !important;
   }
+}
+
+.mapboxgl-ctrl-logo{
+  display:none !important;
 }

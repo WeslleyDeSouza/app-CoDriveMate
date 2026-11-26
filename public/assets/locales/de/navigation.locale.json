@@ -15,7 +15,9 @@
       "tilt": "2D oder 3D",
       "zoom_in": "Vergrössern",
       "zoom_out": "Verkleinern",
-      "overview": "Ganze Route zeigen"
+      "overview": "Ganze Route zeigen",
+      "fold": "Fahrtinfo verkleinern",
+      "unfold": "Fahrtinfo vergrössern"
     },
     "search_state": {
       "idle": "",

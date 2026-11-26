@@ -85,11 +85,6 @@
         "smooth": "Nice and smooth so far. A pleasure to ride along."
       },
       "off": "The conversation is switched off in the settings.",
-      "share": {
-        "on": "Earlier drives to the AI: on",
-        "off": "Earlier drives to the AI: off",
-        "note": "Tips and eco compare with your earlier drives. Switched off, only this device works it out. Switched on, averages of the last drives (eco score, consumption, hard brakings per 10 km) go to the AI provider, never routes or places."
-      },
       "tips": {
         "cold": "The engine is still cold. Keep the revs low for the first few kilometres, it likes that.",
         "brake_early": "A few brakings were tight today. A bit more distance makes it more relaxed.",
