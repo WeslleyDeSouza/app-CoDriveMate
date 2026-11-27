@@ -108,17 +108,27 @@ Umwandlung mit `tools/car-model-export.py` (Blender 5.3, im Hintergrund):
 blender --background "models/Citroen_Xsara_Picasso_(Mk1f)_2004.blend"   --python tools/car-model-export.py -- public/models/car.glb [Ordner für Vorschaubilder]
 ```
 
-Die Quelle hat rund 794'000 Dreiecke in 130 losen Teilen. Das Skript lässt weg, was von
-aussen nicht zu sehen ist (Innenraum, Sitze, alles hinter den Lampengläsern, Bremssättel),
-macht das Glas undurchsichtig wie beim Modell davor, reduziert den Rest auf rund 48'000
-Dreiecke (1.1 MB, ohne Texturen und UVs), dreht die Front nach -Z, skaliert auf 4.28 m,
+Die Quelle hat rund 794'000 Dreiecke in 130 losen Teilen. Das Skript behält alles
+(Innenraum hinter durchsichtigen Scheiben, Lampen hinter ihren Gläsern; Scheiben und
+Lampengläser als Alpha-Blending, ohne Lichtbrechung), reduziert Teil für Teil auf rund
+150'000 Dreiecke (3.1 MB, ohne Texturen und UVs), am stärksten, wo man am wenigsten
+sieht, dreht die Front nach -Z, skaliert auf 4.28 m,
 fasst die Karosserie zu einem Netz und jedes Rad (Reifen, Felge, Kappe, Bremsscheibe) zu
 einem Knoten `wheel_FL/FR/RL/RR` mit Drehpunkt in der Radmitte zusammen und benennt die
 Materialien so, wie die Szene sie erwartet. Schriftzüge bleiben unreduziert; die
 Nummernschilder sind leer (der Schriftzug des Anbieters ist entfernt). Der Lack ist im
 Modell schwarz; die Szene färbt ihn mit der Farbe aus den Einstellungen (Vorgabe neu
-`#101216`). In der App und auf dem Tablet noch nicht angesehen; die Bildrate auf dem iPad
-ist ungetestet.
+`#101216`; wer schon eine Farbe gespeichert hat, behält sie). Ein erster Export mit
+48'000 Dreiecken, undurchsichtigem Glas und ohne Innenraum war in der Nachtszene nur eine
+Silhouette und wurde verworfen.
+
+**Eigene Glanzlichter:** Lack, Chrom und Glas des Autos spiegeln immer das Studio
+(`RoomEnvironment`), nicht den Himmel der Szene, tagsüber mit Stärke 1, nachts 0.55
+(`lightCar` in `three-scene.ts`). So zeichnet die Form auch bei schwarzem Lack und Nacht.
+
+Im Browser mit `?demo` angesehen (Kameras Auto, Heck, Seite, Showroom; Nachtszene): Räder,
+Ausrichtung, Rücklichter und Durchsicht stimmen. **Ungetestet:** Bildrate auf dem iPad (das
+Auto allein hat jetzt rund 150'000 Dreiecke und wirft Schatten) und die Tagszene.
 
 Eigene Modelle: Wurzelknoten `XsaraPicasso` (sonst wird skaliert und gedreht), Räder
 heissen `wheel…`, Lack-Material `paint`, Rücklicht `tail`.

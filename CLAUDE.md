@@ -325,7 +325,8 @@ Existing rules of the prototype; they are requirements, not details:
   view: «© OpenStreetMap», «© swisstopo», Mapbox logo and attribution, «© Google»
   where Google tiles are shown. Do not hide or cover the attribution control.
 - `public/models/car.glb`: since 2026-11-27 a model bought by the owner (source
-  `.blend` kept locally, not in git), reduced with `tools/car-model-export.py`. Fine
+  `.blend` kept locally, not in git), reduced to about 150 000 triangles with
+  `tools/car-model-export.py`; frame rate on the iPad untested. Fine
   for private use; **the purchase licence must be checked before a release** (see
   `docs/konzepte/szene3d.md`). The model before it was own work, exported from the
   prototype's procedural model (confirmed by the owner 2026-11-24).
