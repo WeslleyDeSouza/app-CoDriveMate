@@ -92,7 +92,33 @@ kompiliert), das Speichern einer Route im echten Betrieb.
 
 ## Modell
 
-`car.glb` nennt als Erzeuger den three.js-Exporter r187 und hat dieselben Teile wie das
-prozedurale Modell in `_index.html`, stammt also daraus (vom Inhaber am 24.11.2026
-bestätigt). Keine Fremdlizenz. Eigene Modelle: Räder heissen `wheel…`, Lack-Material
-`paint`, Rücklicht `tail`.
+Seit 27.11.2026 ist `public/models/car.glb` ein **gekauftes Modell** des Citroën Xsara
+Picasso (Mk1 Facelift, 2004), vom Inhaber erworben (Angabe vom 27.11.2026). Die Quelldatei
+`models/Citroen_Xsara_Picasso_(Mk1f)_2004.blend` (60 MB, Blender 3.6) liegt nur lokal und
+ist in `.gitignore`; das Nummernschild der Quelle trägt den Schriftzug «HUMSTER3D», der
+Anbieter dürfte also Hum3D sein (Rückschluss, kein Beleg gesehen). **Vor einer
+Veröffentlichung** sind die Lizenzbedingungen des Kaufs zu prüfen: ob das Modell in einer
+App ausgeliefert werden darf und ob die reduzierte GLB-Datei dafür genügend geschützt ist.
+Für den privaten Gebrauch kein Hindernis. Das Modell davor (aus dem prozeduralen Modell
+des Prototyps, eigenes Werk) steht in der Git-Geschichte.
+
+Umwandlung mit `tools/car-model-export.py` (Blender 5.3, im Hintergrund):
+
+```bash
+blender --background "models/Citroen_Xsara_Picasso_(Mk1f)_2004.blend"   --python tools/car-model-export.py -- public/models/car.glb [Ordner für Vorschaubilder]
+```
+
+Die Quelle hat rund 794'000 Dreiecke in 130 losen Teilen. Das Skript lässt weg, was von
+aussen nicht zu sehen ist (Innenraum, Sitze, alles hinter den Lampengläsern, Bremssättel),
+macht das Glas undurchsichtig wie beim Modell davor, reduziert den Rest auf rund 48'000
+Dreiecke (1.1 MB, ohne Texturen und UVs), dreht die Front nach -Z, skaliert auf 4.28 m,
+fasst die Karosserie zu einem Netz und jedes Rad (Reifen, Felge, Kappe, Bremsscheibe) zu
+einem Knoten `wheel_FL/FR/RL/RR` mit Drehpunkt in der Radmitte zusammen und benennt die
+Materialien so, wie die Szene sie erwartet. Schriftzüge bleiben unreduziert; die
+Nummernschilder sind leer (der Schriftzug des Anbieters ist entfernt). Der Lack ist im
+Modell schwarz; die Szene färbt ihn mit der Farbe aus den Einstellungen (Vorgabe neu
+`#101216`). In der App und auf dem Tablet noch nicht angesehen; die Bildrate auf dem iPad
+ist ungetestet.
+
+Eigene Modelle: Wurzelknoten `XsaraPicasso` (sonst wird skaliert und gedreht), Räder
+heissen `wheel…`, Lack-Material `paint`, Rücklicht `tail`.

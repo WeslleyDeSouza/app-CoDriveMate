@@ -324,9 +324,11 @@ Existing rules of the prototype; they are requirements, not details:
 - Map attribution is mandatory and must stay visible on the map and in the 3D
   view: «© OpenStreetMap», «© swisstopo», Mapbox logo and attribution, «© Google»
   where Google tiles are shown. Do not hide or cover the attribution control.
-- `public/models/car.glb`: own work, exported from the prototype's procedural
-  model (confirmed by the owner 2026-11-24). A replacement model needs a clear
-  licence before it ships.
+- `public/models/car.glb`: since 2026-11-27 a model bought by the owner (source
+  `.blend` kept locally, not in git), reduced with `tools/car-model-export.py`. Fine
+  for private use; **the purchase licence must be checked before a release** (see
+  `docs/konzepte/szene3d.md`). The model before it was own work, exported from the
+  prototype's procedural model (confirmed by the owner 2026-11-24).
 - Icons: Tabler Icons (MIT), via `@tabler/icons-webfont`.
 - When adding a dependency or asset, record its licence and source in `docs/`.
 

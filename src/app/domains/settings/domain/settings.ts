@@ -121,7 +121,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     fuelType: 'petrol',
     displacementL: 1.8,
     tankL: 55,
-    color: '#2b2a45',
+    color: '#101216',
   },
   units: METRIC,
   fuelPrice: 1.85,

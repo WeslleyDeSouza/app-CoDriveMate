@@ -1,5 +1,9 @@
 # See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 
+# Purchased source models: large, and their licence does not allow passing them on
+/models/*.blend
+/models/*.blend1
+
 # Compiled output
 /dist
 /tmp
