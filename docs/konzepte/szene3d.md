@@ -123,7 +123,7 @@ Modell schwarz; die Szene färbt ihn mit der Farbe aus den Einstellungen (Vorgab
 Silhouette und wurde verworfen.
 
 **Eigene Glanzlichter:** Lack, Chrom und Glas des Autos spiegeln immer das Studio
-(`RoomEnvironment`), nicht den Himmel der Szene, tagsüber mit Stärke 1, nachts 0.55
+(`RoomEnvironment`), nicht den Himmel der Szene, tagsüber mit Stärke 0.7, nachts 0.2, der Lack davon 60 %
 (`lightCar` in `three-scene.ts`). So zeichnet die Form auch bei schwarzem Lack und Nacht.
 
 Im Browser mit `?demo` angesehen (Kameras Auto, Heck, Seite, Showroom; Nachtszene): Räder,

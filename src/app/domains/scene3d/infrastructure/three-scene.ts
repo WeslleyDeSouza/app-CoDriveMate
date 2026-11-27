@@ -69,6 +69,11 @@ const RAD = Math.PI / 180;
 const FRAME_MS = 32; // about 30 frames per second
 const WHEEL_RADIUS_M = 0.31;
 const CAR_LENGTH_M = 4.28;
+/** How strongly the car mirrors its studio, by day and at night. */
+const CAR_SHINE_DAY = 0.7;
+const CAR_SHINE_NIGHT = 0.2;
+/** The large painted surfaces mirror less than chrome and glass, or the body looks lit. */
+const CAR_PAINT_SHINE = 0.6;
 const GROUND_CHECK_MS = 700;
 const SLOW_CHECK_MS = 30000;
 /** Further away from the origin, positions would become inexact. */
@@ -142,6 +147,8 @@ export class ThreeScene implements SceneRenderer {
   private readonly fog = new Fog(0x0b0c10, 14, 48);
 
   private wheels: Object3D[] = [];
+  /** Paint, chrome and glass of the car: they mirror a studio, so its shape reads at night too. */
+  private carMaterials: MeshStandardMaterial[] = [];
   private paint: MeshStandardMaterial[] = [];
   private tail?: MeshStandardMaterial;
 
@@ -446,11 +453,16 @@ export class ThreeScene implements SceneRenderer {
         if (!patched.has(material)) towardsCamera(material, 1.3);
         patched.add(material);
         if (!(material instanceof MeshStandardMaterial)) continue;
+        if (this.studio && !this.carMaterials.includes(material)) {
+          material.envMap = this.studio.texture;
+          this.carMaterials.push(material);
+        }
         if (material.name === 'tail') this.tail = material;
         if (material.name === 'paint' && !this.paint.includes(material)) this.paint.push(material);
       }
     });
     this.car.add(model);
+    this.lightCar();
     this.applyAppearance();
   }
 
@@ -670,8 +682,20 @@ export class ThreeScene implements SceneRenderer {
     this.backdrop?.setLight(lightPreset(this.sunNow));
   }
 
+  /**
+   * The car keeps its own reflections whatever lights the world: a black car under a night
+   * sky would be a silhouette. Dimmer at night, never gone.
+   */
+  private lightCar(): void {
+    const intensity = CAR_SHINE_NIGHT + (CAR_SHINE_DAY - CAR_SHINE_NIGHT) * (1 - this.sky.night);
+    for (const material of this.carMaterials) {
+      material.envMapIntensity = intensity * (this.paint.includes(material) ? CAR_PAINT_SHINE : 1);
+    }
+  }
+
   /** Reflections and soft light come from the sky, or from a studio without it. */
   private lightFromSky(on: boolean): void {
+    this.lightCar();
     if (!on || !this.lights) {
       this.scene.environment = this.studio?.texture ?? null;
       this.scene.environmentIntensity = 0.12 + 0.43 * (1 - this.sky.night);
