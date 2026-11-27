@@ -1,15 +1,57 @@
 import {
+  PERSONAS,
   PastTrip,
   RideFacts,
+  SERIAL_EPISODES,
+  Serial,
   TOPICS,
   Topic,
+  briefingParts,
+  character,
   isYes,
+  jamOpening,
   opening,
   pickRemark,
   pickTopic,
   rideText,
+  serialOpening,
   usualDestination,
+  withEpisode,
 } from './passenger';
+
+describe('who the passenger is', () => {
+  it('has a name and a character of its own, for each choice', () => {
+    const all = PERSONAS.map(character);
+    expect(new Set(all).size).toBe(PERSONAS.length);
+    expect(character('dry')).toContain('Ruth');
+    all.forEach((text) => expect(text).toMatch(/^Your name is \w+\. Character: /));
+  });
+
+  it('tells a story in episodes and ends it', () => {
+    expect(serialOpening('monologue', null)).toContain('episode 1');
+    expect(serialOpening('monologue', null)).toContain('do not ask anything');
+    let serial: Serial | null = withEpisode(null, '  Frau  Gygax fand den Schlüssel. ');
+    expect(serial).toEqual({ episode: 1, last: 'Frau Gygax fand den Schlüssel.' });
+    const next = serialOpening('dialogue', serial);
+    expect(next).toContain('episode 2');
+    expect(next).toContain('"Frau Gygax fand den Schlüssel."');
+    expect(next).toContain('asking the driver how it should go on');
+    for (let i = 2; i < SERIAL_EPISODES; i++) serial = withEpisode(serial, 'Folge ' + i);
+    expect(serial?.episode).toBe(SERIAL_EPISODES - 1);
+    expect(serialOpening('monologue', serial)).toContain('surprising end');
+    expect(withEpisode(serial, 'Ende')).toBeNull();
+    expect(withEpisode(null, 'x'.repeat(2000))?.last).toHaveLength(700);
+  });
+
+  it('offers something to pass the time when the car stands, and briefs at the start', () => {
+    expect(jamOpening('dialogue')).toContain('let the driver choose');
+    expect(jamOpening('monologue')).toContain('do not ask anything');
+    expect(briefingParts(0, 0)).toEqual([]);
+    expect(briefingParts(2, 0)).toEqual([]);
+    expect(briefingParts(7, 2)).toEqual(['traffic', 'service']);
+    expect(briefingParts(0, 1)).toEqual(['service']);
+  });
+});
 
 const RIDE: RideFacts = {
   rangeKm: 300,
