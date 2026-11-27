@@ -1,6 +1,7 @@
 import { Provider } from '@angular/core';
 import { SpeechInput } from '@core/device';
-import { Landmark, LandmarkSource, TalkRepository } from './domain/conversation';
+import { Landmark, LandmarkSource, QuizScore, TalkRepository } from './domain/conversation';
+import { Serial } from './domain/passenger';
 import { ChatModel, ChatRequest } from './domain/copilot';
 import { DriverMemory, MemoryRepository, NO_MEMORY } from './domain/memory';
 
@@ -61,12 +62,33 @@ export class FakeLandmarks extends LandmarkSource {
 
 export class FakeTalkRepository extends TalkRepository {
   seen: readonly number[] = [];
+  told: readonly string[] = [];
+  serial: Serial | null = null;
+  score: QuizScore | null = null;
 
   async loadSeen(): Promise<readonly number[]> {
     return this.seen;
   }
   async saveSeen(ids: readonly number[]): Promise<void> {
     this.seen = ids;
+  }
+  async loadTold(): Promise<readonly string[]> {
+    return this.told;
+  }
+  async saveTold(told: readonly string[]): Promise<void> {
+    this.told = told;
+  }
+  async loadSerial(): Promise<Serial | null> {
+    return this.serial;
+  }
+  async saveSerial(serial: Serial | null): Promise<void> {
+    this.serial = serial;
+  }
+  async loadScore(): Promise<QuizScore | null> {
+    return this.score;
+  }
+  async saveScore(score: QuizScore): Promise<void> {
+    this.score = score;
   }
 }
 

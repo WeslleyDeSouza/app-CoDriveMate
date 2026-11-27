@@ -3,7 +3,7 @@ import { ASSISTANT_TOOLS, AssistantTool, ToolInput } from '@core/assistant';
 import { SpeechInput, SpeechOutput } from '@core/device';
 import { TranslateService } from '@core/i18n';
 import { DiagnosticsStore } from '@domains/diagnostics';
-import { NavigationStore } from '@domains/navigation';
+import { NavigationStore, PlacesStore, favouriteOf } from '@domains/navigation';
 import { RoadStore } from '@domains/road';
 import { SceneStore } from '@domains/scene3d';
 import { SettingsStore, aiAvailable } from '@domains/settings';
@@ -18,7 +18,9 @@ import {
   TOOL_NOTE,
   ToolSpec,
   assistantPrompt,
+  placeRole,
   questionText,
+  snapshotText,
   spokenText,
 } from '../domain/copilot';
 import { isYes } from '../domain/passenger';
@@ -41,6 +43,7 @@ export class CopilotStore {
   private readonly settings = inject(SettingsStore).settings;
   private readonly telemetry = inject(TelemetryStore);
   private readonly navigation = inject(NavigationStore);
+  private readonly places = inject(PlacesStore);
   private readonly scene = inject(SceneStore);
   private readonly diagnostics = inject(DiagnosticsStore);
   private readonly road = inject(RoadStore);
@@ -73,6 +76,7 @@ export class CopilotStore {
     if (!text || this._busy()) return;
     this._failure.set(null);
     if (!this.available()) return this._failure.set('key');
+    await this.places.load();
     this.add('user', text);
     this._busy.set(true);
     try {
@@ -116,6 +120,27 @@ export class CopilotStore {
   /** The instructions, with the note about tools if there are any. */
   withTools(system: string): string {
     return this.toolsAllowed() ? `${system} ${TOOL_NOTE}` : system;
+  }
+
+  /** The copilot may use this tool. */
+  has(name: string): boolean {
+    return this.toolsAllowed() && this.tools.some((tool) => tool.name === name);
+  }
+
+  /** Runs a tool the driver said yes to; what came of it, in English. */
+  act(name: string, input: ToolInput = {}): Promise<string> {
+    return this.has(name) ? this.runTool(name, input) : Promise.resolve('Not allowed.');
+  }
+
+  /** What the destination is to the driver: home, work or nothing special. */
+  placeRole(): string {
+    const destination = this.navigation.destination();
+    return destination ? placeRole(favouriteOf(this.places.places(), destination)) : '';
+  }
+
+  /** The car and the route as the language model gets them with a question. */
+  carData(): string {
+    return snapshotText(this.snapshot());
   }
 
   /** Answer to the open question by tap. */
@@ -220,6 +245,7 @@ export class CopilotStore {
         destination && route
           ? {
               name: destination.name,
+              role: this.placeRole(),
               nextManeuverM: progress?.distanceM ?? null,
               arrival: new Date(Date.now() + remainingS * 1000).toTimeString().slice(0, 5),
               remainingKm: (progress?.remainingM ?? route.line.lengthM) / 1000,

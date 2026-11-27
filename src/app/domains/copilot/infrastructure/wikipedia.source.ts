@@ -1,7 +1,14 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpPort } from '@core/http';
 import { KeyValueStore, LegacyMigration } from '@core/storage';
-import { Landmark, LandmarkSource, LonLat, TalkRepository } from '../domain/conversation';
+import {
+  Landmark,
+  LandmarkSource,
+  LonLat,
+  QuizScore,
+  TalkRepository,
+} from '../domain/conversation';
+import { Serial } from '../domain/passenger';
 
 const RADIUS_M = 10000;
 const LIMIT = 40;
@@ -44,6 +51,9 @@ export class WikipediaSource extends LandmarkSource {
 }
 
 const SEEN_KEY = 'copilot/seen';
+const TOLD_KEY = 'copilot/told';
+const SERIAL_KEY = 'copilot/serial';
+const SCORE_KEY = 'copilot/quiz-score';
 
 @Injectable()
 export class IdbTalkRepository extends TalkRepository {
@@ -55,6 +65,30 @@ export class IdbTalkRepository extends TalkRepository {
 
   saveSeen(ids: readonly number[]): Promise<void> {
     return this.kv.set(SEEN_KEY, [...ids]);
+  }
+
+  async loadTold(): Promise<readonly string[]> {
+    return (await this.kv.get<string[]>(TOLD_KEY)) ?? [];
+  }
+
+  saveTold(told: readonly string[]): Promise<void> {
+    return this.kv.set(TOLD_KEY, [...told]);
+  }
+
+  async loadSerial(): Promise<Serial | null> {
+    return (await this.kv.get<Serial | null>(SERIAL_KEY)) ?? null;
+  }
+
+  saveSerial(serial: Serial | null): Promise<void> {
+    return this.kv.set(SERIAL_KEY, serial);
+  }
+
+  async loadScore(): Promise<QuizScore | null> {
+    return (await this.kv.get<QuizScore>(SCORE_KEY)) ?? null;
+  }
+
+  saveScore(score: QuizScore): Promise<void> {
+    return this.kv.set(SCORE_KEY, score);
   }
 }
 

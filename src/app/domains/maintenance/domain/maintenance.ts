@@ -147,11 +147,17 @@ export function usedShare(item: MaintenanceItem, status: DueStatus, now: number)
   return Math.min(1, Math.max(0, byKm, byTime));
 }
 
+/** Days until the vehicle inspection (negative = past), null without a date. */
+export function inspectionDays(isoDate: string, now: number): number | null {
+  const due = fromIsoDate(isoDate);
+  if (due === null) return null;
+  return Math.round((due - new Date(now).setHours(0, 0, 0, 0)) / DAY_MS);
+}
+
 /** The vehicle inspection (MFK) may still be done on its date. */
 export function inspectionLevel(isoDate: string, now: number): DueLevel {
-  const due = fromIsoDate(isoDate);
-  if (due === null) return 'unknown';
-  const days = Math.round((due - new Date(now).setHours(0, 0, 0, 0)) / DAY_MS);
+  const days = inspectionDays(isoDate, now);
+  if (days === null) return 'unknown';
   if (days < 0) return 'overdue';
   return days < INSPECTION_SOON_DAYS ? 'soon' : 'ok';
 }

@@ -4,6 +4,7 @@ import {
   afterDriving,
   dueStatus,
   fromIsoDate,
+  inspectionDays,
   inspectionLevel,
   normalizePlan,
   planFromLegacy,
@@ -112,6 +113,13 @@ describe('inspection', () => {
     ['2027-01-23', 'ok'],
   ])('on "%s" is %s', (date, level) => {
     expect(inspectionLevel(date, NOW + 15 * 3_600_000)).toBe(level);
+  });
+
+  it('counts the days until its date', () => {
+    expect(inspectionDays('', NOW)).toBeNull();
+    expect(inspectionDays('2026-11-24', NOW + 15 * 3_600_000)).toBe(0);
+    expect(inspectionDays('2026-11-23', NOW)).toBe(-1);
+    expect(inspectionDays('2027-01-23', NOW)).toBe(60);
   });
 });
 

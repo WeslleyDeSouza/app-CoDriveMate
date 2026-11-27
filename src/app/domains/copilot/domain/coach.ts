@@ -1,4 +1,4 @@
-import { RideFacts } from './passenger';
+import { RideFacts, rideText } from './passenger';
 
 /** What an earlier drive needs to give for the comparison. */
 export interface PastDrive {
@@ -60,6 +60,21 @@ export interface CoachFacts extends RideFacts {
   readonly score: number;
   readonly litresPer100: number | null;
   readonly past: PastFigures | null;
+}
+
+/** The drive for the language model when it looks it up; earlier drives only if shared. */
+export function driveFiguresText(facts: CoachFacts | null, shared: boolean): string {
+  if (!facts) return 'No drive is being recorded.';
+  const fuel = facts.litresPer100 === null ? '' : `, ${round1(facts.litresPer100)} l/100 km`;
+  const before = !shared
+    ? 'earlier drives: not shared by the driver'
+    : facts.past
+      ? pastText(facts.past)
+      : 'earlier drives: too few to compare';
+  return (
+    `this drive: ${rideText(facts)}, ${Math.round(facts.highRpmSeconds)} s at high revs, ` +
+    `${Math.round(facts.idleSeconds)} s idling, eco score ${facts.score}${fuel}; ${before}`
+  );
 }
 
 /** Below this distance the figures of a drive still jump around. */

@@ -289,6 +289,46 @@ describe('copilot', () => {
       expect(ai.model.requests.at(-1)?.messages[0].content).toContain('Driver: Ja!');
     });
 
+    it('knows what it told before, also on an earlier drive, and does not keep the list', async () => {
+      await start('chat');
+      await store.setStyle('monologue');
+      await store.setPace('much');
+      ai.talk.told = ['Der Witz vom Tunnel.'];
+      ai.model.answers = ['Es war einmal ein Tram.', 'Und dann der Föhn.'];
+      await wait(40_000);
+      const [first, second] = ai.model.requests.map(({ messages }) => messages);
+      expect(first[0].content).toContain('Der Witz vom Tunnel.');
+      expect(second.at(-1)?.content).toContain('Der Witz vom Tunnel. | Es war einmal ein Tram.');
+      // In the chat kept, the list is not repeated with every message.
+      expect(second[0].content).not.toContain('Tunnel');
+      expect(ai.talk.told.slice(0, 2)).toEqual(['Der Witz vom Tunnel.', 'Es war einmal ein Tram.']);
+    });
+
+    it('looks up the car and the drive instead of getting them every time', async () => {
+      await start('chat');
+      await store.setStyle('monologue');
+      current.set({ ...TRIP, distanceKm: 12, score: 90 });
+      ai.model.answers = [{ tool: 'drive_figures' }, { tool: 'car_data' }, 'Sauber gefahren.'];
+      await wait();
+      const [request] = ai.model.requests;
+      expect(request.tools?.map(({ name }) => name)).toEqual(['car_data', 'drive_figures']);
+      expect(request.messages[0].content).not.toContain('eco score');
+      expect(ai.model.toolResults[0]).toContain('this drive: 12 km');
+      expect(ai.model.toolResults[0]).toContain('eco score 90');
+      // Earlier drives stay on the device unless the driver shares them.
+      expect(ai.model.toolResults[0]).toContain('not shared by the driver');
+      expect(ai.model.toolResults[1]).toContain('"vehicle"');
+      expect(ai.model.toolResults[1]).not.toMatch(/47\.3|8\.54/);
+      expect(nav.speech.said).toEqual(['Sauber gefahren.']);
+    });
+
+    it('does not remember what was cut off', async () => {
+      await start('chat');
+      nav.speech.completes = false;
+      await wait();
+      expect(ai.talk.told).toEqual([]);
+    });
+
     it('tries again soon after it was interrupted', async () => {
       await start('chat');
       nav.speech.completes = false;
@@ -324,6 +364,7 @@ describe('copilot', () => {
       await wait();
       expect(ai.model.requests[0].schema).toBeDefined();
       expect(store.score()).toEqual({ right: 1, asked: 1 });
+      expect(ai.talk.told).toEqual(['?']);
       expect(nav.speech.said[1]).toBe('copilot.talk.right Ja.');
     });
 
@@ -422,6 +463,7 @@ describe('copilot', () => {
       expect(request).toContain('copilot.talk.tips.');
       expect(request).toContain('average of the last 3 drives');
       expect(request).not.toContain('Werkstrasse');
+      expect(ai.talk.told).toEqual(['Zwei Sekunden Abstand, mein Freund.']);
     });
 
     it('says something light a few seconds after a hard braking', async () => {

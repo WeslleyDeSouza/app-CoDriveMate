@@ -3,6 +3,7 @@ import {
   CoachFacts,
   PAST_NOTES,
   PastDrive,
+  driveFiguresText,
   pastFigures,
   pastText,
   pickEco,
@@ -34,6 +35,19 @@ const facts = (change: Partial<CoachFacts> = {}): CoachFacts => ({
 });
 
 const first = () => 0;
+
+describe('figures of the drive, looked up by the language model', () => {
+  it('gives the drive, and earlier drives only if shared', () => {
+    const text = driveFiguresText(facts({ hardBrakings: 2, idleSeconds: 61 }), true);
+    expect(text).toContain('12 km in 20 min, hard brakings: 2');
+    expect(text).toContain('61 s idling, eco score 80, 7 l/100 km');
+    expect(text).toContain('average of the last 5 drives');
+    expect(driveFiguresText(facts(), false)).toContain('not shared by the driver');
+    expect(driveFiguresText(facts(), false)).not.toContain('average');
+    expect(driveFiguresText(facts({ past: null }), true)).toContain('too few');
+    expect(driveFiguresText(null, true)).toBe('No drive is being recorded.');
+  });
+});
 
 describe('earlier drives', () => {
   it('are averaged from the drives long enough', () => {

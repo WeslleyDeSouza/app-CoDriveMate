@@ -59,6 +59,16 @@ export function samePlace(a: SavedPlace, b: SavedPlace): boolean {
   return a.name === b.name && a.detail === b.detail;
 }
 
+/** Whether a destination is the driver's home or workplace; null if neither. */
+export function favouriteOf(
+  places: SavedPlaces,
+  { name, detail, coordinate }: Pick<Place, 'name' | 'detail' | 'coordinate'>,
+): Favourite | null {
+  const is = (saved: SavedPlace | null) =>
+    !!saved && samePlace(saved, { name, detail, coordinate: saved.coordinate && coordinate });
+  return FAVOURITES.find((kind) => is(places[kind])) ?? null;
+}
+
 export function withRecent(places: SavedPlaces, place: SavedPlace): SavedPlaces {
   const others = places.recent.filter((other) => !samePlace(other, place));
   return { ...places, recent: [place, ...others].slice(0, MAX_RECENT) };
