@@ -4,6 +4,12 @@ import { ChatMessage, ChatModel } from '../domain/copilot';
 import {
   DriverMemory,
   FACTS_SCHEMA,
+  Stop,
+  dayText,
+  shortStay,
+  stopsToday,
+  withLeft,
+  withStop,
   MemoryRepository,
   NO_MEMORY,
   factsFor,
@@ -92,6 +98,34 @@ export class MemoryStore {
     if (!found) return null;
     void this.change(found.memory);
     return found;
+  }
+
+  /** A destination was reached: it belongs to the day the passenger knows about. */
+  arrived(place: string, role: string, about: string): void {
+    if (!this.enabled()) return;
+    void this.load().then(() =>
+      this.change(withStop(this.memory(), { place, role, about, at: Date.now() })),
+    );
+  }
+
+  /** The car drives on. Gives the stop if the stay was short enough to ask about. */
+  left(): Stop | null {
+    if (!this.enabled()) return null;
+    const now = Date.now();
+    const next = withLeft(this.memory(), now);
+    if (next === this.memory()) return null;
+    void this.change(next);
+    return shortStay(stopsToday(next, now).at(-1));
+  }
+
+  /** The stay at the last destination was asked about: not asked again next time. */
+  askedAbout(stop: Stop): void {
+    if (this.memory().visit?.place === stop.place) void this.change(withVisit(this.memory(), null));
+  }
+
+  /** The day so far, for the context of a chat; '' if nothing or learning is off. */
+  dayNote(): string {
+    return this.enabled() ? dayText(this.memory(), Date.now()) : '';
   }
 
   /** A planned destination was reached: next time the passenger asks how it was. */

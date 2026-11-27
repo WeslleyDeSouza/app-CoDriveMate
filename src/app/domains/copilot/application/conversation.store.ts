@@ -82,7 +82,7 @@ import {
   passengerPrompt,
   placeRole,
 } from '../domain/copilot';
-import { wantsRemembered } from '../domain/memory';
+import { Stop, shortStayOpening, wantsRemembered } from '../domain/memory';
 import {
   Persona,
   Remark,
@@ -138,6 +138,10 @@ const PLANNED_HERE_M = 1000;
 /** The usual destination is offered at the start of a drive only. */
 const OFFER_MAX_KM = 2;
 const RECENT_TOPICS = 5;
+/** Faster than this after a destination, the car has left it. */
+const LEAVING_KMH = 10;
+/** Rolling on to a parking space is not leaving. */
+const LEAVING_MIN_MS = 60_000;
 /** Drives started before this hour get a word of respect. */
 const EARLY_HOUR = 7;
 const MAX_TURNS = 6;
@@ -248,6 +252,10 @@ export class ConversationStore {
   private lastJam = -Infinity;
   /** Standing for minutes: the next chat offers something to pass the time. */
   private jamDue = false;
+  /** The driver left a destination after a few minutes: the next chat asks what happened. */
+  private stayDue: Stop | null = null;
+  /** The car stands at a destination; it leaves when it drives again. */
+  private parkedAt = 0;
   /** The serial story running; undefined until loaded. */
   private serial?: Serial | null;
   private scoreLoaded = false;
@@ -283,14 +291,24 @@ export class ConversationStore {
     effect(() => {
       const arrival = this.navigation.arrival();
       untracked(() => {
-        if (!arrival || !this.active()) return;
+        if (!arrival) return;
         const planned = arrival.place.purpose;
         const purpose = hasPurpose(planned) ? planned : null;
+        // The day so far: which destinations, what for and how long.
+        const role = placeRole(favouriteOf(this.places.places(), arrival.place));
+        this.memory.arrived(arrival.place.name, role, purpose ? purposeText(purpose) : '');
+        this.parkedAt = arrival.at;
+        if (!this.active()) return;
         // A wish for a planned destination; with the companion, a word about the drive too.
         if (!purpose && !this._modes().includes('ride')) return;
         this.arrivalDue = { name: arrival.place.name, purpose, at: arrival.at };
       });
     });
+    effect(() => {
+      const speed = this.speedKmh();
+      untracked(() => this.watchLeaving(speed));
+    });
+    void this.places.load();
     // Back online: no need to sit out the pause after a failure.
     globalThis.addEventListener?.('online', () => {
       if (this._notice() !== 'failed') return;
@@ -456,6 +474,14 @@ export class ConversationStore {
     return this.run(mode);
   }
 
+  /** Driving again after a destination: the stay is known, a short one is asked about. */
+  private watchLeaving(speedKmh: number | null): void {
+    if (!this.parkedAt || speedKmh === null || speedKmh < LEAVING_KMH) return;
+    if (Date.now() - this.parkedAt < LEAVING_MIN_MS) return;
+    this.parkedAt = 0;
+    this.stayDue = this.memory.left();
+  }
+
   /** Standing for minutes on a drive: with chatting on, something to pass the time is due. */
   private watchJam(): void {
     const speed = this.speedKmh();
@@ -525,10 +551,19 @@ export class ConversationStore {
       !!destination && hasPurpose(destination.purpose) && this.purposeChatted !== destination;
     // A thread from an earlier drive opens the first chat, or goes along with it.
     const thread =
-      first && !jam && !onPurpose ? this.memory.pickUp(style === 'dialogue' && !this.deaf) : null;
+      first && !jam && !onPurpose && !this.stayDue
+        ? this.memory.pickUp(style === 'dialogue' && !this.deaf)
+        : null;
+    // Left a destination after a few minutes: a question, where the driver can answer.
+    const stay = !jam && style === 'dialogue' && !this.deaf ? this.stayDue : null;
+    if (stay) {
+      this.stayDue = null;
+      this.memory.askedAbout(stay);
+    }
     let topic: Topic | null = null;
     let start: string;
     if (jam) start = jamOpening(style);
+    else if (stay) start = shortStayOpening(stay);
     else if (onPurpose) {
       this.purposeChatted = destination;
       start = purposeOpening(style, first);
@@ -1247,6 +1282,7 @@ export class ConversationStore {
       carNote(car, this.carKnown),
       `street: ${this.scene.street() || 'unknown'}`,
       this.destinationText(),
+      this.memory.dayNote(),
       near.length ? `nearby: ${near.join(', ')}` : '',
       `time: ${new Date().toTimeString().slice(0, 5)}`,
     ];
