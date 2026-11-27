@@ -84,6 +84,8 @@ export interface AppSettings {
     talkStyle: 'monologue' | 'dialogue';
     /** how often the conversation says something */
     talkPace: 'little' | 'medium' | 'much';
+    /** the character of the passenger in the conversation */
+    persona: 'warm' | 'dry' | 'cheeky';
     /**
      * the driver knows the way: the conversation goes on before manoeuvres and hazard
      * notices; navigation prompts, hazard announcements and vehicle warnings still interrupt it
@@ -165,6 +167,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     model: 'claude-haiku-5-5',
     talkStyle: 'dialogue',
     talkPace: 'medium',
+    persona: 'warm',
     talkFirst: false,
     memory: true,
     shareTrips: false,

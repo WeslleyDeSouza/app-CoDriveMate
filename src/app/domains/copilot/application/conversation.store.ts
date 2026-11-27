@@ -32,21 +32,25 @@ import {
   QuizKey,
   QuizQuestion,
   TALK_MODES,
+  TOLD_RECENT,
   TalkLength,
   TalkMode,
   TalkPace,
   TalkRepository,
+  carNote,
   carRemark,
   directionTo,
   firstSentences,
   isStop,
   mayTalk,
+  notAgain,
   parseQuiz,
   pickLandmark,
   pickMode,
   quizAnswer,
   talkLength,
   talkPause,
+  withTold,
 } from '../domain/conversation';
 import {
   BRAKE_QUIP_DELAY_MS,
@@ -55,13 +59,23 @@ import {
   CoachFacts,
   PAST_NOTES,
   PastFigures,
+  driveFiguresText,
   pastFigures,
   pastText,
   pickEco,
   pickQuip,
   pickTip,
 } from '../domain/coach';
-import { ChatError, ChatMessage, ChatModel, MAX_HISTORY, passengerPrompt } from '../domain/copilot';
+import {
+  ChatError,
+  ChatMessage,
+  ChatModel,
+  ChatRequest,
+  LOOKUP_NOTE,
+  LOOKUP_TOOLS,
+  MAX_HISTORY,
+  passengerPrompt,
+} from '../domain/copilot';
 import {
   Remark,
   RideFacts,
@@ -182,7 +196,10 @@ export class ConversationStore {
   /** How much the step running may say. */
   private length: TalkLength = 'full';
   private history: ChatMessage[] = [];
-  private asked: string[] = [];
+  /** Beginnings of what the language model told before, also on earlier drives. */
+  private told?: string[];
+  /** What about the car the language model heard already. */
+  private carKnown = new Set<string>();
   private picked: QuizKey | null = null;
   private deaf = false;
   private seen?: Set<number>;
@@ -285,6 +302,7 @@ export class ConversationStore {
     this._notice.set(notice);
     if (!this._modes().length) {
       this.history = [];
+      this.carKnown = new Set();
       this.deaf = false;
       this.last = null;
       this.nextAt = Date.now() + START_MS;
@@ -397,6 +415,7 @@ export class ConversationStore {
     await this.loadAround().catch(() => undefined);
     const style = this.style();
     await this.memory.load();
+    const again = notAgain(await this.recall());
     if (session !== this.session) return;
     const topic = pickTopic(this.topics, Math.random, (one) => this.memory.weight(one));
     this.topics = [...this.topics, topic].slice(-RECENT_TOPICS);
@@ -412,10 +431,11 @@ export class ConversationStore {
     if (onPurpose) this.purposeChatted = destination;
     const first = !this.history.length;
     const start = onPurpose ? purposeOpening(style, first) : opening(style, topic, first);
-    let said = await this.reply(start + about, session);
+    let said = await this.reply(start + about, session, again);
     if (style === 'monologue') {
       // Thinking takes time; a manoeuvre may have come close.
       const spoken = !!said && this.free() && (await this.say(said, session));
+      if (spoken) await this.remember(said);
       if (session === this.session) this.pauseFor(MONOLOGUE_PAUSE_MS, spoken);
       return;
     }
@@ -423,6 +443,8 @@ export class ConversationStore {
     for (let turn = 0; said && this.free() && turn < MAX_TURNS; turn++) {
       const spoken = await this.say(said, session);
       told = spoken;
+      // Only the opening: later answers take up what the driver said.
+      if (spoken && turn === 0) await this.remember(said);
       // Interrupted by navigation or a warning: do not go on in the middle of it.
       if (!spoken || !this.free()) break;
       const heard = await this.listen(session);
@@ -500,20 +522,22 @@ export class ConversationStore {
     });
     // Comparisons with earlier drives stay on the device unless the driver allowed otherwise.
     const local = PAST_NOTES.has(note) && !this.shareTrips();
-    const text =
-      this.copilot.available() && !local
-        ? await this.model
-            .ask({
-              system: this.passenger(),
-              messages: [{ role: 'user', content: this.coachPrompt(kind, plain, facts) }],
-            })
-            .catch(() => '')
-        : '';
+    const ask = this.copilot.available() && !local;
+    const again = ask ? notAgain(await this.recall(), TOLD_RECENT) : '';
+    const text = ask
+      ? await this.model
+          .ask({
+            system: this.passenger(),
+            messages: [{ role: 'user', content: this.coachPrompt(kind, plain, facts) + again }],
+          })
+          .catch(() => '')
+      : '';
     if (session !== this.session) return;
     // Thinking takes time; a manoeuvre may have come close.
     let told = false;
     if (this.free()) told = await this.say(text || plain, session);
     if (told) coached.add(note);
+    if (told && text) await this.remember(text);
     if (session === this.session) this.pauseFor(COACH_PAUSE_MS, told);
   }
 
@@ -566,16 +590,18 @@ export class ConversationStore {
     this.lastQuip = Date.now();
     const index = pickQuip(this.quips, Math.random);
     this.quips = [...this.quips, index].slice(-RECENT_QUIPS);
+    const again = this.copilot.available() ? notAgain(await this.recall(), TOLD_RECENT) : '';
     const text = this.copilot.available()
       ? await this.model
           .ask({
             system: passengerPrompt(this.translate.lang),
-            messages: [{ role: 'user', content: QUIP_PROMPT }],
+            messages: [{ role: 'user', content: QUIP_PROMPT + again }],
           })
           .catch(() => '')
       : '';
     if (session !== this.session || !this.free()) return;
-    await this.say(text || this.t('copilot.talk.brake.' + index), session);
+    const spoken = await this.say(text || this.t('copilot.talk.brake.' + index), session);
+    if (spoken && text) await this.remember(text);
   }
 
   /** True if something was offered. */
@@ -780,6 +806,7 @@ export class ConversationStore {
   private async ask(session: number): Promise<void> {
     await this.loadAround().catch(() => undefined);
     const near = (this.around?.places ?? []).slice(0, 8).map(({ title }) => title);
+    const again = notAgain(await this.recall());
     const raw = await this.model.ask({
       system: passengerPrompt(this.translate.lang),
       schema: QUIZ_SCHEMA,
@@ -788,8 +815,8 @@ export class ConversationStore {
           role: 'user',
           content:
             'Create an easy to medium quiz question with three answers, preferably about the region ' +
-            `or Switzerland (nearby: ${near.join(', ') || 'unknown'}), otherwise general knowledge. ` +
-            `Do not repeat: ${this.asked.slice(-6).join(' | ') || '-'}.`,
+            `or Switzerland (nearby: ${near.join(', ') || 'unknown'}), otherwise general knowledge.` +
+            again,
         },
       ],
     });
@@ -800,7 +827,7 @@ export class ConversationStore {
       this.nextAt = Date.now() + RETRY_MS;
       return;
     }
-    this.asked.push(quiz.question);
+    await this.remember(quiz.question);
     this.picked = null;
     this._quiz.set(quiz);
     const options = QUIZ_KEYS.map((key) => `${key.toUpperCase()}: ${quiz[key]}.`).join(' ');
@@ -830,18 +857,55 @@ export class ConversationStore {
     if (session === this.session) this.pauseFor(QUIZ_PAUSE_MS);
   }
 
-  private async reply(text: string, session: number): Promise<string> {
-    const past = this.shareTrips() ? await this.past().catch(() => null) : null;
-    const messages: ChatMessage[] = [
-      ...this.history,
-      { role: 'user', content: `[Context: ${this.context(past)}] ${text}` },
-    ];
-    const system = this.copilot.withTools(this.passenger(this.style()));
-    const answer = await this.model.ask({ system, messages, ...this.copilot.toolRequest() });
+  /** `once` goes along with this message only and is not kept in the chat. */
+  private async reply(text: string, session: number, once = ''): Promise<string> {
+    const content = `[Context: ${this.context()}] ${text}`;
+    const messages: ChatMessage[] = [...this.history, { role: 'user', content: content + once }];
+    const system = `${this.copilot.withTools(this.passenger(this.style()))} ${LOOKUP_NOTE}`;
+    const answer = await this.model.ask({ system, messages, ...this.toolRequest() });
     if (session !== this.session) return '';
-    const all: ChatMessage[] = [...messages, { role: 'assistant', content: answer }];
+    const all: ChatMessage[] = [
+      ...this.history,
+      { role: 'user', content },
+      { role: 'assistant', content: answer },
+    ];
     this.history = all.slice(-MAX_HISTORY);
     return answer;
+  }
+
+  /**
+   * What a chat may use: looking up the car, the route and the drive, so that this does not
+   * go along with every message, and what the copilot may do if the driver allows it.
+   */
+  private toolRequest(): Pick<ChatRequest, 'tools' | 'runTool'> {
+    const act = this.copilot.toolRequest();
+    return {
+      tools: [...LOOKUP_TOOLS, ...(act.tools ?? [])],
+      runTool: async (name, input) => {
+        if (name === 'car_data') return this.carData();
+        if (name === 'drive_figures') {
+          const facts = await this.coachFacts().catch(() => null);
+          return driveFiguresText(facts, this.shareTrips());
+        }
+        return act.runTool ? act.runTool(name, input) : `There is no tool "${name}".`;
+      },
+    };
+  }
+
+  private carData(): string {
+    const connected = ['obd', 'demo'].includes(this.telemetry.mode());
+    const range = connected ? this.fuel.rangeKm() : null;
+    return this.copilot.carData() + (range === null ? '' : ` range_km: ${Math.round(range)}`);
+  }
+
+  /** What the language model told before, so that it does not tell it again. */
+  private async recall(): Promise<readonly string[]> {
+    return (this.told ??= [...(await this.repository.loadTold().catch(() => []))]);
+  }
+
+  private async remember(text: string): Promise<void> {
+    this.told = withTold(await this.recall(), text);
+    await this.repository.saveTold(this.told).catch(() => undefined);
   }
 
   private async say(text: string, session: number): Promise<boolean> {
@@ -928,17 +992,14 @@ export class ConversationStore {
     }));
   }
 
-  private context(past: PastFigures | null): string {
+  /** Little, with every message; the rest is looked up with a tool when the talk needs it. */
+  private context(): string {
     const near = (this.around?.places ?? []).slice(0, 6).map(({ title }) => title);
     const { coolantTemp, speed } = this.telemetry.snapshot();
     const connected = ['obd', 'demo'].includes(this.telemetry.mode());
     const car = carRemark(this.fuel.rangeKm(), coolantTemp, speed, connected);
     const parts = [
-      car ? `car: ${car}` : '',
-      this.logbook.current()
-        ? `this drive: ${rideText(this.rideFacts())}, eco score ${this.logbook.current()?.score}`
-        : '',
-      past ? `earlier drives: ${pastText(past)}` : '',
+      carNote(car, this.carKnown),
       `street: ${this.scene.street() || 'unknown'}`,
       this.destinationText(),
       near.length ? `nearby: ${near.join(', ')}` : '',

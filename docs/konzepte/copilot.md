@@ -32,7 +32,8 @@ Multi-Provider in `<domain>.providers.ts`); der Copilot kennt die Domains nicht.
 Die Schleife (Werkzeug, Ergebnis, Antwort) läuft im Adapter, höchstens 4 Runden; in der
 letzten muss das Modell in Worten antworten. OpenAI bekommt ohne Speicherung nur die
 Aufrufe und Ergebnisse zurück, nicht das Denken. Die Werkzeuge gibt es bei Fragen im
-Copilot und beim Plaudern im Unterhaltungsmodus.
+Copilot und beim Plaudern im Unterhaltungsmodus; dort kommen zwei lesende Werkzeuge dazu
+(siehe «Nachschlagen statt mitschicken»).
 
 Datenschutz: Schalter «Copilot darf handeln» unter Einstellungen > Datenschutz (Vorgabe
 ein). Ergebnisse gehen an den KI-Anbieter: Ortsnamen und Adressen aus der Suche, Namen,
@@ -115,6 +116,37 @@ festen Sprüchen. Im Auto ungetestet.
 
 Mehrere Modi lassen sich zusammen einschalten; dann wechseln sie zufällig, nie zweimal
 hintereinander derselbe.
+
+**Nachschlagen statt mitschicken** (`LOOKUP_TOOLS` in `domain/copilot.ts`, 27.11.2026): Beim
+Plaudern geht mit jeder Nachricht nur noch wenig mit: Zustand des Autos (einmal, danach als
+«schon gesagt» markiert), Strasse, Ziel mit Thema, Ankunft und Verzögerung, Ortsnamen in der
+Nähe, Uhrzeit. Den Rest holt das Modell bei Bedarf mit zwei lesenden Werkzeugen:
+
+| Werkzeug | Liefert |
+|---|---|
+| `car_data` | dieselbe Momentaufnahme wie bei einer Copilot-Frage (Fahrzeug, Live-Werte, Fehlercodes, Tempolimit, Verkehrsmeldungen, Ziel mit Ankunft und Restdistanz) plus Reichweite; keine Koordinaten |
+| `drive_figures` | laufende Fahrt (Distanz, Dauer, harte Bremsungen und Beschleunigungen, hohe Drehzahl, Leerlauf, Eco-Score, Verbrauch); Durchschnitte früherer Fahrten nur mit `ai.shareTrips`, sonst «nicht freigegeben» |
+
+Sie stehen immer zur Verfügung (sie ändern nichts), unabhängig vom Schalter «Copilot darf
+handeln»; die handelnden Werkzeuge kommen wie bisher dazu, wenn er ein ist. Ein Nachschlagen
+kostet eine zusätzliche Runde beim Anbieter, also etwas Wartezeit vor dem Beitrag; dafür
+bleiben Anfrage und Verlauf kurz, und die Zahlen der Fahrt verleiten nicht mehr in jedem
+Beitrag zu derselben Bemerkung. Mit echtem Key ungetestet.
+
+**Keine Wiederholungen** (`withTold`, `notAgain` in `domain/conversation.ts`, 27.11.2026):
+Das Sprachmodell weiss von sich aus nicht, was es früher erzählt hat; mit gleichem Auftrag kam
+derselbe Witz, dieselbe Kuriosität. Darum merkt sich die App den Anfang (160 Zeichen) der
+letzten 30 Beiträge, die das Modell formuliert hat und die zu Ende gesprochen wurden
+(Plauder-Eröffnung, Tipp, Eco-Hinweis, Bremsspruch, Quizfrage), unter `copilot/told` (auf dem
+Gerät und in der Datensicherung, auch über Fahrten hinweg). Plaudern und Quiz bekommen die
+ganze Liste mit dem Auftrag, Thema, Witz, Rätsel oder Frage nicht zu wiederholen und anders zu
+beginnen; Tipps und Sprüche die letzten sechs. Die Liste geht nur mit der jeweiligen Anfrage
+mit, nicht in den Verlauf. Antworten auf den Fahrer, Fakten zur Route (dort gilt die Liste der
+erzählten Orte), Thema und Notiz geplanter Fahrten und feste Sätze werden nicht gemerkt. Der
+Zustand des Autos (Motor kalt, steht, Tank) wird nach dem ersten Mal als «schon gesagt»
+markiert, und der Prompt verlangt, dass aus dem Kontext nichts mehrfach aufgegriffen wird.
+Eine Löschfunktion für die Liste gibt es nicht; sie erneuert sich nach 30 Beiträgen. Mit
+echtem Key ungetestet.
 
 ## Gedächtnis
 

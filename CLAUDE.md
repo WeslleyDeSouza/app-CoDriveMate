@@ -256,14 +256,19 @@ a special case in the UI. Everything must be testable without a car:
   nearby traffic messages, destination/ETA with the delay by traffic, trip and tank figures, and for a planned drive
   its topic and description (decided 2026-11-26). Conversation
   mode also sends destination/ETA with that topic and description, street, nearby place names, time and remarks about the car
-  (tank almost empty with range, engine cold, standing still) and figures of the
-  current drive (distance, duration, hard braking/acceleration, eco score), the fact that
+  (tank almost empty with range, engine cold, standing still); when the model looks it up
+  while chatting (tools `car_data`, `drive_figures`, read only, added 2026-11-27) the same
+  snapshot as with a question plus the range, and figures of the current drive (distance,
+  duration, hard braking/acceleration, high revs, idling, eco score, consumption); tips also
+  send the drive figures; the fact that
   the driver just braked hard (for a light remark), averages of earlier drives (eco score,
   consumption, hard events per 10 km) only if the driver switched this on (off by default,
   privacy settings, decided 2026-11-26), and up to five remembered
   preferences of the driver (about 80 words). Learning them sends the answers of the talk and
   the list of known ones (up to 100); it can be switched off, seen and deleted on the copilot
-  page (decided 2026-11-25). When the copilot may act (tools, switch in the
+  page (decided 2026-11-25). So that it does not repeat itself, the beginnings (160
+  characters) of up to 30 things the model said before go along too, also from earlier
+  drives; they may name places it talked about (added 2026-11-27). When the copilot may act (tools, switch in the
   privacy settings, on by default, decided 2026-11-26), the results of its tools
   go along too: place names and addresses from the search, names, addresses and
   distances of filling stations, the range, names of light scenes, the saved day and topic of a
