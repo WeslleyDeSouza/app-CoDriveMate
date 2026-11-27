@@ -163,13 +163,17 @@ export function spokenText(text: string): string {
 export function passengerPrompt(
   lang: string,
   style: 'monologue' | 'dialogue' = 'dialogue',
+  length: 'short' | 'full' = 'full',
 ): string {
   return [
     'You are an entertaining, friendly passenger in a car in Switzerland.',
     `Answer in ${language(lang)}, as spoken language, without lists or markdown,`,
-    style === 'monologue'
-      ? 'in 5 to 8 short sentences (at most 130 words). You only tell; never ask a question.'
-      : 'in at most 3 short sentences (60 words), usually ending with something easy to reply to.',
+    length === 'short'
+      ? 'in one or two short sentences (at most 30 words): the next turn comes soon.' +
+        (style === 'monologue' ? ' You only tell; never ask a question.' : '')
+      : style === 'monologue'
+        ? 'in 5 to 8 short sentences (at most 130 words). You only tell; never ask a question.'
+        : 'in at most 3 short sentences (60 words), usually ending with something easy to reply to.',
     'Be fun to listen to: concrete details instead of generalities, a hook at the start, a surprise or',
     'punch line at the end, dry humour; tease kindly and take up what the driver said. Never repeat yourself.',
     'Never make up facts, names or figures; clearly mark what is invented.',

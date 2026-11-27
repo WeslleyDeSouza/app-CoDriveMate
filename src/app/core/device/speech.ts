@@ -5,12 +5,13 @@ import { VOICE_LOCALES, bestVoice } from './device-voice';
 import { nativeVoice } from './native-voice';
 
 /**
- * Who speaks. Navigation prompts and warnings ('nav') interrupt everything else;
- * the conversation mode ('talk') is interrupted by everything else.
+ * Who speaks. Turn-by-turn prompts ('route'), warnings and notices ('nav') interrupt
+ * everything else; the conversation mode ('talk') is interrupted by everything else.
+ * With the conversation first, a turn prompt is left out while the conversation speaks.
  */
-export type SpeechKind = 'nav' | 'answer' | 'talk';
+export type SpeechKind = 'route' | 'nav' | 'answer' | 'talk';
 
-const PRIORITY: Record<SpeechKind, number> = { nav: 2, answer: 1, talk: 0 };
+const PRIORITY: Record<SpeechKind, number> = { route: 2, nav: 2, answer: 1, talk: 0 };
 
 /** Port: spoken output. */
 export abstract class SpeechOutput {
@@ -21,6 +22,10 @@ export abstract class SpeechOutput {
   /** Texts that will be spoken soon, nearest first; replaces those named before. */
   prepare(texts: readonly string[], lang: string, rate: number): void {
     void [texts, lang, rate];
+  }
+  /** The driver knows the way: turn prompts do not interrupt the conversation. */
+  setTalkFirst(on: boolean): void {
+    void on;
   }
   /** Stops everything, or only one kind. */
   abstract stop(kind?: SpeechKind): Promise<void>;
@@ -71,11 +76,14 @@ export class SpeechQueue {
   private waiting: Utterance[] = [];
 
   readonly busy = this._busy.asReadonly();
+  /** Turn prompts are left out while the conversation speaks. */
+  talkFirst = false;
 
   constructor(private readonly voice: Voice) {}
 
   speak(text: string, lang: string, rate: number, kind: SpeechKind): Promise<boolean> {
     return new Promise((done) => {
+      if (kind === 'route' && this.talkFirst && this.current?.kind === 'talk') return done(false);
       const lower = (other: Utterance) => PRIORITY[other.kind] < PRIORITY[kind];
       this.drop(lower);
       this.waiting.push({ text, lang, rate, kind, done });
@@ -169,6 +177,10 @@ export class DeviceSpeechOutput extends SpeechOutput {
 
   override prepare(texts: readonly string[], lang: string, rate: number): void {
     this.cloud.prepare(texts, lang, rate);
+  }
+
+  override setTalkFirst(on: boolean): void {
+    this.queue.talkFirst = on;
   }
 
   stop(kind?: SpeechKind): Promise<void> {

@@ -59,13 +59,25 @@ Mit echtem Key ungetestet.
 | Quiz | Anthropic, Antwort per Stimme oder Tippen | ja |
 
 Still 20 Sekunden vor einem Manöver (300 bis 700 m, je nach Tempo aus OBD oder GPS; fest 700 m
-hiess in der Stadt: nie), während anderer Ansagen und im Hintergrund. Ein Tipp
-auf den Knopf über der Karte oder «Stopp» beendet. Wikipedia erhält den Ort auf drei
-Nachkommastellen (rund 100 m).
+hiess in der Stadt: nie), während anderer Ansagen, bei einer Fahrzeugwarnung, auf den letzten
+100 m vor einem Gefahrenhinweis und im Hintergrund. Ein Tipp auf den Knopf über der Karte
+oder «Stopp» beendet. Wikipedia erhält den Ort auf drei Nachkommastellen (rund 100 m).
+
+**Nur so viel, wie Platz hat** (`talkLength` in `domain/conversation.ts`): Vor jedem Beitrag
+wird geschätzt, wie viele Sekunden bis zum Ruhefenster vor dem nächsten Manöver bleiben.
+Ab 45 s (lange Strecke, ohne Route oder im Stand) gibt es einen normalen Beitrag, ab 15 s
+einen kurzen (ein bis zwei Sätze, höchstens 30 Wörter), darunter wartet er das Manöver ab.
+Ohne bekanntes Tempo gibt es nur kurze Beiträge.
+
+**Vorrang** (Einstellung `ai.talkFirst`, Knopf auf der Copilot-Seite, aus als Vorgabe;
+entschieden 2026-11-27): für Strecken, die der Fahrer kennt. Manöver und Gefahrenhinweise
+halten die Unterhaltung nicht mehr zurück, und eine Abbiegeansage (`SpeechKind` `route`)
+wird ausgelassen, solange die Unterhaltung spricht; spricht sie nicht, kommt die Ansage
+normal. Gefahrenansagen, Fahrzeugwarnungen und Copilot-Antworten unterbrechen weiterhin.
 
 **Dialog oder Monolog** (Einstellung `ai.talkStyle`): Im Monolog wird nur erzählt
 (5 bis 8 Sätze), das Mikrofon bleibt aus und es gibt kein Quiz. Kommt ein Manöver
-nahe oder eine Warnung, bricht die laufende Erzählung ab.
+nahe oder eine Warnung, bricht die laufende Erzählung ab (mit Vorrang nur bei einer Warnung).
 
 **Wie oft** (Einstellung `ai.talkPace`): wenig, mittel (Vorgabe), viel; Faktor 1.5, 0.6 und 0.2
 auf alle Pausen. Wurde etwas unterbrochen, geht es nach höchstens 15 Sekunden weiter. «Viel»

@@ -427,7 +427,7 @@ export class NavigationStore {
 
   private say(text: string): void {
     const voice = this.settings().voice;
-    if (voice.navigation) void this.speech.speak(text, this.translate.lang, voice.rate);
+    if (voice.navigation) void this.speech.speak(text, this.translate.lang, voice.rate, 'route');
   }
 
   private noteFailure(error: unknown): void {

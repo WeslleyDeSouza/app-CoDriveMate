@@ -62,6 +62,8 @@
       "right": "Richtig!",
       "wrong": "Leider falsch, richtig ist {{key}}.",
       "none": "Keine Antwort erkannt. Richtig ist {{key}}.",
+      "first": "Vorrang",
+      "first_hint": "Du kennst die Strecke: Die Unterhaltung geht vor Abbiegeansagen und Gefahrenhinweisen. Gefahren- und Fahrzeugwarnungen unterbrechen sie weiterhin.",
       "pace": {
         "label": "Wie oft",
         "little": "Wenig",

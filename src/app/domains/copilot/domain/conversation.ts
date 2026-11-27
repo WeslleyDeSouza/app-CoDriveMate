@@ -76,6 +76,9 @@ export function quietBeforeM(speedKmh: number | null): number {
   return Math.min(QUIET_MAX_M, Math.max(QUIET_MIN_M, metres));
 }
 
+/** A hazard notice keeps the conversation quiet only this close; its announcement always does. */
+export const HAZARD_QUIET_M = 100;
+
 export interface TalkConditions {
   /** metres to the next manoeuvre, null without a route */
   readonly maneuverM: number | null;
@@ -83,8 +86,12 @@ export interface TalkConditions {
   readonly speedKmh: number | null;
   readonly speaking: boolean;
   readonly visible: boolean;
-  /** vehicle warning or hazard notice on screen */
+  /** vehicle warning on screen */
   readonly warning: boolean;
+  /** metres to the hazard ahead, null if there is none */
+  readonly hazardM: number | null;
+  /** the driver knows the way: manoeuvres and hazard notices do not keep it quiet */
+  readonly talkFirst: boolean;
 }
 
 export function mayTalk({
@@ -93,9 +100,38 @@ export function mayTalk({
   speaking,
   visible,
   warning,
+  hazardM,
+  talkFirst,
 }: TalkConditions): boolean {
-  const close = maneuverM !== null && maneuverM < quietBeforeM(speedKmh);
-  return visible && !speaking && !warning && !close;
+  // Vehicle warnings and every other voice (navigation, hazards) always come first.
+  if (!visible || speaking || warning) return false;
+  if (talkFirst) return true;
+  if (hazardM !== null && hazardM < HAZARD_QUIET_M) return false;
+  return !(maneuverM !== null && maneuverM < quietBeforeM(speedKmh));
+}
+
+/** How much may be said: briefly between two manoeuvres, at length on a long stretch. */
+export type TalkLength = 'short' | 'full';
+/** Seconds a short or a full contribution needs, from thinking to the last word. */
+const SHORT_TALK_S = 15;
+const FULL_TALK_S = 45;
+
+/**
+ * How long a contribution fits before the next quiet window; null if not even a short one.
+ * Without a route, standing still or with the conversation first, there is room enough.
+ */
+export function talkLength(
+  maneuverM: number | null,
+  speedKmh: number | null,
+  talkFirst: boolean,
+): TalkLength | null {
+  if (talkFirst || maneuverM === null) return 'full';
+  if (speedKmh === null) return 'short';
+  const metresPerS = speedKmh / 3.6;
+  if (metresPerS < 1) return 'full';
+  const roomS = (maneuverM - quietBeforeM(speedKmh)) / metresPerS;
+  if (roomS >= FULL_TALK_S) return 'full';
+  return roomS >= SHORT_TALK_S ? 'short' : null;
 }
 
 const STOP =

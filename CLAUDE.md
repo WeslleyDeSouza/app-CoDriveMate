@@ -284,8 +284,14 @@ Existing rules of the prototype; they are requirements, not details:
   conversation mode is interrupted by everything else.
 - Conversation mode stays silent within 20 s of the next manoeuvre (at least 300 m, at
   most 700 m, 700 m if the speed is unknown; changed on request 2026-11-25), while a
-  vehicle warning or hazard notice is active, while another voice output runs
-  and when the app is not visible. It is stopped by one tap or by voice.
+  vehicle warning is active, within 100 m of a hazard notice, while another voice
+  output runs and when the app is not visible. Between two manoeuvres it says only what
+  fits before the quiet window (short contribution from 15 s, normal from 45 s). It is
+  stopped by one tap or by voice.
+- **Conversation first** (setting `ai.talkFirst`, off by default, decided 2026-11-27):
+  for routes the driver knows. Manoeuvres and hazard notices no longer keep it quiet,
+  and turn prompts are left out while it speaks. Hazard announcements, vehicle
+  warnings and copilot answers still interrupt it.
 - Interior lighting is dimmed to the driving brightness as soon as the car
   moves (> 5 km/h) and restored when it stands.
 - Hazard notices (level crossings, schools, signs from OpenStreetMap) are

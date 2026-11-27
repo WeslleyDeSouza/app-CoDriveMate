@@ -32,6 +32,7 @@ import {
   QuizKey,
   QuizQuestion,
   TALK_MODES,
+  TalkLength,
   TalkMode,
   TalkPace,
   TalkRepository,
@@ -44,6 +45,7 @@ import {
   pickLandmark,
   pickMode,
   quizAnswer,
+  talkLength,
   talkPause,
 } from '../domain/conversation';
 import {
@@ -162,6 +164,8 @@ export class ConversationStore {
   readonly allowed = computed(() => this.settings().voice.conversation);
   readonly pace = computed<TalkPace>(() => this.settings().ai.talkPace);
   readonly style = computed<TalkStyle>(() => this.settings().ai.talkStyle);
+  /** The driver knows the way: the conversation comes before turns and hazard notices. */
+  readonly talkFirst = computed(() => this.settings().ai.talkFirst);
   /** Averages of earlier drives may go to the language model. */
   readonly shareTrips = computed(() => this.settings().ai.shareTrips);
   /** A quiz needs answers, so it does not exist in a monologue. */
@@ -175,6 +179,8 @@ export class ConversationStore {
   private timer?: ReturnType<typeof setInterval>;
   private nextAt = 0;
   private working = false;
+  /** How much the step running may say. */
+  private length: TalkLength = 'full';
   private history: ChatMessage[] = [];
   private asked: string[] = [];
   private picked: QuizKey | null = null;
@@ -206,6 +212,7 @@ export class ConversationStore {
     effect(() => {
       if (!this.allowed()) untracked(() => this.stop());
     });
+    effect(() => this.output.setTalkFirst(this.talkFirst()));
     effect(() => {
       const trip = this.logbook.current();
       const count = trip?.driving.hardBrakings ?? 0;
@@ -246,6 +253,11 @@ export class ConversationStore {
     this.interrupt();
     await this.settingsStore.update({ ai: { talkStyle } });
     if (modes.length) this.use(modes.filter((mode) => this.offered().includes(mode)));
+  }
+
+  async setTalkFirst(talkFirst: boolean): Promise<void> {
+    await this.settingsStore.update({ ai: { talkFirst } });
+    if (talkFirst) this.nextAt = Math.min(this.nextAt, Date.now() + RETRY_MS);
   }
 
   async setPace(talkPace: TalkPace): Promise<void> {
@@ -337,13 +349,16 @@ export class ConversationStore {
       }
     }
     if (Date.now() < this.nextAt) return;
-    if (!this.free()) {
+    // Not even a short contribution fits before the next turn: wait for the turn.
+    const length = this.room();
+    if (!this.free() || !length) {
       this.nextAt = Date.now() + RETRY_MS;
       return;
     }
     const mode = pickMode(this._modes(), this.last, Math.random);
     if (!mode) return;
     this.last = mode;
+    this.length = length;
     return this.run(mode);
   }
 
@@ -489,7 +504,7 @@ export class ConversationStore {
       this.copilot.available() && !local
         ? await this.model
             .ask({
-              system: passengerPrompt(this.translate.lang),
+              system: this.passenger(),
               messages: [{ role: 'user', content: this.coachPrompt(kind, plain, facts) }],
             })
             .catch(() => '')
@@ -648,7 +663,7 @@ export class ConversationStore {
     const text = this.copilot.available()
       ? await this.model
           .ask({
-            system: passengerPrompt(this.translate.lang),
+            system: this.passenger(),
             messages: [
               { role: 'user', content: purposePrompt(place, purposeText(purpose), minutes) },
             ],
@@ -738,7 +753,7 @@ export class ConversationStore {
     const text = this.copilot.available()
       ? await this.model
           .ask({
-            system: passengerPrompt(lang),
+            system: this.passenger(),
             messages: [
               {
                 role: 'user',
@@ -821,7 +836,7 @@ export class ConversationStore {
       ...this.history,
       { role: 'user', content: `[Context: ${this.context(past)}] ${text}` },
     ];
-    const system = this.copilot.withTools(passengerPrompt(this.translate.lang, this.style()));
+    const system = this.copilot.withTools(this.passenger(this.style()));
     const answer = await this.model.ask({ system, messages, ...this.copilot.toolRequest() });
     if (session !== this.session) return '';
     const all: ChatMessage[] = [...messages, { role: 'assistant', content: answer }];
@@ -869,8 +884,21 @@ export class ConversationStore {
       speedKmh: this.speedKmh(),
       speaking: false,
       visible: !document.hidden,
-      warning: this.warnings.shown() !== null || this.road.hazard() !== null,
+      warning: this.warnings.shown() !== null,
+      hazardM: this.road.hazard()?.distanceM ?? null,
+      talkFirst: this.talkFirst(),
     });
+  }
+
+  /** How much fits before the next turn; null if nothing does. */
+  private room(): TalkLength | null {
+    const maneuverM = this.navigation.progress()?.distanceM ?? null;
+    return talkLength(maneuverM, this.speedKmh(), this.talkFirst());
+  }
+
+  /** The passenger, as long as there is room for. */
+  private passenger(style?: TalkStyle): string {
+    return passengerPrompt(this.translate.lang, style, this.length);
   }
 
   /** GPS too: without OBD the telemetry stands at zero. */

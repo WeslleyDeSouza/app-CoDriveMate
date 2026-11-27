@@ -62,6 +62,8 @@
       "right": "Correct!",
       "wrong": "Sorry, the answer is {{key}}.",
       "none": "No answer recognised. The answer is {{key}}.",
+      "first": "Priority",
+      "first_hint": "You know the way: the conversation comes before turn prompts and hazard notices. Hazard and vehicle warnings still interrupt it.",
       "pace": {
         "label": "How often",
         "little": "Little",

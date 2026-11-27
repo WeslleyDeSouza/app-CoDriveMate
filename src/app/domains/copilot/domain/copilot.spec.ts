@@ -1,4 +1,5 @@
 import {
+  HAZARD_QUIET_M,
   LandmarkAround,
   carRemark,
   directionTo,
@@ -10,6 +11,7 @@ import {
   pickMode,
   quizAnswer,
   TALK_PACES,
+  talkLength,
   talkPause,
 } from './conversation';
 import {
@@ -86,6 +88,8 @@ describe('conversation', () => {
       speaking: false,
       visible: true,
       warning: false,
+      hazardM: null,
+      talkFirst: false,
     };
     expect(mayTalk(free)).toBe(true);
     expect(mayTalk({ ...free, maneuverM: 900 })).toBe(true);
@@ -96,6 +100,56 @@ describe('conversation', () => {
     expect(mayTalk({ ...free, speaking: true })).toBe(false);
     expect(mayTalk({ ...free, visible: false })).toBe(false);
     expect(mayTalk({ ...free, warning: true })).toBe(false);
+  });
+
+  it('keeps quiet only shortly before a hazard', () => {
+    const free = {
+      maneuverM: null,
+      speedKmh: 50,
+      speaking: false,
+      visible: true,
+      warning: false,
+      hazardM: null,
+      talkFirst: false,
+    };
+    expect(mayTalk({ ...free, hazardM: 350 })).toBe(true);
+    expect(mayTalk({ ...free, hazardM: HAZARD_QUIET_M + 1 })).toBe(true);
+    expect(mayTalk({ ...free, hazardM: HAZARD_QUIET_M - 1 })).toBe(false);
+  });
+
+  it('comes before turns and hazards when the driver knows the way, never before warnings', () => {
+    const first = {
+      maneuverM: 100,
+      speedKmh: 50,
+      speaking: false,
+      visible: true,
+      warning: false,
+      hazardM: 50,
+      talkFirst: true,
+    };
+    expect(mayTalk(first)).toBe(true);
+    expect(mayTalk({ ...first, warning: true })).toBe(false);
+    expect(mayTalk({ ...first, speaking: true })).toBe(false);
+    expect(mayTalk({ ...first, visible: false })).toBe(false);
+  });
+
+  it('says only as much as fits before the next turn', () => {
+    // No route, standing still, or the conversation first: room enough.
+    expect(talkLength(null, 50, false)).toBe('full');
+    expect(talkLength(400, 0, false)).toBe('full');
+    expect(talkLength(320, 50, true)).toBe('full');
+    // 50 km/h: quiet from 300 m on, so 2 km leave about two minutes.
+    expect(talkLength(2000, 50, false)).toBe('full');
+    expect(talkLength(600, 50, false)).toBe('short');
+    expect(talkLength(400, 50, false)).toBeNull();
+    // Unknown speed: a short one only.
+    expect(talkLength(2000, null, false)).toBe('short');
+  });
+
+  it('asks for a short contribution when there is little room', () => {
+    expect(passengerPrompt('de', 'monologue', 'short')).toContain('at most 30 words');
+    expect(passengerPrompt('de', 'monologue')).toContain('at most 130 words');
+    expect(passengerPrompt('de', 'dialogue', 'short')).not.toContain('never ask');
   });
 
   it('pauses longer the less it is to talk', () => {
