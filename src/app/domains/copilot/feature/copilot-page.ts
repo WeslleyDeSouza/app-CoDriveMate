@@ -62,7 +62,24 @@ const LISTEN_MS = 10_000;
                   {{ 'copilot.talk.pace.' + pace | translate }}
                 </button>
               }
+              <button
+                class="btn"
+                type="button"
+                data-section-test="copilot-talk-first"
+                [class.pri]="talk.talkFirst()"
+                [attr.aria-pressed]="talk.talkFirst()"
+                [attr.title]="'copilot.talk.first_hint' | translate"
+                (click)="talk.setTalkFirst(!talk.talkFirst())"
+              >
+                <i class="ti ti-route-off" aria-hidden="true"></i>
+                {{ 'copilot.talk.first' | translate }}
+              </button>
             </div>
+            @if (talk.talkFirst()) {
+              <p class="note" data-section-test="copilot-talk-first-note">
+                {{ 'copilot.talk.first_hint' | translate }}
+              </p>
+            }
             <div class="row">
               @for (mode of talk.offered(); track mode) {
                 <button

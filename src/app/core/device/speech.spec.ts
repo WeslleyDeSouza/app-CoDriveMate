@@ -22,7 +22,33 @@ describe('SpeechQueue', () => {
   });
 
   const tick = () => new Promise((resolve) => setTimeout(resolve));
-  const speak = (text: string, kind: 'nav' | 'answer' | 'talk') => queue.speak(text, 'de', 1, kind);
+  const speak = (text: string, kind: 'route' | 'nav' | 'answer' | 'talk') =>
+    queue.speak(text, 'de', 1, kind);
+
+  it('interrupts the conversation for a turn prompt', async () => {
+    const talk = speak('chat', 'talk');
+    void speak('turn left', 'route');
+    expect(await talk).toBe(false);
+    await tick();
+    expect(said).toEqual(['chat', 'turn left']);
+  });
+
+  it('leaves turn prompts out while the conversation speaks first', async () => {
+    queue.talkFirst = true;
+    const talk = speak('chat', 'talk');
+    expect(await speak('turn left', 'route')).toBe(false);
+    expect(silenced).toBe(0);
+    void speak('hazard', 'nav');
+    expect(await talk).toBe(false);
+    await tick();
+    expect(said).toEqual(['chat', 'hazard']);
+  });
+
+  it('still says turn prompts with the conversation first when it is silent', async () => {
+    queue.talkFirst = true;
+    void speak('turn left', 'route');
+    expect(said).toEqual(['turn left']);
+  });
 
   it('lets announcements follow each other', async () => {
     const first = speak('a', 'nav');
