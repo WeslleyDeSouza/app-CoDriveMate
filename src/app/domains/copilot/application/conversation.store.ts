@@ -505,7 +505,9 @@ export class ConversationStore {
    */
   private async run(mode: TalkMode | 'quip' | 'arrival' | 'hear'): Promise<void> {
     const session = this.session;
-    this._current.set(mode === 'quip' || mode === 'arrival' ? null : mode === 'hear' ? 'chat' : mode);
+    this._current.set(
+      mode === 'quip' || mode === 'arrival' ? null : mode === 'hear' ? 'chat' : mode,
+    );
     this.working = true;
     try {
       if (mode === 'quip') return await this.quip(session);

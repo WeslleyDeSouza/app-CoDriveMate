@@ -1,4 +1,4 @@
-import { Provider, signal } from '@angular/core';
+import { Provider, WritableSignal, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideI18nTesting } from '@core/i18n/testing';
@@ -7,6 +7,8 @@ import { roadTesting } from '@domains/road/testing';
 import { NavigationStore, PositionStore } from '@domains/navigation';
 import { LogbookStore } from '@domains/logbook';
 import { logbookTesting } from '@domains/logbook/testing';
+import { MaintenanceStore } from '@domains/maintenance';
+import { maintenanceTesting } from '@domains/maintenance/testing';
 import { navigationTesting } from '@domains/navigation/testing';
 import { scene3dTesting } from '@domains/scene3d/testing';
 import { AppSettings, DEFAULT_SETTINGS, SettingsStore } from '@domains/settings';
@@ -25,6 +27,7 @@ import { CopilotPage } from './copilot-page';
 describe('copilot', () => {
   let nav: ReturnType<typeof navigationTesting>;
   let ai: ReturnType<typeof copilotTesting>;
+  let care: ReturnType<typeof maintenanceTesting>;
   const settings = signal<AppSettings>(DEFAULT_SETTINGS);
   const update = async ({ ai: change }: { ai: Partial<AppSettings['ai']> }) =>
     settings.update((s) => ({ ...s, ai: { ...s.ai, ...change } }));
@@ -52,6 +55,7 @@ describe('copilot', () => {
   async function setup(key = 'sk-test', extra: Provider[] = []): Promise<void> {
     nav = navigationTesting();
     ai = copilotTesting();
+    care = maintenanceTesting();
     nav.gps.allowed = true;
     current.set(null);
     trips.set([]);
@@ -67,6 +71,7 @@ describe('copilot', () => {
         ...roadTesting().providers,
         ...ai.providers,
         ...logbookTesting().providers,
+        ...care.providers,
         { provide: LogbookStore, useValue: logbook },
         { provide: SettingsStore, useValue: { settings, update } },
         ...extra,
@@ -322,6 +327,111 @@ describe('copilot', () => {
       expect(nav.speech.said).toEqual(['Sauber gefahren.']);
     });
 
+    it('has a character and knows what the driver wrote, sent once only', async () => {
+      await start('chat');
+      await store.setStyle('monologue');
+      await store.setPace('much');
+      await store.setPersona('dry');
+      ai.memory.stored = { facts: [], topics: {}, about: 'Ich heisse Wes.' };
+      ai.model.answers = ['Eins.', 'Zwei.'];
+      await wait(40_000);
+      const [first, second] = ai.model.requests;
+      expect(first.system).toContain('Your name is Ruth.');
+      expect(first.messages[0].content).toContain('written by the driver');
+      expect(first.messages[0].content).toContain('Ich heisse Wes.');
+      expect(second.messages[0].content).not.toContain('Wes');
+      expect(second.messages.at(-1)?.content).toContain('Ich heisse Wes.');
+    });
+
+    it('lets the driver cut in and listens at once', async () => {
+      await start('chat');
+      expect(store.canInterject()).toBe(true);
+      ai.input.heard = ['Was ist das für ein Turm?'];
+      ai.model.answers = ['Ein alter Wachturm.'];
+      store.interject();
+      await wait(500);
+      expect(nav.speech.said).toEqual(['Ein alter Wachturm.']);
+      expect(ai.model.requests[0].messages.at(-1)?.content).toContain('Was ist das für ein Turm?');
+    });
+
+    it('gives the driver the word while it is speaking', async () => {
+      await start('chat');
+      let end: (spoken: boolean) => void = () => undefined;
+      const speak = vi.spyOn(nav.speech, 'speak');
+      speak.mockImplementationOnce(() => new Promise<boolean>((done) => (end = done)));
+      const stop = vi.spyOn(nav.speech, 'stop').mockImplementation(async () => end(false));
+      ai.model.answers = ['Eine sehr lange Geschichte.', 'Stimmt, du hast recht.'];
+      ai.input.heard = ['Moment, das stimmt nicht.'];
+      await wait();
+      expect(ai.input.listened).toBe(0);
+      store.interject();
+      await wait(500);
+      expect(stop).toHaveBeenCalledWith('talk');
+      expect(ai.input.listened).toBeGreaterThan(0);
+      expect(nav.speech.said).toContain('Stimmt, du hast recht.');
+    });
+
+    it('cannot be cut into in a monologue', async () => {
+      await start('chat');
+      await store.setStyle('monologue');
+      expect(store.canInterject()).toBe(false);
+      store.interject();
+      await wait(500);
+      expect(ai.input.listened).toBe(0);
+    });
+
+    it('knows the day so far and asks what happened after a short stay', async () => {
+      vi.setSystemTime(new Date(2026, 10, 27, 14, 0));
+      await start('chat');
+      nav.speech.busy.set(true);
+      const arrival = (
+        TestBed.inject(NavigationStore) as unknown as { _arrival: WritableSignal<unknown> }
+      )._arrival;
+      arrival.set({
+        place: {
+          name: 'Hallenbad',
+          detail: '',
+          coordinate: [8.54, 47.38],
+          purpose: { topic: 'Schwimmen', note: '' },
+        },
+        at: Date.now(),
+      });
+      await wait(10 * 60_000);
+      nav.gps.emit([8.55, 47.38], 0, 40);
+      await wait(1000);
+      expect(ai.model.requests).toEqual([]);
+      nav.speech.busy.set(false);
+      ai.model.answers = ['Nanu, schon wieder unterwegs?'];
+      await wait(10_000);
+      const asked = String(ai.model.requests[0].messages[0].content);
+      expect(asked).toContain('went to "Hallenbad"');
+      expect(asked).toContain('stayed only 10 minutes');
+      expect(asked).toContain('earlier today');
+      expect(asked).toContain('14:00 "Hallenbad" (reason: "Schwimmen"), stayed 10 min');
+      expect(asked).not.toMatch(/47\.3|8\.5/);
+      expect(nav.speech.said[0]).toBe('Nanu, schon wieder unterwegs?');
+    });
+
+    it('keeps no day when learning is switched off', async () => {
+      await start('chat');
+      await update({ ai: { memory: false } });
+      nav.speech.busy.set(true);
+      const arrival = (
+        TestBed.inject(NavigationStore) as unknown as { _arrival: WritableSignal<unknown> }
+      )._arrival;
+      arrival.set({
+        place: { name: 'Hallenbad', detail: '', coordinate: [8.54, 47.38] },
+        at: Date.now(),
+      });
+      await wait(10 * 60_000);
+      nav.gps.emit([8.55, 47.38], 0, 40);
+      await wait(1000);
+      nav.speech.busy.set(false);
+      await wait(10_000);
+      expect(String(ai.model.requests[0].messages[0].content)).not.toContain('Hallenbad');
+      expect(ai.memory.stored.stops ?? []).toEqual([]);
+    });
+
     it('does not remember what was cut off', async () => {
       await start('chat');
       nav.speech.completes = false;
@@ -428,6 +538,18 @@ describe('copilot', () => {
       await wait(1000);
       expect(stop).toHaveBeenCalledWith('talk');
       hidden.mockRestore();
+    });
+
+    it('says at the start of a drive what is due for the car, once and without sending it', async () => {
+      await start('ride', '');
+      care.repository.plan = { vignetteYear: 2020 };
+      await TestBed.inject(MaintenanceStore).load();
+      current.set(TRIP);
+      await wait();
+      expect(nav.speech.said).toEqual(['copilot.talk.briefing.service']);
+      await wait(600_000);
+      expect(nav.speech.said).toHaveLength(1);
+      expect(ai.model.requests).toEqual([]);
     });
 
     it('remarks on the drive once, without a key and without sending it', async () => {

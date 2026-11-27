@@ -23,12 +23,15 @@
     },
     "memory": {
       "title": "Was ich über dich weiss",
-      "note": "Im Dialog merkt sich die Unterhaltung höchstens ein paar Vorlieben. Alles bleibt auf diesem Gerät und in deiner Datensicherung; pro Gespräch gehen höchstens fünf passende Notizen an den KI-Anbieter, beim Lernen die Antworten des Gesprächs und die Liste.",
+      "note": "Im Dialog merkt sich die Unterhaltung höchstens ein paar Vorlieben, worum es im letzten Gespräch ging und die Ziele von heute mit Zweck und Aufenthaltsdauer. Alles bleibt auf diesem Gerät und in deiner Datensicherung; an den KI-Anbieter gehen pro Gespräch höchstens fünf passende Notizen, dein Text «Über mich», der Tagesverlauf und einmal der Faden vom letzten Mal, beim Lernen die Antworten des Gesprächs und die Liste.",
       "on": "Lernen ist ein",
       "off": "Lernen ist aus",
       "empty": "Noch nichts gemerkt.",
       "forget": "Vergessen",
-      "clear": "Alles vergessen"
+      "clear": "Alles vergessen",
+      "about": "Über mich",
+      "about_hint": "Was die Beifahrerin über dich wissen soll, zum Beispiel wie du heisst, mit wem du oft fährst, was dich interessiert.",
+      "about_save": "Speichern"
     },
     "talk": {
       "title": "Unterhaltung",
@@ -139,7 +142,21 @@
       "purpose_place": "Unterwegs zu {{place}}.",
       "purpose_note": "Deine Notiz: {{note}}",
       "arrived_topic": "Da wären wir. Viel Spass: {{topic}}!",
-      "arrived": "Da wären wir. Viel Spass!"
+      "arrived": "Da wären wir. Viel Spass!",
+      "interject": "Dazwischenreden",
+      "persona": {
+        "label": "Wer fährt mit",
+        "warm": "Mia · herzlich",
+        "dry": "Ruth · trocken",
+        "cheeky": "Juli · frech"
+      },
+      "briefing": {
+        "traffic": "Auf der Route kostet der Verkehr gerade etwa {{minutes}} Minuten.",
+        "service": "Fürs Auto steht an: {{items}}."
+      },
+      "summary": "Das waren {{distance}} in {{minutes}} Minuten, Eco-Score {{score}}.",
+      "fuel_offer": "Soll ich Tankstellen suchen?",
+      "fuel_shown": "Ich zeige dir die Tankstellen auf der Karte."
     },
     "confirm": {
       "yes": "Ja",

@@ -268,11 +268,23 @@ a special case in the UI. Everything must be testable without a car:
   the list of known ones (up to 100); it can be switched off, seen and deleted on the copilot
   page (decided 2026-11-25). So that it does not repeat itself, the beginnings (160
   characters) of up to 30 things the model said before go along too, also from earlier
-  drives; they may name places it talked about (added 2026-11-27). When the copilot may act (tools, switch in the
+  drives; they may name places it talked about (added 2026-11-27). Asked for by the owner
+  on 2026-11-27, conversation mode also sends: whether the destination is the driver's home
+  or workplace (questions too); the text the driver wrote about themselves («Über mich», up
+  to 400 characters); and, only while learning is on (it can be switched off on the copilot
+  page), the destinations reached today in order with time, home/work, topic and note of a
+  planned drive and the minutes stayed (up to 6, names only), once a one-sentence summary of
+  the last talk, once the name and topic of a planned destination reached on an earlier day
+  (to ask how it was), and the last episode of its own serial story. Learning also returns
+  that summary. The briefing at the start of a drive (traffic delay, what is due for the car)
+  and the summary on arrival are fixed sentences and go to no language model.
+  When the copilot may act (tools, switch in the
   privacy settings, on by default, decided 2026-11-26), the results of its tools
   go along too: place names and addresses from the search, names, addresses and
   distances of filling stations, the range, names of light scenes, the saved day and topic of a
-  destination saved for later by voice; never
+  destination saved for later by voice, the minutes of the parking meter, and what is due for
+  the car (names of the jobs including own names, km and days left, days to the MFK, year of
+  the vignette; never the odometer); music control answers with fixed sentences only; never
   coordinates. A tool that starts something the driver did not plainly ask for
   (a route) asks for a spoken or tapped yes first. The usual destination
   is worked out on the device and never goes to the copilot. Wikipedia gets the
@@ -292,7 +304,9 @@ Existing rules of the prototype; they are requirements, not details:
   vehicle warning is active, within 100 m of a hazard notice, while another voice
   output runs and when the app is not visible. Between two manoeuvres it says only what
   fits before the quiet window (short contribution from 15 s, normal from 45 s). It is
-  stopped by one tap or by voice.
+  stopped by one tap or by voice. In a dialogue a second large button lets the driver cut in:
+  what is spoken ends and it listens (one tap, nothing to read; added 2026-11-27). It talks
+  less by itself when the driver does not answer.
 - **Conversation first** (setting `ai.talkFirst`, off by default, decided 2026-11-27):
   for routes the driver knows. Manoeuvres and hazard notices no longer keep it quiet,
   and turn prompts are left out while it speaks. Hazard announcements, vehicle

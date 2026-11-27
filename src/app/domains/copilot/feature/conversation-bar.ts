@@ -4,7 +4,10 @@ import { ConversationStore } from '../application/conversation.store';
 import { CopilotStore } from '../application/copilot.store';
 import { QUIZ_KEYS } from '../domain/conversation';
 
-/** Shown above the map while a conversation runs: one tap ends it. */
+/**
+ * Shown above the map while a conversation runs: one tap ends it. In a dialogue a second
+ * button lets the driver cut in and speak.
+ */
 @Component({
   selector: 'app-conversation-bar',
   imports: [TranslatePipe],
@@ -60,6 +63,18 @@ import { QUIZ_KEYS } from '../domain/conversation';
           <span class="score">{{ points }}</span>
         }
       </button>
+      @if (store.canInterject()) {
+        <button
+          class="bar busy"
+          type="button"
+          data-section-test="conversation-interject"
+          [attr.aria-label]="'copilot.talk.interject' | translate"
+          [attr.title]="'copilot.talk.interject' | translate"
+          (click)="store.interject()"
+        >
+          <i class="ti ti-microphone" aria-hidden="true"></i>
+        </button>
+      }
       @if (store.quiz(); as quiz) {
         <div class="quiz" data-section-test="conversation-quiz">
           <b>{{ quiz.question }}</b>

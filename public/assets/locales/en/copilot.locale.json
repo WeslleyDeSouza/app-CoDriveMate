@@ -23,12 +23,15 @@
     },
     "memory": {
       "title": "What I know about you",
-      "note": "In dialogue, the conversation remembers a few preferences at most. Everything stays on this device and in your backup; each talk sends at most five fitting notes to the AI provider, and learning sends the answers of the talk and the list.",
+      "note": "In dialogue, the conversation remembers a few preferences at most, what the last talk was about and the destinations of today with their purpose and the time spent there. Everything stays on this device and in your backup; the AI provider gets at most five fitting notes per talk, your text “About me”, the day so far and once the thread from last time, and learning sends the answers of the talk and the list.",
       "on": "Learning is on",
       "off": "Learning is off",
       "empty": "Nothing remembered yet.",
       "forget": "Forget",
-      "clear": "Forget everything"
+      "clear": "Forget everything",
+      "about": "About me",
+      "about_hint": "What the passenger should know about you, for example your name, who you often drive with, what you are interested in.",
+      "about_save": "Save"
     },
     "talk": {
       "title": "Conversation",
@@ -139,7 +142,21 @@
       "purpose_place": "On the way to {{place}}.",
       "purpose_note": "Your note: {{note}}",
       "arrived_topic": "Here we are. Have fun: {{topic}}!",
-      "arrived": "Here we are. Have fun!"
+      "arrived": "Here we are. Have fun!",
+      "interject": "Cut in",
+      "persona": {
+        "label": "Who rides along",
+        "warm": "Mia · warm",
+        "dry": "Ruth · dry",
+        "cheeky": "Juli · cheeky"
+      },
+      "briefing": {
+        "traffic": "Traffic on the route costs about {{minutes}} minutes right now.",
+        "service": "Due for the car: {{items}}."
+      },
+      "summary": "That was {{distance}} in {{minutes}} minutes, eco score {{score}}.",
+      "fuel_offer": "Shall I look for filling stations?",
+      "fuel_shown": "I am showing you the filling stations on the map."
     },
     "confirm": {
       "yes": "Yes",

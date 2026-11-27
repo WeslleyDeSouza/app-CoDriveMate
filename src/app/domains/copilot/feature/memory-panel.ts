@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { TranslatePipe } from '@core/i18n';
 import { MemoryStore } from '../application/memory.store';
+import { ABOUT_CHARS } from '../domain/memory';
 
 /** What the passenger remembers: to see, to delete and to switch off. */
 @Component({
@@ -13,6 +14,25 @@ import { MemoryStore } from '../application/memory.store';
         {{ 'copilot.memory.title' | translate }} ({{ store.facts().length }})
       </summary>
       <p>{{ 'copilot.memory.note' | translate }}</p>
+      <label>
+        <span>{{ 'copilot.memory.about' | translate }}</span>
+        <textarea
+          #about
+          rows="3"
+          [attr.maxlength]="aboutChars"
+          data-section-test="copilot-memory-about"
+          [value]="store.about()"
+          [placeholder]="'copilot.memory.about_hint' | translate"
+        ></textarea>
+      </label>
+      <button
+        class="btn"
+        type="button"
+        data-section-test="copilot-memory-about-save"
+        (click)="store.setAbout(about.value)"
+      >
+        {{ 'copilot.memory.about_save' | translate }}
+      </button>
       <button
         class="btn"
         type="button"
@@ -64,6 +84,24 @@ import { MemoryStore } from '../application/memory.store';
       font-size: 14px;
       margin-bottom: 8px;
     }
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--s);
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+    textarea {
+      width: 100%;
+      border: 1px solid var(--ln);
+      border-radius: 14px;
+      background: var(--p2);
+      color: var(--t);
+      padding: 12px;
+      font: inherit;
+      font-size: 16px;
+      resize: vertical;
+    }
     ul {
       list-style: none;
       margin: 8px 0;
@@ -83,6 +121,7 @@ import { MemoryStore } from '../application/memory.store';
 })
 export class MemoryPanel {
   protected readonly store = inject(MemoryStore);
+  protected readonly aboutChars = ABOUT_CHARS;
 
   constructor() {
     void this.store.load();

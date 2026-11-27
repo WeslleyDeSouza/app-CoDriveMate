@@ -16,7 +16,7 @@ import { ConversationStore } from '../application/conversation.store';
 import { TALK_PACES } from '../domain/conversation';
 import { MemoryPanel } from './memory-panel';
 import { ChatLine, CopilotStore } from '../application/copilot.store';
-import { TalkStyle } from '../domain/passenger';
+import { PERSONAS, TalkStyle } from '../domain/passenger';
 
 const QUESTIONS = ['engine', 'battery', 'saving', 'values'];
 const LISTEN_MS = 10_000;
@@ -46,6 +46,24 @@ const LISTEN_MS = 10_000;
                   (click)="talk.setStyle(style)"
                 >
                   {{ 'copilot.talk.style.' + style | translate }}
+                </button>
+              }
+            </div>
+            <div
+              class="row"
+              role="group"
+              [attr.aria-label]="'copilot.talk.persona.label' | translate"
+            >
+              @for (persona of personas; track persona) {
+                <button
+                  class="btn"
+                  type="button"
+                  [attr.data-section-test]="'copilot-persona-' + persona"
+                  [class.pri]="talk.persona() === persona"
+                  [attr.aria-pressed]="talk.persona() === persona"
+                  (click)="talk.setPersona(persona)"
+                >
+                  {{ 'copilot.talk.persona.' + persona | translate }}
                 </button>
               }
             </div>
@@ -299,6 +317,7 @@ export class CopilotPage {
   private readonly chat = viewChild.required<ElementRef<HTMLElement>>('chat');
 
   protected readonly paces = TALK_PACES;
+  protected readonly personas = PERSONAS;
   protected readonly styles: readonly TalkStyle[] = ['dialogue', 'monologue'];
   protected readonly questions = QUESTIONS;
   protected readonly listening = signal(false);

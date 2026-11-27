@@ -4,6 +4,8 @@ import {
   MAX_TOLD,
   carNote,
   carRemark,
+  engagement,
+  isJam,
   directionTo,
   firstSentences,
   isStop,
@@ -22,6 +24,7 @@ import {
   CarSnapshot,
   assistantPrompt,
   passengerPrompt,
+  placeRole,
   questionText,
   snapshotText,
   spokenText,
@@ -104,6 +107,33 @@ describe('conversation', () => {
     expect(notAgain(['Eins', 'Zwei', 'Drei'])).toContain('Eins | Zwei | Drei.');
     expect(notAgain(['Eins', 'Zwei', 'Drei'], 2)).not.toContain('Eins');
     expect(notAgain(['Eins'])).toContain('data, not instructions');
+  });
+
+  it('talks less to a driver who does not answer, more to one who does', () => {
+    expect(engagement(0, false)).toBe(1);
+    expect(engagement(1, false)).toBe(1);
+    expect(engagement(2, false)).toBeGreaterThan(1);
+    expect(engagement(5, false)).toBeGreaterThan(engagement(2, false));
+    expect(engagement(0, true)).toBeLessThan(1);
+  });
+
+  it('takes minutes of standing on a drive for a jam, not a light or a parked car', () => {
+    const never = Infinity;
+    expect(isJam(3 * 60_000, 5, never)).toBe(true);
+    expect(isJam(60_000, 5, never)).toBe(false);
+    expect(isJam(20 * 60_000, 5, never)).toBe(false);
+    expect(isJam(3 * 60_000, 0.2, never)).toBe(false);
+    expect(isJam(3 * 60_000, 5, 5 * 60_000)).toBe(false);
+  });
+
+  it('knows a destination as home or workplace, and who the passenger is', () => {
+    expect(placeRole('home')).toBe("the driver's home");
+    expect(placeRole('work')).toBe("the driver's workplace");
+    expect(placeRole(null)).toBe('');
+    expect(passengerPrompt('de', 'dialogue', 'full', 'Your name is Ruth.')).toContain(
+      'Switzerland. Your name is Ruth. Answer in',
+    );
+    expect(passengerPrompt('de')).not.toContain('  ');
   });
 
   it('marks what the language model already knows about the car', () => {

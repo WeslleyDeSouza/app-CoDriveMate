@@ -28,6 +28,9 @@ Multi-Provider in `<domain>.providers.ts`); der Copilot kennt die Domains nicht.
 | `find_fuel` | fuel | Tankstellen entlang der Route oder in der Nähe, auf der Karte | nein |
 | `set_light_scene` | lighting | Lichtszene; beim Fahren bleibt die Dimmung | nein |
 | `remember_parking` | parking | Parkplatz hier merken | nein |
+| `set_parking_timer` | parking | Parkuhr auf N Minuten (0 = aus, höchstens 720); braucht einen gemerkten Parkplatz | nein |
+| `play_music` | media | Musik starten, pausieren, nächster Titel; nur Apple Music auf iOS oder das ESP32-Modul, keine Titelwahl, YouTube nicht | nein |
+| `maintenance_status` | maintenance | liest, was fällig ist oder als Nächstes kommt (Namen der Arbeiten, auch eigene, km und Tage, Tage bis MFK, Jahr der Vignette; nie der Kilometerstand) | nein |
 
 Die Schleife (Werkzeug, Ergebnis, Antwort) läuft im Adapter, höchstens 4 Runden; in der
 letzten muss das Modell in Worten antworten. OpenAI bekommt ohne Speicherung nur die
@@ -116,6 +119,70 @@ festen Sprüchen. Im Auto ungetestet.
 
 Mehrere Modi lassen sich zusammen einschalten; dann wechseln sie zufällig, nie zweimal
 hintereinander derselbe.
+
+## Persönlichkeit, Fäden und Tagesverlauf (27.11.2026)
+
+Aufbau nach dem Muster «feste Seele, Profil, gepflegtes Gedächtnis, Tagesnotizen», aber als
+Dokumente in IndexedDB statt als Dateien (Projektregel; läuft so auch im Browser und ist in
+der Datensicherung). Alles mit echtem Key und im Auto ungetestet.
+
+| Baustein | Wo | Wer schreibt | Was ans Modell geht |
+|---|---|---|---|
+| Persönlichkeit | Einstellung `ai.persona` (`warm` Mia, `dry` Ruth, `cheeky` Juli), `character` in `domain/passenger.ts` | nur die App; wählbar auf der Copilot-Seite | zwei Sätze im Systemprompt |
+| «Über mich» | `copilot/memory.about`, bis 400 Zeichen | nur der Fahrer (Copilot-Seite, «Was ich über dich weiss») | mit jeder Plauder-Eröffnung, nicht im Verlauf; bleibt bei «Alles vergessen» |
+| Vorlieben | `copilot/memory.facts` | nur der Lern-Aufruf | höchstens fünf pro Gespräch (wie bisher) |
+| Faden vom letzten Mal | `memory.last`, ein Satz | der Lern-Aufruf (Feld `summary`) | einmal, frühestens 30 Minuten, höchstens 14 Tage später |
+| «Wie war es?» | `memory.visit` | die App bei Ankunft an einem geplanten Ziel | einmal im Dialog, 1 Stunde bis 7 Tage später, eröffnet das erste Plaudern |
+| Tagesverlauf | `memory.stops`, höchstens 6, nur heute | die App bei jeder Ankunft und beim Weiterfahren | im Kontext jeder Plauder-Nachricht: Uhrzeit, Name, Zuhause/Arbeit, Thema und Notiz, Minuten Aufenthalt |
+
+Faden, «Wie war es?» und Tagesverlauf gibt es nur, solange das Lernen ein ist.
+
+**Zusammenhänge:** Mit dem Tagesverlauf sieht das Modell «14:05 Bahnhof (Kollegin abholen),
+4 Min., dann Ziel Hallenbad (Schwimmen)» und kann beides verbinden. **Kurzer Aufenthalt:**
+Fährt das Auto nach 2 bis 20 Minuten an einem Ziel wieder (über 10 km/h, frühestens eine
+Minute nach der Ankunft), fragt das nächste Plaudern im Dialog, was los war; das Modell
+kennt den Grund nicht und soll keinen unterstellen. Danach entfällt «Wie war es?» für
+dieses Ziel. Ob ausgestiegen wurde, weiss die App nicht.
+
+**Zuhause und Arbeit:** Ist das Ziel der gespeicherte Favorit (`favouriteOf`, navigation),
+steht im Kontext und in der Momentaufnahme «the driver's home» bzw. «workplace».
+
+**Gedächtnis-Regeln** (übernommen aus der Diskussion vom 27.11.2026): Fakten sind einzelne
+Einträge mit Nummer, nicht Fliesstext. Nur der Lern-Aufruf schreibt sie, und er liest nur
+die Antworten des Fahrers, nie Werkzeug- oder Webinhalte. «Merk dir …» löst das Lernen
+sofort aus (`wantsRemembered`), ohne auf vier Antworten zu warten. Widerspricht ein neuer
+Fakt einem bekannten, nennt das Modell dessen Nummer (`replaces`) und der alte fällt weg.
+Nicht gebaut: Archiv statt Löschen, Typ und Quelle pro Fakt, ein Protokoll der Änderungen;
+ansehen und löschen lässt sich alles auf der Copilot-Seite.
+
+**Von selbst leiser oder gesprächiger** (`engagement`): Bleiben im Dialog zwei Eröffnungen
+hintereinander ohne Antwort, werden alle Pausen 1.6-mal, ab drei 2.5-mal so lang; nach
+einer Antwort 0.7-mal. Zusätzlich zur Einstellung «Wie oft».
+
+**Dazwischenreden:** Im Dialog zeigt die Leiste über der Karte einen zweiten Knopf
+(Mikrofon). Ein Tipp beendet, was gerade gesprochen wird, und sie hört sofort zu; läuft
+nichts, hört sie ebenfalls zu und antwortet. Per Stimme unterbrechen geht nicht: Das
+Mikrofon würde ihre eigene Stimme hören, dafür bräuchte es eine am Gerät geprüfte
+Echounterdrückung.
+
+**Stau:** Steht das Auto auf einer Fahrt (ab 1 km) 2 bis 10 Minuten, bietet das Plaudern
+einmal pro 15 Minuten etwas zum Zeitvertreib an (Quiz, Rätsel, Geschichte). Die App sieht
+nur das Tempo, nicht den Grund.
+
+**Tank:** Nach der Bemerkung zum fast leeren Tank fragt der Begleiter im Dialog, ob er
+Tankstellen suchen soll, und zeigt sie nach einem klaren Ja (Werkzeug `find_fuel`, nur wenn
+der Copilot handeln darf).
+
+**Briefing und Fazit** (Begleiter, feste Sätze, nichts geht ans Modell): Auf den ersten
+2 km einmal pro Fahrt die Verzögerung durch Verkehr auf der Route (ab 3 Minuten) und was
+am Auto fällig ist. Bei der Ankunft Distanz, Dauer und Eco-Score der Fahrt, zusammen mit
+dem Wunsch zum geplanten Ziel.
+
+**Fortsetzungsgeschichte** (Thema `serial`): eine erfundene Geschichte in höchstens 8
+Folgen über mehrere Fahrten; gespeichert wird die letzte Folge (`copilot/serial`, 700
+Zeichen), sie geht mit der nächsten Folge wieder ans Modell. Im Dialog fragt sie, wie es
+weitergehen soll. **Quiz:** Der Punktestand bleibt über Fahrten erhalten
+(`copilot/quiz-score`).
 
 **Nachschlagen statt mitschicken** (`LOOKUP_TOOLS` in `domain/copilot.ts`, 27.11.2026): Beim
 Plaudern geht mit jeder Nachricht nur noch wenig mit: Zustand des Autos (einmal, danach als
