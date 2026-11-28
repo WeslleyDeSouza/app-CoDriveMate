@@ -53,6 +53,8 @@ export interface MapPreferences {
   /** used when the map follows; a freely moved map is not remembered */
   follow: FollowMode;
   tilted: boolean;
+  /** degrees while tilted, set with two fingers; the usual one if missing */
+  pitch?: number;
   /** trip card with arrival and remaining time only */
   etaFolded?: boolean;
 }
@@ -89,7 +91,7 @@ export interface MapCamera {
 
 export interface MapEvents {
   /** The user moved the map; `by` tells how. */
-  onUserMove(by: 'pan' | 'zoom' | 'rotate', camera: MapCamera): void;
+  onUserMove(by: 'pan' | 'zoom' | 'rotate' | 'pitch', camera: MapCamera): void;
   /** The map cannot be shown; `keyRejected` if the provider refused the key. */
   onFailure(keyRejected: boolean): void;
 }

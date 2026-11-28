@@ -22,6 +22,11 @@ die Einstellung «Google» wirkt wie «Automatisch».
 - Das native Plugin ist eine dünne Brücke. Die native Ansicht liegt **hinter** der
   WebView, darüber ist alles durchsichtig (`html.native-map`). Weil die WebView
   alle Berührungen erhält, rechnet `NativeSurface` Ziehen, Zoomen und Drehen selbst.
+- **Neigung mit zwei Fingern:** Beide Finger zusammen nach oben oder unten kippen die
+  Karte (0 bis 70 Grad), alles andere zoomt und dreht wie bisher
+  (`domain/map-gesture.ts`). Mapbox GL JS und MapLibre bringen die Geste mit, bei Google
+  ist sie eingeschaltet, `NativeSurface` rechnet sie selbst. Die Neigung bleibt gespeichert
+  (`MapPreferences.pitch`); fast flach gilt als 2D. Auf keinem Gerät getestet.
 - Das Token setzt die App zur Laufzeit, es steht nicht im Build.
 - Nur Suche auf Absenden: Nominatim verbietet Autovervollständigung.
 

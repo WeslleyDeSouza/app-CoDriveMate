@@ -38,6 +38,7 @@ import {
   MapSurfaceFactory,
   NavigationRepository,
 } from '../domain/ports';
+import { DEFAULT_TILT, tiltOf } from '../domain/map-gesture';
 import { SearchPanel } from './search-panel';
 
 /** Extras on the trip card are shown this long, then they fade out. */
@@ -315,7 +316,7 @@ export class MapStage {
     this.remember({ tilted: !this.preferences().tilted });
     const { tilted } = this.preferences();
     void this.surface?.setBuildings(tilted).catch(ignore);
-    this.move({ pitch: tilted ? 55 : 0 });
+    this.move({ pitch: tilted ? this.tilt() : 0 });
     this.followCar(true);
   }
 
@@ -398,7 +399,7 @@ export class MapStage {
       center: this.positions.position()?.coordinate ?? START_CENTER,
       zoom: this.baseZoom() + this.preferences().zoomOffset,
       bearing: this.bearing(),
-      pitch: this.preferences().tilted ? 55 : 0,
+      pitch: this.preferences().tilted ? this.tilt() : 0,
     };
   }
 
@@ -425,8 +426,19 @@ export class MapStage {
     if (camera) this.surface?.moveTo({ ...camera, ...change }, 300);
   }
 
-  private userMoved(by: 'pan' | 'zoom' | 'rotate', camera: MapCamera): void {
+  /** Degrees of a tilted map: what the user set with two fingers, else the usual. */
+  private tilt(): number {
+    return this.preferences().pitch ?? DEFAULT_TILT;
+  }
+
+  private userMoved(by: 'pan' | 'zoom' | 'rotate' | 'pitch', camera: MapCamera): void {
     this.lastUser = Date.now();
+    if (by === 'pitch') {
+      const was = this.preferences().tilted;
+      const now = tiltOf(camera.pitch);
+      this.remember(now);
+      if (now.tilted !== was) void this.surface?.setBuildings(now.tilted).catch(ignore);
+    }
     if (by === 'pan') this.free.set(true);
     if (by === 'zoom') this.rememberZoom(camera.zoom);
   }
