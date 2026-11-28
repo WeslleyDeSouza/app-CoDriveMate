@@ -133,6 +133,10 @@ export class NavigationStore {
       .catch(() => undefined);
 
     effect(() => {
+      const line = this._route()?.line ?? null;
+      untracked(() => this.positions.follow(line));
+    });
+    effect(() => {
       const position = this.positions.position();
       if (position && this._route()) untracked(() => this.advance(position.coordinate));
     });

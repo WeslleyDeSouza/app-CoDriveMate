@@ -13,7 +13,7 @@ Stand: 24.11.2026. Nichts davon ist im echten Auto oder am echten Adapter getest
 | Innenlicht | gebaut nach dem Protokoll des Prototyps; am Modul ungetestet |
 | Google-Karte | gebaut; ohne Key ungetestet |
 | Stimme (Gerät, Google, OpenAI, ElevenLabs) | in den Einstellungen wählbar; stellt auf iOS Musik leiser (`voice-native`, nicht kompiliert); mit Keys und auf dem Gerät ungetestet |
-| OBD2 über BLE | Assistent mit Geräteliste in der App («Passt vermutlich»), Verbindungstest, automatisch verbinden und wiederverbinden; am Gerät ungetestet |
+| OBD2 über BLE | Assistent mit Geräteliste in der App («Passt vermutlich»), Verbindungstest, automatisch verbinden und wiederverbinden; am 28.11.2026 im Auto verbunden und Werte gelesen (Vgate, iPad), Wiederverbinden und die schnellere Abfrage (`010C1`) ungetestet |
 | Einheiten | Distanz, Temperatur, Verbrauch, Volumen, Druck; Eingaben (Kilometerstand, Tank, Preis) bleiben metrisch |
 | Demo-Fahrt | gebaut |
 | Motorwerte | gebaut |
@@ -21,7 +21,7 @@ Stand: 24.11.2026. Nichts davon ist im echten Auto oder am echten Adapter getest
 | Fahrtenbuch | zeichnet automatisch auf (OBD, sonst GPS), Monate, Summen, Karte, CSV, Eco-Tipps; zeigt geplante und gespeicherte Fahrten; im Auto ungetestet |
 | Wartung | gebaut: Intervalle, eigene Einträge, MFK, Vignette, Hinweis beim Start, Punkt im Dock; Kilometerstand zählt bei OBD mit, im Auto ungetestet |
 | Gerätetest | gebaut: prüft Gerät, Sensoren, Plugins, Dienste und Keys; Bericht ohne Keys und Standort teilbar |
-| Daten auslesen | gebaut (Einstellungen): OBD, ESP32 (letzte 120 Bluetooth-Pakete je Modul) und 3D-Zustand als JSON zum Kopieren; die letzte Auslesung je Modul bleibt mit Datum gespeichert (kein Verlauf, `kv` `selftest/readings`, in der Datensicherung); nur lesend (`domain/obd-report.ts`), ohne Fahrgestellnummer; am Gerät ungetestet |
+| Daten auslesen | gebaut (Einstellungen): OBD, ESP32 (letzte 120 Bluetooth-Pakete je Modul) und 3D-Zustand als JSON zum Kopieren; die letzte Auslesung je Modul bleibt mit Datum gespeichert (kein Verlauf, `kv` `selftest/readings`, in der Datensicherung); nur lesend (`domain/obd-report.ts`), ohne Fahrgestellnummer; OBD-Bericht am 28.11.2026 im Auto gelaufen, ESP32 und 3D am Gerät ungetestet |
 | Hintergrund | gebaut: Standort läuft bei OBD oder aktiver Route weiter, abschaltbar; am Gerät ungetestet |
 | OSM-Karte ohne Netz | gebaut: geladene Gebiete und gespeicherte Routen; am Tablet ungetestet |
 | Gespeicherte Ziele ohne Netz | gebaut; am Tablet ungetestet |
