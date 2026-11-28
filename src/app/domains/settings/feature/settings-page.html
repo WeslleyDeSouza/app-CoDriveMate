@@ -189,6 +189,20 @@
         </label>
       </div>
       <label class="f">
+        <span>
+          {{ 'settings.dock_button' | translate }}
+          <em>{{ 'settings.dock_button_note' | translate }}</em>
+        </span>
+        <select
+          data-section-test="settings-dock-button"
+          [value]="draft().dockButton ? '1' : '0'"
+          (change)="patch({ dockButton: on($event) })"
+        >
+          <option value="0">{{ 'settings.dock_bar' | translate }}</option>
+          <option value="1">{{ 'settings.dock_floating' | translate }}</option>
+        </select>
+      </label>
+      <label class="f">
         {{ 'settings.eco_tips' | translate }}
         <select
           data-section-test="settings-eco-tips"

@@ -134,6 +134,38 @@ Grenzen:
 - Keine Ortssuche ohne Netz; Ziele kommen aus gespeicherten Orten.
 - Gerechnet nur mit echten Kacheln auf dem Entwicklungsrechner geprüft, nicht auf dem Tablet.
 
+## Standort schätzen
+
+Ein iPad ohne GPS bekommt seinen Standort spät, selten und ungenau (WLAN, Hotspot des
+iPhones). Im Auto am 28.11.2026: Karte hinkte nach, das 3D-Auto stand neben der Strasse
+und schaute falsch; auf dem iPhone mit GPS stimmte alles. Seither rechnet
+`domain/position-estimate.ts` zwischen den Meldungen des Geräts weiter:
+
+- **Weiterfahren:** Viermal pro Sekunde rückt das Auto mit der bekannten Geschwindigkeit
+  vor: OBD, sonst die des Geräts, sonst aus zwei Meldungen gerechnet. Mit Route der
+  Routenlinie entlang (bis 60 s ohne neue Meldung), sonst der Strasse entlang (20 s),
+  sonst geradeaus (8 s).
+- **Verspätung:** Eine Meldung wird um die seit ihrer Messung gefahrene Strecke
+  vorgeschoben (höchstens 5 s).
+- **Ungenaue Meldungen** (über 20 m) ziehen die Schätzung nur an, statt sie zu ersetzen;
+  über 150 m werden sie ausgelassen, solange die Schätzung frisch ist. Steht das Auto,
+  bleibt es stehen.
+- **Auf die Strasse:** Aus den gespeicherten OpenFreeMap-Kacheln (Zoom 14,
+  `infrastructure/tile-road.source.ts`, kein Netz) wird die nächste Strasse gesucht, die
+  zur Fahrtrichtung passt (`domain/road-match.ts`). Das Auto steht dann auf ihr und schaut
+  in ihre Richtung. Bei guter Meldung nur bis 12 m und nur in Fahrt, bei ungenauer bis
+  80 m. Am Ende einer Strasse geht es auf der geradesten Fortsetzung weiter; wo man
+  abbiegen muss, wartet es auf die nächste Meldung. Ohne gespeicherte Kacheln (z. B. nur
+  Mapbox-Karte benutzt) entfällt dieser Teil.
+- **Richtung:** Liefert das Gerät keine, kommt sie aus zwei Meldungen oder von der Strasse.
+- Mit Route gilt eine Meldung bis 40 m (bei ungenauer bis 150 m) neben der Linie als
+  auf der Route; weiter weg wird frei geschätzt, damit die Neuberechnung greift.
+
+**Im Auto ungetestet.** Grenzen: An Verzweigungen ohne Route rät die App geradeaus, bis
+die nächste Meldung sie korrigiert; zwei parallele Strassen kann sie verwechseln. Ein
+iPad ohne GPS bleibt ungenauer als ein Gerät mit GPS; ein externer GPS-Empfänger
+(Bluetooth, vom System wie eingebautes GPS behandelt) wäre die saubere Lösung.
+
 ## Ansagen
 
 Jedes Manöver wird je Distanzstufe (800 m, 300 m, 60 m) einmal angesagt.
