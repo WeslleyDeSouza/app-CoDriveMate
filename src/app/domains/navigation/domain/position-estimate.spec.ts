@@ -48,10 +48,17 @@ describe('PositionEstimator', () => {
 
   it('lets a vague fix only pull the estimate', () => {
     const estimator = new PositionEstimator();
+    estimator.fix(fix(START), 30, 0);
+    const vague = move(START, 90, 40);
+    const { coordinate } = estimator.fix(fix(vague, { accuracyM: 80 }), 30, 0);
+    expect(distanceM(START, coordinate)).toBeCloseTo(10, 0);
+  });
+
+  it('stays where it is when a vague fix wanders while the car stands', () => {
+    const estimator = new PositionEstimator();
     estimator.fix(fix(START), 0, 0);
     const vague = move(START, 90, 40);
-    const { coordinate } = estimator.fix(fix(vague, { accuracyM: 80 }), 0, 0);
-    expect(distanceM(START, coordinate)).toBeCloseTo(10, 0);
+    expect(estimator.fix(fix(vague, { accuracyM: 80 }), 0, 0).coordinate).toEqual(START);
   });
 
   it('leaves out a very vague fix while the estimate is fresh', () => {
@@ -75,6 +82,50 @@ describe('PositionEstimator', () => {
     const before = estimator.advance(0, null)!.coordinate;
     const after = estimator.advance(1, null)!.coordinate;
     expect(distanceM(before, after)).toBeCloseTo(20, 0);
+  });
+
+  describe('with the roads nearby', () => {
+    // north for 500 m, then a bend to the east
+    const bend = move(START, 0, 500);
+    const roads = [{ oneway: 0 as const, points: [START, bend, move(bend, 90, 500)] }];
+
+    it('puts a vague fix onto the road and turns the car along it', () => {
+      const estimator = new PositionEstimator();
+      estimator.setRoads(roads);
+      const beside = move(move(START, 0, 100), 90, 35);
+      const { coordinate, heading } = estimator.fix(
+        fix(beside, { accuracyM: 65, heading: 20 }),
+        40,
+        0,
+      );
+      expect(distanceM(coordinate, move(START, 0, 100))).toBeLessThan(1);
+      expect(heading).toBeCloseTo(0, 0);
+    });
+
+    it('drives on along the road round the bend', () => {
+      const estimator = new PositionEstimator();
+      estimator.setRoads(roads);
+      estimator.fix(fix(move(START, 0, 450), { accuracyM: 65 }), 36, 0);
+      let last = estimator.advance(0, 36)!;
+      for (let i = 0; i < 40; i++) last = estimator.advance(0.25, 36)!;
+      expect(last.heading).toBeCloseTo(90, 0);
+      expect(distanceM(last.coordinate, bend)).toBeGreaterThan(30);
+      expect(Math.abs(last.coordinate[1] - bend[1]) * 110540).toBeLessThan(3);
+    });
+
+    it('leaves a good fix beside the road where it is', () => {
+      const estimator = new PositionEstimator();
+      estimator.setRoads(roads);
+      const beside = move(move(START, 0, 100), 90, 30);
+      expect(estimator.fix(fix(beside), 40, 0).coordinate).toEqual(beside);
+    });
+
+    it('does not put a standing car with a good fix onto the road', () => {
+      const estimator = new PositionEstimator();
+      estimator.setRoads(roads);
+      const beside = move(move(START, 0, 100), 90, 8);
+      expect(estimator.fix(fix(beside, { heading: null }), 0, 0).coordinate).toEqual(beside);
+    });
   });
 
   describe('with a route', () => {

@@ -1,8 +1,9 @@
 import { Injectable, computed, effect, inject, signal, untracked } from '@angular/core';
 import { TelemetryStore } from '@domains/telemetry';
-import { Coordinate, Polyline, pointAt } from '../domain/geo';
+import { Coordinate, Polyline, distanceM, pointAt } from '../domain/geo';
 import { PositionSource } from '../domain/ports';
 import { PositionEstimator } from '../domain/position-estimate';
+import { RoadSource } from '../domain/road-match';
 
 export interface VehiclePosition {
   readonly coordinate: Coordinate;
@@ -13,12 +14,16 @@ export type PositionStatus = 'off' | 'searching' | 'ok' | 'denied';
 
 const DEMO_TICK_MS = 250;
 const ESTIMATE_TICK_MS = 250;
+/** The roads around the car are read again after this many metres. */
+const ROADS_EVERY_M = 100;
 
 /** Where the car is: from the device, or moved along a line during the demo drive. */
 @Injectable({ providedIn: 'root' })
 export class PositionStore {
   private readonly source = inject(PositionSource);
   private readonly telemetry = inject(TelemetryStore);
+  private readonly roads = inject(RoadSource, { optional: true });
+  private roadsAt: Coordinate | null = null;
 
   private readonly device = signal<VehiclePosition | null>(null);
   private readonly demo = signal<VehiclePosition | null>(null);
@@ -63,6 +68,7 @@ export class PositionStore {
         (fix) => {
           this._speedKmh.set(fix.speedKmh ?? null);
           this._status.set('ok');
+          this.loadRoads(fix.coordinate);
           this.device.set(this.estimator.fix(fix, this.drivenKmh(), Date.now()));
           this.driveOn();
         },
@@ -86,6 +92,18 @@ export class PositionStore {
   /** The route the car should be on: between two fixes it drives on along it. */
   follow(line: Polyline | null): void {
     this.estimator.follow(line);
+  }
+
+  /** The roads nearby, so that a vague position can be put onto the road driven on. */
+  private loadRoads(here: Coordinate): void {
+    if (!this.roads || (this.roadsAt && distanceM(this.roadsAt, here) < ROADS_EVERY_M)) return;
+    this.roadsAt = here;
+    void this.roads
+      .roadsNear(here)
+      .then((roads) => {
+        if (this.roadsAt === here) this.estimator.setRoads(roads);
+      })
+      .catch(() => undefined);
   }
 
   /** Speed of the car if it is connected, else the one the device measures. */

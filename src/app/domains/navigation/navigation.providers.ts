@@ -9,7 +9,9 @@ import { OfmOfflineSaver } from './infrastructure/ofm-offline.saver';
 import { OpenMeteoSource } from './infrastructure/open-meteo.source';
 import { GOOGLE_SERVICE, MAPBOX_SERVICE, OFFLINE_SERVICE, OSM_SERVICE } from './application/tokens';
 import { MapSurfaceFactory, NavigationRepository, PositionSource } from './domain/ports';
+import { RoadSource } from './domain/road-match';
 import { CapacitorPositionSource } from './infrastructure/capacitor-position.source';
+import { TileRoadSource } from './infrastructure/tile-road.source';
 import {
   IdbNavigationRepository,
   navigationLegacyMigration,
@@ -28,6 +30,7 @@ export function provideNavigation(): Provider[] {
     { provide: OFFLINE_SAVERS, useClass: MapboxOfflineSaver, multi: true },
     { provide: OFFLINE_SAVERS, useClass: OfmOfflineSaver, multi: true },
     { provide: PositionSource, useClass: CapacitorPositionSource },
+    { provide: RoadSource, useClass: TileRoadSource },
     { provide: NavigationRepository, useClass: IdbNavigationRepository },
     { provide: MapSurfaceFactory, useClass: DefaultMapSurfaceFactory },
     { provide: MAPBOX_SERVICE, useClass: MapboxNavigationService },
