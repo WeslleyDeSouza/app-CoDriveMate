@@ -287,6 +287,10 @@ export class ConversationStore {
     });
     effect(() => this.output.setTalkFirst(this.talkFirst()));
     effect(() => {
+      const trip = this.logbook.current()?.id ?? null;
+      if (trip !== null) untracked(() => this.restoreModes(trip));
+    });
+    effect(() => {
       const trip = this.logbook.current();
       const count = trip?.driving.hardBrakings ?? 0;
       untracked(() => this.braked(trip?.id ?? 0, count));
@@ -320,18 +324,37 @@ export class ConversationStore {
     });
   }
 
-  /** Adds a mode, or takes it away again. */
+  /** Adds a mode, or takes it away again; kept for the next drives. */
   toggle(mode: TalkMode): void {
     const modes = this._modes();
     if (modes.includes(mode)) this.use(modes.filter((other) => other !== mode));
     else this.use([...modes, mode]);
+    this.keepModes();
   }
 
   /** All modes, or none if all are on already. */
   toggleAll(): void {
     const all = this.offered();
     this.use(this._modes().length === this.usable(all).length ? [] : all);
+    this.keepModes();
   }
+
+  /** What the driver switched on stays on for the next drives. A spoken stop does not count. */
+  private keepModes(): void {
+    void this.settingsStore
+      .update({ ai: { talkModes: [...this._modes()] } })
+      .catch((error: unknown) => console.warn('Saving the conversation failed', error));
+  }
+
+  /** At the start of every drive the modes chosen before come back, once per drive. */
+  private restoreModes(trip: number): void {
+    if (trip === this.restoredFor || this.active()) return;
+    this.restoredFor = trip;
+    const saved = this.settings().ai.talkModes ?? [];
+    const modes = this.offered().filter((mode) => saved.includes(mode));
+    if (modes.length) this.use(modes);
+  }
+  private restoredFor: number | null = null;
 
   async setStyle(talkStyle: TalkStyle): Promise<void> {
     if (talkStyle === this.style()) return;

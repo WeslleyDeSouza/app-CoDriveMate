@@ -93,6 +93,8 @@ export interface AppSettings {
      * notices; navigation prompts, hazard announcements and vehicle warnings still interrupt it
      */
     talkFirst: boolean;
+    /** conversation modes switched on; they come back at the start of every drive */
+    talkModes: string[];
     /** the conversation remembers things about the driver */
     memory: boolean;
     /** averages of earlier drives go to the language model; otherwise compared on the device only */
@@ -172,6 +174,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     talkPace: 'medium',
     persona: 'warm',
     talkFirst: false,
+    talkModes: [],
     memory: true,
     shareTrips: false,
     tools: true,
