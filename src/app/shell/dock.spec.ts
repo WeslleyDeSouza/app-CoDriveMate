@@ -1,9 +1,10 @@
 import { maintenanceTesting } from '@domains/maintenance/testing';
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { provideI18nTesting } from '@core/i18n/testing';
 import { findHook, hook, hooks } from '@shared/testing';
+import { DEFAULT_SETTINGS, SettingsStore } from '@domains/settings';
 import { DEMO_ENABLED, TelemetryStore } from '@domains/telemetry';
 import { TelemetryTesting, telemetryTesting } from '@domains/telemetry/testing';
 import { routes } from '../app.routes';
@@ -11,6 +12,12 @@ import { DOCK_APPS, Dock } from './dock';
 
 @Component({ template: '' })
 class Page {}
+
+/** The settings store with the dock as a bar or as a floating button. */
+function settingsOf(dockButton = false) {
+  const settings = signal({ ...DEFAULT_SETTINGS, dockButton });
+  return { provide: SettingsStore, useValue: { settings } };
+}
 
 describe('Dock', () => {
   let fixture: ComponentFixture<Dock>;
@@ -26,6 +33,7 @@ describe('Dock', () => {
         provideI18nTesting(),
         ...telemetry.providers,
         ...maintenanceTesting().providers,
+        settingsOf(),
       ],
     });
     store = TestBed.inject(TelemetryStore);
@@ -88,6 +96,7 @@ describe('Dock', () => {
         provideI18nTesting(),
         ...telemetryTesting().providers,
         ...maintenanceTesting().providers,
+        settingsOf(),
         { provide: DEMO_ENABLED, useValue: false },
       ],
     });
@@ -161,13 +170,14 @@ describe('Dock', () => {
 });
 
 describe('Dock menu on small screens', () => {
-  async function setup() {
+  async function setup(dockButton = false) {
     TestBed.configureTestingModule({
       providers: [
         provideRouter(DOCK_APPS.map((app) => ({ path: app.path, component: Page }))),
         provideI18nTesting(),
         ...telemetryTesting().providers,
         ...maintenanceTesting().providers,
+        settingsOf(dockButton),
       ],
     });
     const fixture = TestBed.createComponent(Dock);
@@ -211,5 +221,11 @@ describe('Dock menu on small screens', () => {
     await press('dock-menu');
     await press('dock-obd');
     expect(open()).toBe(true);
+  });
+
+  it('is a bar on a large screen unless the button is chosen in the settings', async () => {
+    expect((await setup()).root.classList).not.toContain('floating');
+    TestBed.resetTestingModule();
+    expect((await setup(true)).root.classList).toContain('floating');
   });
 });
