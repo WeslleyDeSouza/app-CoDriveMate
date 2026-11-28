@@ -630,6 +630,28 @@ describe('copilot', () => {
       expect(go).not.toHaveBeenCalled();
     });
 
+    it('keeps the chosen modes and brings them back at the start of the next drive', async () => {
+      await start('facts', '');
+      await wait(0);
+      expect(settings().ai.talkModes).toEqual(['facts']);
+      store.stop();
+      expect(store.active()).toBe(false);
+      current.set({ ...TRIP, id: 2 });
+      TestBed.tick();
+      expect(store.modes()).toEqual(['facts']);
+      // Silenced by voice during this drive: it stays silent until the next one.
+      store.stop();
+      TestBed.tick();
+      expect(store.active()).toBe(false);
+      current.set(null);
+      store.toggle('facts');
+      await wait(0);
+      expect(settings().ai.talkModes).toEqual([]);
+      current.set({ ...TRIP, id: 3 });
+      TestBed.tick();
+      expect(store.active()).toBe(false);
+    });
+
     it('falls silent when it is switched off in the settings', async () => {
       await start('facts');
       settings.update((s) => ({ ...s, voice: { ...s.voice, conversation: false } }));
