@@ -25,3 +25,10 @@
     @content;
   }
 }
+
+/* The opposite of compact: room for the dock as a bar. */
+@mixin large {
+  @media (min-width: 1024px), (min-width: 744px) and (min-height: 500.02px) {
+    @content;
+  }
+}

@@ -585,6 +585,12 @@
     bottom: 104px;
     max-height: calc(100% - 112px);
   }
+  /* Folded, the trip card fits beside the button and leaves the map free. */
+  .bcard.trip.folded {
+    right: auto;
+    bottom: 36px;
+    max-width: calc(100% - 94px);
+  }
   /* the keyboard hides the button */
   :host-context(.keyboard) .bcard {
     bottom: 36px;
