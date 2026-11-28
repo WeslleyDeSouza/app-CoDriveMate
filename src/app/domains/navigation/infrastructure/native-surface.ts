@@ -1,3 +1,4 @@
+import { MAX_PITCH, PITCH_PER_PX, TwoFingerGesture, twoFingerGesture } from '../domain/map-gesture';
 import { MapboxNative } from '@codrivemate/mapbox-native';
 import { panCenter } from '../domain/geo';
 import {
@@ -23,6 +24,11 @@ export class NativeSurface implements MapSurface {
   private closed = false;
   private readonly cleanup: (() => void)[] = [];
   private readonly pointers = new Map<number, { x: number; y: number }>();
+  /** Two fingers on the map: where they began, and what they turned out to do. */
+  private gesture: {
+    readonly start: Map<number, { x: number; y: number }>;
+    kind: TwoFingerGesture | null;
+  } | null = null;
 
   private constructor(
     private readonly container: HTMLElement,
@@ -150,9 +156,14 @@ export class NativeSurface implements MapSurface {
     this.listen<PointerEvent>(this.container, 'pointerdown', (event) => {
       this.container.setPointerCapture(event.pointerId);
       this.pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+      this.gesture =
+        this.pointers.size === 2 ? { start: new Map(this.pointers), kind: null } : null;
     });
     this.listen<PointerEvent>(this.container, 'pointermove', (event) => this.drag(event));
-    const release = (event: PointerEvent) => this.pointers.delete(event.pointerId);
+    const release = (event: PointerEvent) => {
+      this.pointers.delete(event.pointerId);
+      this.gesture = null;
+    };
     this.listen<PointerEvent>(this.container, 'pointerup', release);
     this.listen<PointerEvent>(this.container, 'pointercancel', release);
   }
@@ -175,6 +186,23 @@ export class NativeSurface implements MapSurface {
         0,
       );
       this.events.onUserMove('pan', this.current);
+      return;
+    }
+    const gesture = this.gesture;
+    if (gesture && !gesture.kind) {
+      const [a, b] = [...gesture.start].map(([id, start]) => {
+        const now = this.pointers.get(id) ?? start;
+        return { x: now.x - start.x, y: now.y - start.y };
+      });
+      gesture.kind = twoFingerGesture(a, b);
+      // Not clear yet whether the fingers tilt or zoom.
+      if (!gesture.kind) return;
+    }
+    if (gesture?.kind === 'pitch') {
+      // Each finger brings half of it; up tilts further.
+      const change = ((from.y - to.y) * PITCH_PER_PX) / 2;
+      this.moveTo({ ...this.current, pitch: Math.max(0, Math.min(MAX_PITCH, pitch + change)) }, 0);
+      this.events.onUserMove('pitch', this.current);
       return;
     }
     const before = { x: from.x - other.x, y: from.y - other.y };

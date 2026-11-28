@@ -13,7 +13,7 @@ Stand: 24.11.2026. Nichts davon ist im echten Auto oder am echten Adapter getest
 | Innenlicht | gebaut nach dem Protokoll des Prototyps; am Modul ungetestet |
 | Google-Karte | gebaut; ohne Key ungetestet |
 | Stimme (Gerät, Google, OpenAI, ElevenLabs) | in den Einstellungen wählbar; stellt auf iOS Musik leiser (`voice-native`, nicht kompiliert); mit Keys und auf dem Gerät ungetestet |
-| OBD2 über BLE | Assistent mit Geräteliste in der App («Passt vermutlich»), Verbindungstest, automatisch verbinden und wiederverbinden; am 28.11.2026 im Auto verbunden und Werte gelesen (Vgate, iPad), Wiederverbinden und die schnellere Abfrage (`010C1`) ungetestet |
+| OBD2 über BLE | Assistent mit Geräteliste in der App («Passt vermutlich»), Verbindungstest, automatisch verbinden und wiederverbinden, auch sofort bei jedem Öffnen der App (wie das Licht-Modul); am 28.11.2026 im Auto verbunden und Werte gelesen (Vgate, iPad), Wiederverbinden und die schnellere Abfrage (`010C1`) ungetestet |
 | Einheiten | Distanz, Temperatur, Verbrauch, Volumen, Druck; Eingaben (Kilometerstand, Tank, Preis) bleiben metrisch |
 | Demo-Fahrt | gebaut |
 | Motorwerte | gebaut |

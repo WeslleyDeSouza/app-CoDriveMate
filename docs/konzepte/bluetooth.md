@@ -21,6 +21,10 @@ Bordspannung, Steuergerät und Messwerte und sagt bei einem Fehler, was zu tun i
   Das ELM327-Protokoll (`domain/elm327.ts`) kennt die Verbindungsart nicht.
 - Bricht die Verbindung ab, versucht die App es nach 2, 5, 10 und dann alle 30 s
   wieder. Automatisches Verbinden beim Start arbeitet genauso.
+- **Bei jedem Öffnen** (App kommt wieder in den Vordergrund) wird sofort verbunden, wenn
+  ein Gerät eingerichtet, aber nicht verbunden ist: der OBD-Adapter, sofern «Automatisch
+  verbinden» an ist (auch nach dem Trennen von Hand), das Licht-Modul, sobald eines
+  bekannt ist. Ein laufender Versuch wird nicht gestört. Am Gerät ungetestet.
 - Browser merken sich Geräte meist nicht: dort muss der Adapter nach jedem
   Neuladen neu gewählt werden. Auf dem iPad nicht.
 

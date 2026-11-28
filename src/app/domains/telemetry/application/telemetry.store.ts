@@ -33,6 +33,8 @@ export class TelemetryStore {
   readonly demoEnabled = inject(DEMO_ENABLED);
   private active?: TelemetrySource;
   private retryTimer?: ReturnType<typeof setTimeout>;
+  /** between two tries, see `retry` */
+  private waiting?: { source: TelemetrySource };
 
   private readonly _snapshot = signal<TelemetrySnapshot>(emptySnapshot());
   private readonly _mode = signal<TelemetryMode>('off');
@@ -77,6 +79,19 @@ export class TelemetryStore {
     this._error.set(null);
     this._mode.set('connecting');
     await this.attempt(this.obd, 0);
+  }
+
+  /**
+   * The app was opened again: connects at once instead of waiting for the next try,
+   * and also after the adapter was disconnected by hand. Nothing to do while connected.
+   */
+  async wake(): Promise<void> {
+    if (this._mode() === 'off') return this.autoConnect();
+    const waiting = this.waiting;
+    if (!waiting) return;
+    clearTimeout(this.retryTimer);
+    this.waiting = undefined;
+    await this.attempt(waiting.source, 0);
   }
 
   startDemo(): Promise<void> {
@@ -137,6 +152,7 @@ export class TelemetryStore {
     const source = this.active;
     this.active = undefined;
     clearTimeout(this.retryTimer);
+    this.waiting = undefined;
     this.reset();
     await source?.stop();
   }
@@ -179,8 +195,12 @@ export class TelemetryStore {
 
   private retry(source: TelemetrySource, attempt: number): void {
     clearTimeout(this.retryTimer);
+    this.waiting = { source };
     this.retryTimer = setTimeout(
-      () => void this.attempt(source, attempt),
+      () => {
+        this.waiting = undefined;
+        void this.attempt(source, attempt);
+      },
       reconnectDelayS(attempt) * 1000,
     );
   }
@@ -201,6 +221,7 @@ export class TelemetryStore {
 
   private fail(error: unknown): void {
     this.active = undefined;
+    this.waiting = undefined;
     this.reset();
     this._error.set(error);
   }

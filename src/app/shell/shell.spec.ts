@@ -1,3 +1,6 @@
+import { LightStore } from '@domains/lighting';
+import { lightingTesting } from '@domains/lighting/testing';
+import { TelemetryStore } from '@domains/telemetry';
 import { maintenanceTesting } from '@domains/maintenance/testing';
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -38,6 +41,7 @@ describe('Shell', () => {
         provideI18nTesting(),
         ...telemetryTesting().providers,
         ...maintenanceTesting().providers,
+        ...lightingTesting().providers,
         ...navigationTesting().providers,
         ...mediaTesting().providers,
         ...scene3dTesting().providers,
@@ -91,6 +95,14 @@ describe('Shell', () => {
     expect(awake).toEqual([true]);
     fixture.destroy();
     expect(awake).toEqual([true, false]);
+  });
+
+  it('connects the devices again when the app is opened again', () => {
+    const wake = vi.spyOn(TestBed.inject(TelemetryStore), 'wake').mockResolvedValue();
+    const light = vi.spyOn(TestBed.inject(LightStore), 'wake').mockResolvedValue();
+    document.dispatchEvent(new Event('visibilitychange'));
+    expect(wake).toHaveBeenCalledTimes(1);
+    expect(light).toHaveBeenCalledTimes(1);
   });
 
   it('makes room for the keyboard and takes it back', () => {

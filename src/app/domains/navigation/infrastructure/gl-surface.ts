@@ -86,7 +86,7 @@ export class GlSurface implements MapSurface {
 
     observer.observe(container);
     // Only events with an original event come from the user's fingers or mouse.
-    const user = (type: string, by: 'pan' | 'zoom' | 'rotate') =>
+    const user = (type: string, by: 'pan' | 'zoom' | 'rotate' | 'pitch') =>
       map.on(type, (event) => {
         // Zooming with two fingers also drags; that must not end following the car.
         const fingers = (event.originalEvent as TouchEvent | undefined)?.touches?.length ?? 1;
@@ -96,6 +96,8 @@ export class GlSurface implements MapSurface {
     user('dragstart', 'pan');
     user('zoom', 'zoom');
     user('rotate', 'rotate');
+    // Two fingers moving up or down together: the gesture the map brings along.
+    user('pitch', 'pitch');
     return surface;
   }
 

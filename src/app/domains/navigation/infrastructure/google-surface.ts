@@ -128,12 +128,12 @@ export class GoogleSurface implements MapSurface {
       clickableIcons: false,
       gestureHandling: options.interactive === false ? 'none' : 'greedy',
       headingInteractionEnabled: true,
-      tiltInteractionEnabled: false,
+      tiltInteractionEnabled: true,
     });
     const surface = new GoogleSurface(api, map, options.camera, () => {
       scope.gm_authFailure = before;
     });
-    const user = (by: 'pan' | 'zoom' | 'rotate') => () => {
+    const user = (by: 'pan' | 'zoom' | 'rotate' | 'pitch') => () => {
       if (Date.now() - surface.ownMove < 250) return;
       surface.current = surface.read();
       events.onUserMove(by, surface.current);
@@ -144,6 +144,7 @@ export class GoogleSurface implements MapSurface {
       user('pan')();
     });
     map.addListener('zoom_changed', user('zoom'));
+    map.addListener('tilt_changed', user('pitch'));
     map.addListener('heading_changed', () => {
       user('rotate')();
       // Markers lie on the screen, so the arrow turns against the map.

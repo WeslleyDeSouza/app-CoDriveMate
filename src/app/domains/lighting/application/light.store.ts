@@ -77,6 +77,15 @@ export class LightStore {
     return this.loaded;
   }
 
+  /** The app was opened again: a known module that is not connected is tried at once. */
+  async wake(): Promise<void> {
+    const first = !this.loaded;
+    await this.start();
+    const device = this._known();
+    const busy = this._status() === 'connected' || this._status() === 'connecting';
+    if (!first && device && !busy) await this.open(device, 0);
+  }
+
   async connect(search: LightSearch): Promise<void> {
     await this.disconnect();
     this._status.set('connecting');

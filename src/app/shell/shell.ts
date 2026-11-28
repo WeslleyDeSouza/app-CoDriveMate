@@ -17,6 +17,7 @@ import { VehicleWarningCard, WarningStore } from '@domains/diagnostics';
 import { FuelAlert, FuelStore } from '@domains/fuel';
 import { MediaStore, MusicBar, YoutubeSlot } from '@domains/media';
 import { EcoTipHint, LogbookStore, RoutineHint, RoutineStore } from '@domains/logbook';
+import { LightStore } from '@domains/lighting';
 import { MaintenanceNotice, MaintenanceStore } from '@domains/maintenance';
 import { MapStage, NavigationStore, PositionStore } from '@domains/navigation';
 import { ParkingAlert, ParkingStore } from '@domains/parking';
@@ -146,8 +147,19 @@ export class Shell {
       positions.setBackground(driving && this.settings().background ? message : null);
     });
     // The screen stays on as long as the app is open; browsers forget it in the background.
+    const telemetry = inject(TelemetryStore);
+    const light = inject(LightStore);
+    let opened = false;
     const stayAwake = () => {
-      if (!document.hidden) void wakeLock.set(true);
+      if (document.hidden) return;
+      void wakeLock.set(true);
+      // Opened again: devices that are set up but not connected are tried at once.
+      // The start of the app connects by itself.
+      if (opened) {
+        void telemetry.wake().catch(() => undefined);
+        void light.wake().catch(() => undefined);
+      }
+      opened = true;
     };
     stayAwake();
     document.addEventListener('visibilitychange', stayAwake);
