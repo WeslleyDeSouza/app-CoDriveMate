@@ -1,3 +1,4 @@
+import { lightingTesting } from '@domains/lighting/testing';
 import { maintenanceTesting } from '@domains/maintenance/testing';
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -32,6 +33,7 @@ describe('App', () => {
         provideI18nTesting(),
         ...telemetryTesting().providers,
         ...maintenanceTesting().providers,
+        ...lightingTesting().providers,
         ...navigationTesting().providers,
         ...mediaTesting().providers,
         ...scene3dTesting().providers,

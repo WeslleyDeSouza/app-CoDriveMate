@@ -230,6 +230,36 @@ describe('OBD adapter', () => {
       expect(telemetry.mode()).toBe('obd');
     });
 
+    it('tries at once when the app is opened again, without waiting for the next try', async () => {
+      await setup(Empty, () => {
+        fake.adapters.stored = { adapter: TEST_ADAPTER, autoConnect: true };
+        fake.obd.startResult = rejected(new Error('out of range'));
+      });
+      await telemetry.autoConnect();
+      expect(telemetry.mode()).toBe('connecting');
+      fake.obd.startResult = Promise.resolve();
+      await telemetry.wake();
+      expect(telemetry.mode()).toBe('obd');
+      const started = fake.obd.started;
+      await vi.advanceTimersByTimeAsync(60000);
+      expect(fake.obd.started).toBe(started);
+    });
+
+    it('connects when opened again after it was disconnected, only if wanted', async () => {
+      await setup(Empty, known);
+      await telemetry.wake();
+      expect(telemetry.mode()).toBe('off');
+      await adapters.setAutoConnect(true);
+      await telemetry.wake();
+      expect(telemetry.mode()).toBe('obd');
+      const started = fake.obd.started;
+      await telemetry.wake();
+      expect(fake.obd.started).toBe(started);
+      await telemetry.stop();
+      await telemetry.wake();
+      expect(telemetry.mode()).toBe('obd');
+    });
+
     it('gives up at start when the adapter must be chosen again', async () => {
       await setup(Empty, () => {
         fake.adapters.stored = { adapter: TEST_ADAPTER, autoConnect: true };
