@@ -643,11 +643,14 @@ describe('copilot', () => {
       store.stop();
       TestBed.tick();
       expect(store.active()).toBe(false);
-      current.set(null);
+      current.set({ ...TRIP, id: 3 });
+      TestBed.tick();
+      expect(store.modes()).toEqual(['facts']);
+      // Switched off by tap: also for the next drives.
       store.toggle('facts');
       await wait(0);
       expect(settings().ai.talkModes).toEqual([]);
-      current.set({ ...TRIP, id: 3 });
+      current.set({ ...TRIP, id: 4 });
       TestBed.tick();
       expect(store.active()).toBe(false);
     });
