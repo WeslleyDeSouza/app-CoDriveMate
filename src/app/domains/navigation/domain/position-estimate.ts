@@ -1,5 +1,5 @@
-import { Coordinate, Polyline, bearing, distanceM, move, pointAt, snap } from './geo';
-import { NearRoad, matchRoad } from './road-match';
+import { Coordinate, Polyline, bearing, distanceM, move, pointAt, polyline, snap } from './geo';
+import { NearRoad, angle, matchRoad } from './road-match';
 
 /** What the device says about where it is. */
 export interface PositionFix {
@@ -41,6 +41,19 @@ const MAX_KMH = 250;
 const ROAD_TRUSTED_M = 12;
 const ROAD_MIN_M = 25;
 const ROAD_MAX_M = 80;
+/** Two roads this close at their ends are one that goes on. */
+const ROAD_JOIN_M = 4;
+/** At the end of a road the car goes on where it has to turn least, but does not turn round. */
+const ROAD_MAX_TURN = 100;
+
+/** Where the car is on a road nearby. */
+interface OnRoad {
+  readonly source: NearRoad;
+  readonly line: Polyline;
+  alongM: number;
+  /** driven along the points of the line */
+  readonly forward: boolean;
+}
 
 /**
  * Where the car is between and in spite of the fixes of the device. A tablet
@@ -64,7 +77,8 @@ export class PositionEstimator {
   private roads: readonly NearRoad[] | null = null;
   private accuracyM = 0;
   private headingKnown = false;
-  private onRoad = false;
+  private road: OnRoad | null = null;
+  private readonly lines = new WeakMap<NearRoad, Polyline>();
 
   /** The roads around the car; null if they are not known. */
   setRoads(roads: readonly NearRoad[] | null): void {
@@ -85,7 +99,9 @@ export class PositionEstimator {
     this.derive(fix);
     const speed = speedKmh ?? this.derivedKmh;
     const ageS =
-      typeof fix.atMs === 'number' ? Math.max(0, Math.min(MAX_AGE_S, (nowMs - fix.atMs) / 1000)) : 0;
+      typeof fix.atMs === 'number'
+        ? Math.max(0, Math.min(MAX_AGE_S, (nowMs - fix.atMs) / 1000))
+        : 0;
     const leadM = speed !== null && speed >= MOVING_KMH ? (speed / 3.6) * ageS : 0;
     const gain =
       fix.accuracyM <= TRUSTED_ACCURACY_M
@@ -121,14 +137,14 @@ export class PositionEstimator {
     if (!this.at || speed === null || speed < MOVING_KMH) return null;
     this.blindS += seconds;
     const limit =
-      this.alongM !== null ? BLIND_ON_ROUTE_S : this.onRoad ? BLIND_ON_ROAD_S : BLIND_FREE_S;
+      this.alongM !== null ? BLIND_ON_ROUTE_S : this.road ? BLIND_ON_ROAD_S : BLIND_FREE_S;
     if (this.blindS > limit) return null;
     const metres = (Math.min(speed, MAX_KMH) / 3.6) * seconds;
     if (this.line && this.alongM !== null) {
       this.place(this.line, this.alongM + metres);
     } else {
-      this.at = move(this.at, this.heading, metres);
-      this.toRoad();
+      if (this.road) this.alongRoad(this.road, metres);
+      else this.at = move(this.at, this.heading, metres);
     }
     return this.current();
   }
@@ -139,7 +155,7 @@ export class PositionEstimator {
 
   /** Puts the car onto the road it most likely drives on, and turns it the way the road goes. */
   private toRoad(): void {
-    this.onRoad = false;
+    this.road = null;
     if (!this.at || !this.roads) return;
     const trusted = this.accuracyM <= TRUSTED_ACCURACY_M;
     // A good fix without a direction is a standing car, maybe beside the road.
@@ -150,8 +166,68 @@ export class PositionEstimator {
     const match = matchRoad(this.roads, this.at, this.headingKnown ? this.heading : null, reach);
     if (!match) return;
     this.at = match.coordinate;
-    if (match.heading !== null) this.heading = match.heading;
-    this.onRoad = true;
+    if (match.heading === null || match.forward === null) return;
+    this.heading = match.heading;
+    this.road = {
+      source: match.road,
+      line: this.lineOf(match.road),
+      alongM: match.alongM,
+      forward: match.forward,
+    };
+  }
+
+  private lineOf(road: NearRoad): Polyline {
+    let line = this.lines.get(road);
+    if (!line) this.lines.set(road, (line = polyline(road.points)));
+    return line;
+  }
+
+  /** Drives on along the road, and at its end along the one that goes on. */
+  private alongRoad(from: OnRoad, metres: number): void {
+    let road = from;
+    let left = metres;
+    for (let hops = 0; hops < 5; hops++) {
+      const room = road.forward ? road.line.lengthM - road.alongM : road.alongM;
+      if (left <= room) {
+        road.alongM += road.forward ? left : -left;
+        break;
+      }
+      left -= room;
+      road.alongM = road.forward ? road.line.lengthM : 0;
+      const next = this.roadAfter(road);
+      if (!next) break;
+      road = next;
+    }
+    this.road = road;
+    const { point, heading } = pointAt(road.line, road.alongM);
+    this.at = point;
+    this.heading = road.forward ? heading : (heading + 180) % 360;
+  }
+
+  /** The road that goes on where this one ends; null at a dead end or where the car must turn. */
+  private roadAfter(road: OnRoad): OnRoad | null {
+    const points = road.source.points;
+    const last = points.length - 1;
+    const end = road.forward ? points[last] : points[0];
+    const driven = road.forward
+      ? bearing(points[last - 1], points[last])
+      : bearing(points[1], points[0]);
+    let best: { next: OnRoad; turn: number } | null = null;
+    for (const other of this.roads ?? []) {
+      if (other === road.source || other.points.length < 2) continue;
+      const n = other.points.length - 1;
+      const starts: [boolean, Coordinate, Coordinate][] = [];
+      if (other.oneway >= 0) starts.push([true, other.points[0], other.points[1]]);
+      if (other.oneway <= 0) starts.push([false, other.points[n], other.points[n - 1]]);
+      for (const [forward, from, to] of starts) {
+        if (Math.abs(from[1] - end[1]) > 1e-4 || distanceM(from, end) > ROAD_JOIN_M) continue;
+        const turn = angle(bearing(from, to), driven);
+        if (turn > ROAD_MAX_TURN || (best && turn >= best.turn)) continue;
+        const line = this.lineOf(other);
+        best = { turn, next: { source: other, line, alongM: forward ? 0 : line.lengthM, forward } };
+      }
+    }
+    return best?.next ?? null;
   }
 
   private fixOnRoute(line: Polyline, fix: PositionFix, leadM: number, gain: number): boolean {
@@ -176,7 +252,9 @@ export class PositionEstimator {
   private headingFrom(fix: PositionFix): number | null {
     if (!this.last) return null;
     const moved = distanceM(this.last.coordinate, fix.coordinate);
-    return moved > Math.max(15, fix.accuracyM) ? bearing(this.last.coordinate, fix.coordinate) : null;
+    return moved > Math.max(15, fix.accuracyM)
+      ? bearing(this.last.coordinate, fix.coordinate)
+      : null;
   }
 
   private derive(fix: PositionFix): void {

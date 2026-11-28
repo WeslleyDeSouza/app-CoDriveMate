@@ -355,6 +355,15 @@
     margin: 0;
   }
 }
+/* Chosen in the settings: the same on a large screen. */
+:host(.dock-button:not(.keyboard)) {
+  grid-template-rows: minmax(0, 1fr);
+
+  .dock {
+    grid-area: auto;
+    margin: 0;
+  }
+}
 @include phone.portrait {
   :host(:not(.keyboard)) {
     grid-template-rows: auto auto minmax(0, 1fr);

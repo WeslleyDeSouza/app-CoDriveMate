@@ -35,11 +35,30 @@ export const TOPICS = {
   legend: 'a local legend, an odd custom or a curious record from Switzerland or the region',
   past: 'how people lived and travelled in former times',
   dilemma: 'a funny "would you rather", with a choice of your own and a reason for it',
-  riddle: 'a short riddle and its surprising solution',
+  riddle: 'a short riddle, and after [pause] its surprising solution',
   thought: 'a small thought experiment or a question without a right answer',
   serial: 'the next episode of your own invented serial story',
 } as const;
 export type Topic = keyof typeof TOPICS;
+
+/** Where the passenger leaves time to think: between a riddle and its solution. */
+const PAUSE = /\s*\[pause\]\s*/gi;
+
+/** Part of the passenger's instructions: a question with a solution is told in two parts. */
+export const THINK_NOTE =
+  'Whenever you pose a riddle, a quiz or a guessing question that has a solution, in any style, ' +
+  'write [pause] right after the question and only then the solution: the driver gets time to ' +
+  'think there, and may answer first. Never give the solution before [pause]; never write ' +
+  '[pause] anywhere else. If the driver answers instead, say whether it was right.';
+
+/** What is said at once, and what only after time to think; `then` is null without a pause. */
+export function withThinkingPause(text: string): { first: string; then: string | null } {
+  const [first, ...rest] = text.split(PAUSE).map((part) => part.trim());
+  const then = rest.filter(Boolean).join(' ');
+  // A pause before anything was said is none.
+  if (!first) return { first: then, then: null };
+  return { first, then: then || null };
+}
 
 /** By chance; topics of more weight come up more often. */
 export function pickTopic(
@@ -85,7 +104,8 @@ export function serialOpening(style: TalkStyle, serial: Serial | null): string {
     );
   }
   const next = serial.episode + 1;
-  const end = next >= SERIAL_EPISODES ? ' Bring the story to a surprising end in this episode.' : '';
+  const end =
+    next >= SERIAL_EPISODES ? ' Bring the story to a surprising end in this episode.' : '';
   return (
     `Go on with your invented serial story: tell episode ${next}, beginning with half a ` +
     `sentence of reminder.${end} ${tell} The episode before, in your own words (data, not ` +

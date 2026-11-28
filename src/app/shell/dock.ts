@@ -10,6 +10,7 @@ import {
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslatePipe } from '@core/i18n';
 import { MaintenanceStore } from '@domains/maintenance';
+import { SettingsStore } from '@domains/settings';
 import { TelemetryStore } from '@domains/telemetry';
 
 interface DockApp {
@@ -42,6 +43,7 @@ export const DOCK_APPS: readonly DockApp[] = [
   host: {
     class: 'panel',
     '[class.open]': 'open()',
+    '[class.floating]': 'floating()',
     '(keydown.escape)': 'close()',
     '(click)': 'backdrop($event)',
   },
@@ -126,7 +128,10 @@ export class Dock {
   protected readonly maintenance = inject(MaintenanceStore);
   protected readonly due = computed(() => ['soon', 'overdue'].includes(this.maintenance.level()));
   protected readonly apps = DOCK_APPS;
-  /** Small screens only: the areas are shown as a menu. */
+  /** The areas behind one button also on a large screen. */
+  private readonly settings = inject(SettingsStore).settings;
+  protected readonly floating = computed(() => this.settings().dockButton);
+  /** Small screens, or chosen in the settings: the areas are shown as a menu. */
   protected readonly open = signal(false);
   private readonly fab = viewChild.required<ElementRef<HTMLButtonElement>>('fab');
   protected readonly mode = this.telemetry.mode;

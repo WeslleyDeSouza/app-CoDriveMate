@@ -58,6 +58,7 @@ const KEYBOARD_MIN_PX = 120;
   host: {
     '[class.sheet-open]': 'sheetOpen()',
     '[class.keyboard]': 'keyboard()',
+    '[class.dock-button]': 'settings().dockButton',
     '[class.no-scene]': '!scene.enabled() && !gauge() && !media.youtube()',
   },
   template: `
@@ -113,7 +114,7 @@ export class Shell {
   private readonly fuel = inject(FuelStore);
   private readonly logbook = inject(LogbookStore);
   protected readonly road = inject(RoadStore);
-  private readonly settings = inject(SettingsStore).settings;
+  protected readonly settings = inject(SettingsStore).settings;
   protected readonly gauge = computed(() => this.settings().map.gauge);
   private readonly warnings = inject(WarningStore);
   /** What the cockpit shows from other domains. */

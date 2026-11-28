@@ -91,6 +91,7 @@ import {
   TOPICS,
   TalkStyle,
   Topic,
+  withThinkingPause,
   arrivalPrompt,
   briefingParts,
   character,
@@ -112,6 +113,8 @@ import { MemoryStore } from './memory.store';
 const TICK_MS = 1000;
 const START_MS = 1500;
 const LISTEN_MS = 8000;
+/** Time to think between a riddle and its solution. */
+const THINK_MS = 10_000;
 const RETRY_MS = 4000;
 const FAILED_MS = 60_000;
 /** Cut off by an announcement: soon again, not after the whole pause. */
@@ -585,8 +588,10 @@ export class ConversationStore {
     const said = await this.reply(start + about, session, again + this.memory.aboutNote());
     if (style === 'monologue') {
       // Thinking takes time; a manoeuvre may have come close.
-      const spoken = !!said && this.free() && (await this.say(said, session));
-      if (spoken) await this.opened(said, serial);
+      const { first, then } = withThinkingPause(said);
+      const spoken = !!first && this.free() && (await this.say(first, session));
+      if (spoken && then && (await this.think(session, Date.now()))) await this.say(then, session);
+      if (spoken) await this.opened(then ? `${first} ${then}` : first, serial);
       if (session === this.session) this.pauseFor(MONOLOGUE_PAUSE_MS, spoken);
       return;
     }
@@ -594,6 +599,15 @@ export class ConversationStore {
     if (told === null) return;
     void this.memory.learn(false);
     if (session === this.session) this.pauseFor(CHAT_PAUSE_MS, told);
+  }
+
+  /** Waits until there was time to think since `since`; false if it may not go on talking. */
+  private async think(session: number, since: number): Promise<boolean> {
+    while (Date.now() - since < THINK_MS) {
+      await new Promise((resolve) => setTimeout(resolve, 250));
+      if (session !== this.session) return false;
+    }
+    return session === this.session && this.free();
   }
 
   /** An opening was told to its end: it is not told again, and a serial story moves on. */
@@ -623,7 +637,10 @@ export class ConversationStore {
     let said = begin;
     let told = false;
     for (let turn = 0; said && this.free() && turn < MAX_TURNS; turn++) {
-      const spoken = await this.say(said, session);
+      // A riddle: the solution waits until the driver answered or had time to think.
+      const { first, then } = withThinkingPause(said);
+      said = then ? `${first} ${then}` : first;
+      const spoken = await this.say(first, session);
       // The driver cut in: that is no interruption, the driver gets the word.
       const cut = this.cut;
       this.cut = false;
@@ -632,6 +649,7 @@ export class ConversationStore {
       if (spoken && turn === 0 && opening) await this.opened(said, opening.serial);
       // Interrupted by navigation or a warning: do not go on in the middle of it.
       if (!cut && (!spoken || !this.free())) break;
+      const asked = Date.now();
       const heard = await this.listen(session);
       if (session !== this.session) break;
       const deaf = this.deaf || !this.free();
@@ -640,7 +658,10 @@ export class ConversationStore {
         this.joined = !!heard;
         if (opening.topic) this.memory.reacted(opening.topic, !!heard);
       }
-      if (!heard) break;
+      if (!heard) {
+        if (then && spoken && (await this.think(session, asked))) await this.say(then, session);
+        break;
+      }
       const answer = await this.answer(heard, said, session);
       if (answer === null) return null;
       said = answer;
@@ -1194,7 +1215,14 @@ export class ConversationStore {
   /** Spoken, but kept out of the chat, which goes to the language model. */
   private async mention(text: string, session: number): Promise<boolean> {
     if (session !== this.session) return false;
-    return this.output.speak(text, this.translate.lang, this.settings().voice.rate, 'talk');
+    // A pause mark where none is acted on must not be read out.
+    const { first, then } = withThinkingPause(text);
+    return this.output.speak(
+      then ? `${first} ${then}` : first,
+      this.translate.lang,
+      this.settings().voice.rate,
+      'talk',
+    );
   }
 
   private async listen(session: number): Promise<string> {

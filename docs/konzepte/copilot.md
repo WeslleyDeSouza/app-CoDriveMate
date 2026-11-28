@@ -181,7 +181,7 @@ dem Wunsch zum geplanten Ziel.
 **Fortsetzungsgeschichte** (Thema `serial`): eine erfundene Geschichte in höchstens 8
 Folgen über mehrere Fahrten; gespeichert wird die letzte Folge (`copilot/serial`, 700
 Zeichen), sie geht mit der nächsten Folge wieder ans Modell. Im Dialog fragt sie, wie es
-weitergehen soll. **Quiz:** Der Punktestand bleibt über Fahrten erhalten
+weitergehen soll. **Rätsel beim Plaudern:** Stellt die Begleiterin ein Rätsel oder eine Quizfrage, schreibt sie `[pause]` zwischen Frage und Auflösung. Die App sagt die Frage, lässt 10 s Zeit zum Überlegen (im Dialog hört sie zu; eine Antwort geht ans Modell) und sagt erst dann die Auflösung, sofern gerade gesprochen werden darf. Mit Key ungetestet. **Quiz:** Der Punktestand bleibt über Fahrten erhalten
 (`copilot/quiz-score`).
 
 **Nachschlagen statt mitschicken** (`LOOKUP_TOOLS` in `domain/copilot.ts`, 27.11.2026): Beim

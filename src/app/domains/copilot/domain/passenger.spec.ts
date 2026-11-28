@@ -17,6 +17,7 @@ import {
   serialOpening,
   usualDestination,
   withEpisode,
+  withThinkingPause,
 } from './passenger';
 
 describe('who the passenger is', () => {
@@ -151,5 +152,24 @@ describe('isYes', () => {
     for (const text of ['', 'Nein', 'Ja, lieber nicht', 'Vielleicht', 'Jahr']) {
       expect(isYes(text)).toBe(false);
     }
+  });
+});
+
+describe('withThinkingPause', () => {
+  it('parts a riddle from its solution', () => {
+    expect(withThinkingPause('Was hat Zähne und beisst nicht? [pause] Der Kamm.')).toEqual({
+      first: 'Was hat Zähne und beisst nicht?',
+      then: 'Der Kamm.',
+    });
+  });
+
+  it('leaves a text without a pause as it is', () => {
+    expect(withThinkingPause('Schön hier.')).toEqual({ first: 'Schön hier.', then: null });
+  });
+
+  it('never lets the mark be read out', () => {
+    expect(withThinkingPause('[Pause] Los.')).toEqual({ first: 'Los.', then: null });
+    expect(withThinkingPause('A? [pause] B. [pause] C.')).toEqual({ first: 'A?', then: 'B. C.' });
+    expect(withThinkingPause('A? [pause]')).toEqual({ first: 'A?', then: null });
   });
 });

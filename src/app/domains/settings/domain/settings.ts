@@ -10,6 +10,8 @@ export type VoiceProvider = 'auto' | 'browser' | 'openai' | 'elevenlabs';
 
 export interface AppSettings {
   theme: Theme;
+  /** the areas behind one floating button also on a large screen, instead of the bar */
+  dockButton: boolean;
   vehicle: {
     name: string;
     fuelType: FuelKind;
@@ -116,6 +118,7 @@ export interface AppSettings {
 
 export const DEFAULT_SETTINGS: AppSettings = {
   theme: 'auto',
+  dockButton: false,
   vehicle: {
     name: 'Citroën Xsara Picasso',
     fuelType: 'petrol',

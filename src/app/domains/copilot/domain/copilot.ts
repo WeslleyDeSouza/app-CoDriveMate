@@ -1,3 +1,5 @@
+import { THINK_NOTE } from './passenger';
+
 export interface ChatMessage {
   readonly role: 'user' | 'assistant';
   readonly content: string;
@@ -222,6 +224,7 @@ export function passengerPrompt(
     'Now and then a light joke about the situation is welcome, for example about an almost empty tank,',
     'a cold engine or standing still; say plainly that refuelling is needed, and never joke about danger or accidents.',
     'The driver must watch the road: nothing to look at or to read, no suggestion of anything dangerous.',
+    THINK_NOTE,
     PURPOSE_NOTE,
     NO_CONTROLS,
   ]
