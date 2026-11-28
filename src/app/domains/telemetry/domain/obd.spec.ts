@@ -1,11 +1,46 @@
 import {
   OBD_PIDS,
+  PidReader,
   decodePidResponse,
   isPidSupported,
   parseAdapterVoltage,
   parseSupportedPids,
   responseLines,
 } from './obd';
+
+describe('PidReader', () => {
+  it('asks for one answer', async () => {
+    const sent: string[] = [];
+    const reader = new PidReader(async (command) => {
+      sent.push(command);
+      return '41 0D 32';
+    });
+    expect(await reader.read(OBD_PIDS.speed)).toBe(50);
+    expect(sent).toEqual(['010D1']);
+  });
+
+  it('falls back for good when the adapter does not know the suffix', async () => {
+    const sent: string[] = [];
+    const reader = new PidReader(async (command) => {
+      sent.push(command);
+      return command.length > 4 ? '?' : '41 0D 32';
+    });
+    expect(await reader.read(OBD_PIDS.speed)).toBe(50);
+    expect(await reader.read(OBD_PIDS.speed)).toBe(50);
+    expect(sent).toEqual(['010D1', '010D', '010D']);
+  });
+
+  it('keeps the suffix when the car has no such value', async () => {
+    const sent: string[] = [];
+    const reader = new PidReader(async (command) => {
+      sent.push(command);
+      return 'NO DATA';
+    });
+    expect(await reader.read(OBD_PIDS.fuelLevel)).toBeNull();
+    expect(await reader.read(OBD_PIDS.fuelLevel)).toBeNull();
+    expect(sent).toEqual(['012F1', '012F1']);
+  });
+});
 
 describe('ELM327 answers', () => {
   it('normalises lines', () => {

@@ -12,6 +12,8 @@ export interface GeoPosition {
   readonly accuracyM: number;
   /** km/h, if the device measures it */
   readonly speedKmh?: number | null;
+  /** when it was measured (ms since 1970), if the device says so */
+  readonly atMs?: number | null;
 }
 
 /** Port: position of the device. */

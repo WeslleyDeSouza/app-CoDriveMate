@@ -86,6 +86,28 @@ export function decodePidResponse(pid: ObdPid, raw: string): number | null {
   return pid.decode(data);
 }
 
+/**
+ * Reads live values and tells the adapter to expect one answer (`010C1`), so
+ * it returns as soon as the engine control unit replied instead of waiting out
+ * its timeout for further control units. Measured in the car (KWP, 2026-11-28):
+ * about 230 ms per value without it. An adapter that does not know the suffix
+ * answers `?`; from then on the plain request is used.
+ */
+export class PidReader {
+  private single = true;
+
+  constructor(private readonly command: (command: string) => Promise<string>) {}
+
+  async read(pid: ObdPid): Promise<number | null> {
+    if (this.single) {
+      const raw = await this.command('01' + pid.code + '1');
+      if (!responseLines(raw).includes('?')) return decodePidResponse(pid, raw);
+      this.single = false;
+    }
+    return decodePidResponse(pid, await this.command('01' + pid.code));
+  }
+}
+
 /** Battery voltage from the adapter's `ATRV` answer, e.g. "12.4V". */
 export function parseAdapterVoltage(raw: string): number | null {
   const value = parseFloat(raw);

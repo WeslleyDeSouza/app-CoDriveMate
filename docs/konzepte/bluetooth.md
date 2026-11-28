@@ -1,6 +1,7 @@
 # Bluetooth
 
-Stand: 24.11.2026. Ungetestet an echter Hardware.
+Stand: 28.11.2026. OBD über BLE lief einmal im Auto (siehe «Messung im Auto»);
+Licht, WLAN und MFi sind ungetestet an echter Hardware.
 
 `core/bluetooth` ist die einzige Stelle, die `@capacitor-community/bluetooth-le`
 kennt. OBD-Adapter und Licht-Modul benutzen beide den Port `BleTransport`. Das
@@ -63,7 +64,23 @@ weil Webseiten nicht frei suchen dürfen.
 | Licht | `6e1a0001-7c3b-4d2a-9f10-5049434153d0`, Befehl `6e1a0002…`, Status `6e1a0003…` |
 
 Beim OBD-Adapter gewinnt der erste Dienst mit je einer Characteristic zum Lesen
-(notify) und zum Schreiben. 
+(notify) und zum Schreiben.
+
+## Messung im Auto (28.11.2026)
+
+Erster Bericht aus dem Xsara Picasso mit einem Vgate-Adapter («IOS-Vlink», meldet
+ELM327 v2.3) über BLE auf dem iPad:
+
+- Verbindung, Startsequenz und Abfrage laufen. Protokoll: ISO 14230-4 (KWP FAST).
+- Das Auto liefert die PIDs 01, 03–07, 0B–0F, 11, 13–15, 1C, 21, 47. **Kein
+  Luftmassenmesser (10) und kein Tankfüllstand (2F):** Verbrauch wird aus dem
+  Saugrohrdruck gerechnet, der Tank wird gezählt. Keine Fahrgestellnummer (0902),
+  Modus 0A fehlt.
+- Eine Abfrage dauerte etwa 230 ms, ein Zyklus (5 schnelle Werte + 1 langsamer) also
+  rund 1,4 s (0,7 Hz; während des Berichts 0,3 Hz, weil er sich die Leitung teilt).
+  Der Adapter wartet nach der Antwort auf weitere Steuergeräte. Seither hängt die
+  Abfrage die erwartete Zahl Antworten an (`010C1`); kennt ein Adapter das nicht
+  (`?`), fragt sie wieder ohne. **Die Wirkung ist im Auto noch nicht gemessen.**
 
 ### Protokoll des Lichts (aus dem Prototyp, am Modul zu prüfen)
 

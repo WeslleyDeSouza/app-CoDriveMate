@@ -2,6 +2,7 @@ import { Injectable, computed, effect, inject, signal, untracked } from '@angula
 import { TelemetryStore } from '@domains/telemetry';
 import { Coordinate, Polyline, pointAt } from '../domain/geo';
 import { PositionSource } from '../domain/ports';
+import { PositionEstimator } from '../domain/position-estimate';
 
 export interface VehiclePosition {
   readonly coordinate: Coordinate;
@@ -11,6 +12,7 @@ export interface VehiclePosition {
 export type PositionStatus = 'off' | 'searching' | 'ok' | 'denied';
 
 const DEMO_TICK_MS = 250;
+const ESTIMATE_TICK_MS = 250;
 
 /** Where the car is: from the device, or moved along a line during the demo drive. */
 @Injectable({ providedIn: 'root' })
@@ -25,6 +27,8 @@ export class PositionStore {
   private demoLine?: Polyline;
   private demoAlongM = 0;
   private watching = false;
+  private readonly estimator = new PositionEstimator();
+  private tick?: ReturnType<typeof setTimeout>;
 
   readonly status = this._status.asReadonly();
   /** Speed measured by the device, null if unknown. */
@@ -56,10 +60,11 @@ export class PositionStore {
       }
       if (this._status() !== 'ok') this._status.set('searching');
       await this.source.watch(
-        ({ coordinate, heading, speedKmh }) => {
-          this._speedKmh.set(speedKmh ?? null);
+        (fix) => {
+          this._speedKmh.set(fix.speedKmh ?? null);
           this._status.set('ok');
-          this.device.update((last) => ({ coordinate, heading: heading ?? last?.heading ?? 0 }));
+          this.device.set(this.estimator.fix(fix, this.drivenKmh(), Date.now()));
+          this.driveOn();
         },
         () => {
           if (!this.device()) this._status.set('searching');
@@ -76,6 +81,31 @@ export class PositionStore {
     void this.source
       .setBackground(message)
       .catch((error: unknown) => console.warn('Background location failed', error));
+  }
+
+  /** The route the car should be on: between two fixes it drives on along it. */
+  follow(line: Polyline | null): void {
+    this.estimator.follow(line);
+  }
+
+  /** Speed of the car if it is connected, else the one the device measures. */
+  private drivenKmh(): number | null {
+    return this.telemetry.mode() === 'obd' ? this.telemetry.snapshot().speed : this._speedKmh();
+  }
+
+  /** Moves the car between two fixes; ends by itself when it stands or no fix comes. */
+  private driveOn(): void {
+    if (this.tick !== undefined) return;
+    let last = Date.now();
+    const step = () => {
+      const now = Date.now();
+      const next = this.estimator.advance((now - last) / 1000, this.drivenKmh());
+      last = now;
+      if (!next) return (this.tick = undefined);
+      this.device.set(next);
+      this.tick = setTimeout(step, ESTIMATE_TICK_MS);
+    };
+    this.tick = setTimeout(step, ESTIMATE_TICK_MS);
   }
 
   /** The line the demo drive follows. */

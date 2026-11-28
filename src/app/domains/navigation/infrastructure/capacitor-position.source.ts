@@ -23,6 +23,7 @@ interface BackgroundGeolocation {
         accuracy: number;
         bearing: number | null;
         speed: number | null;
+        time: number | null;
       },
       error?: { code?: string },
     ) => void,
@@ -81,8 +82,8 @@ export class CapacitorPositionSource extends PositionSource {
         (position, error) => {
           if (current !== run) return;
           if (!position || error) return onError();
-          const { longitude, latitude, accuracy, speed, bearing } = position;
-          onPosition(toPosition(longitude, latitude, accuracy, speed, bearing));
+          const { longitude, latitude, accuracy, speed, bearing, time } = position;
+          onPosition(toPosition(longitude, latitude, accuracy, speed, bearing, time));
         },
       );
       // The old one goes last, so that there is no gap in between.
@@ -117,7 +118,16 @@ export class CapacitorPositionSource extends PositionSource {
             return;
           }
           const { longitude, latitude, accuracy, speed, heading, course } = position.coords;
-          onPosition(toPosition(longitude, latitude, accuracy, speed, course ?? heading ?? null));
+          onPosition(
+            toPosition(
+              longitude,
+              latitude,
+              accuracy,
+              speed,
+              course ?? heading ?? null,
+              position.timestamp,
+            ),
+          );
           if (!settled) {
             settled = true;
             void watch.then(resolve);
@@ -145,6 +155,7 @@ function toPosition(
   accuracyM: number,
   speed: number | null,
   direction: number | null,
+  atMs: number | null,
 ): GeoPosition {
   const known = typeof speed === 'number' && speed >= 0;
   return {
@@ -152,5 +163,6 @@ function toPosition(
     heading: known && speed >= MIN_SPEED ? direction : null,
     accuracyM,
     speedKmh: known ? speed * 3.6 : null,
+    atMs,
   };
 }

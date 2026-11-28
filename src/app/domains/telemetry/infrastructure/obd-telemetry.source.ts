@@ -6,8 +6,8 @@ import {
   FAST_KEYS,
   OBD_PIDS,
   PidKey,
+  PidReader,
   SLOW_KEYS,
-  decodePidResponse,
   isPidSupported,
   parseAdapterVoltage,
 } from '../domain/obd';
@@ -65,10 +65,11 @@ export class ObdTelemetrySource extends TelemetrySource {
   ): Promise<void> {
     const unsupported = new Set<PidKey>();
     const failures = new Map<PidKey, number>();
+    const reader = new PidReader((command) => elm.command(command));
     const read = async (key: PidKey, into: Partial<TelemetrySnapshot>) => {
       const pid = OBD_PIDS[key];
       if (unsupported.has(key) || !isPidSupported(pid, supported)) return;
-      const value = decodePidResponse(pid, await elm.command('01' + pid.code));
+      const value = await reader.read(pid);
       if (value !== null) {
         into[key] = value;
         failures.set(key, 0);

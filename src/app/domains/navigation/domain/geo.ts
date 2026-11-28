@@ -22,6 +22,13 @@ export function bearing(a: Coordinate, b: Coordinate): number {
   return (Math.atan2(y, x) / RAD + 360) % 360;
 }
 
+/** The place `metres` further in direction `headingDeg`; for short distances. */
+export function move(from: Coordinate, headingDeg: number, metres: number): Coordinate {
+  const east = Math.sin(headingDeg * RAD) * metres;
+  const north = Math.cos(headingDeg * RAD) * metres;
+  return [from[0] + east / (Math.cos(from[1] * RAD) * 111320), from[1] + north / 110540];
+}
+
 /** A polyline with the running distance at every point. */
 export interface Polyline {
   readonly points: readonly Coordinate[];

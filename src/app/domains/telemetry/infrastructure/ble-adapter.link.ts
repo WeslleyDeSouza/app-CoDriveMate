@@ -15,7 +15,8 @@ import { matchAdapter } from '../domain/adapter-match';
 
 /**
  * Services of common ELM327 BLE adapters (Vgate iCar Pro 2S and clones).
- * Taken from the prototype, NOT yet verified on a real device.
+ * Taken from the prototype. One adapter («IOS-Vlink») connected with them in
+ * the car on 2026-11-28; which of the services it used is not recorded.
  */
 export const ELM327_BLE_SERVICES = [
   '0000fff0-0000-1000-8000-00805f9b34fb',
